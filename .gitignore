@@ -17,3 +17,6 @@ results/
 # 임시
 *.tmp
 *.log
+
+# PageIndex 실행 로그 (tools/pageindex_claude.py 부산물)
+logs/
