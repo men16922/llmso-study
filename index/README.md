@@ -43,23 +43,55 @@
 | **탐색 질의가 "어디에 있나" 형태** | 스터디 중 질문은 "KV cache 사이징은 어느 자료 몇 페이지?"에 가깝다. 페이지를 정확히 가리키는 게 유사도 top-k보다 유용 |
 | **문서가 계속 늘어남** | 주차별 정리가 추가되므로 재생성 가능한 인덱스가 필요 |
 
-### 그대로 쓰기 어려웠던 이유 ⚠️
+### 진입 장벽
 
 | 장벽 | 실제 확인 결과 |
 |---|---|
 | **PyPI 패키지는 클라우드 SDK** | `pip install pageindex`(v0.2.8, 6KB)를 받아 열어보니 `PageIndexClient` 하나뿐 — `api.pageindex.ai`로 업로드하는 래퍼. **PageIndex 클라우드 API 키 필요** |
-| **셀프호스팅은 OpenAI 키 필요** | GitHub의 `run_pageindex.py`는 트리 생성·요약 전 과정에서 LLM 호출. 기본 모델 `gpt-4o` |
-| **키가 없음** | 현재 환경에 `OPENAI_API_KEY` 등 LLM 키 없음 (확인함) |
-| **문서를 외부로 업로드** | 노션 자료는 **외부 공개·전파 금지**([스터디 규칙](../knowledge/03-study-rules.md)). 클라우드 API에 통째로 올리는 건 정책상 부적절 |
-| **비용** | 527페이지 × 노드별 요약 LLM 호출. 반복 재생성 시 누적 |
+| **셀프호스팅도 LLM 필요** | `run_pageindex.py`는 TOC 탐지·트리 생성·요약 전 과정에서 LLM 호출. 기본 모델 `gpt-4o` |
+| **API 키가 없음** | 환경에 `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` 없음 |
+| **문서를 외부로 업로드** | 클라우드 API 경로는 노션 자료 **외부 전파 금지** 정책과 충돌 ([스터디 규칙](../knowledge/03-study-rules.md)) |
+
+### ⚠️ 정정 — API 키는 필수가 아니었다
+
+처음엔 "OpenAI 키가 필요하다"고 판단했지만 **틀렸습니다.** PageIndex는 `requirements.txt`에 `litellm==1.84.0`을 쓰고, `pageindex/config.yaml`에는 아래 줄이 **주석으로 이미 들어 있습니다**:
+
+```yaml
+model: "gpt-4o-2024-11-20"
+# model: "anthropic/claude-sonnet-4-6"    ← Claude 공식 지원
+```
+
+즉 프로바이더 중립입니다. 나아가 **LLM 호출 지점이 `llm_completion` / `llm_acompletion` 두 개뿐**이라, 그 아래의 `litellm.completion`을 가로채면 **어떤 LLM이든** 붙일 수 있습니다.
+
+그래서 [`tools/pageindex_claude.py`](../tools/pageindex_claude.py)를 만들어 **이미 로그인된 Claude Code(`claude -p`)를 백엔드로** 물렸습니다. API 키 0개로 진짜 PageIndex가 돕니다.
+
+### 실측 검증 결과 (NHN 백서 66p, `--no-summary`)
+
+| 항목 | 값 |
+|---|---|
+| LLM 호출 | **121회** (실패 0회) |
+| 벽시계 시간 | **278초** (동시 3) |
+| 입출력 | 입력 33.9만 자 / 출력 5.1만 자 |
+| TOC 정확도 | PageIndex 자체 리포트 **100%** |
+| 산출 노드 | **55개** |
+
+**로컬 결정론 버전(LLM 0회, 1초 미만)과 비교:**
+
+| 비교 항목 | 결과 |
+|---|---|
+| 노드 제목 | **54/54 완전 일치** (PageIndex에 `Preface` 1개 추가) |
+| 페이지 범위 | 10개 노드가 다름 — PageIndex는 다음 섹션 시작까지 겹치게 잡고, 로컬은 겹치지 않게 자름 |
+| **범위 오류(end < start)** | **PageIndex 2개** (`NHN FactoryX 기술 백서 p.2-1`, `08 부록 p.58-57`) / **로컬 0개** |
 
 ### 결론
 
-> **스키마는 채택하고, 트리 생성은 로컬에서 결정론적으로 한다.**
+> **트리 생성에 한해서는, 내장 TOC가 있는 PDF에 LLM을 쓸 이유가 없습니다.**
 >
-> PDF 2종은 이미 내장 TOC가 있어 **LLM으로 트리를 "추론"할 이유가 없습니다.** TOC를 그대로 읽으면 더 정확하고, 공짜이고, 재현 가능합니다. 나머지 1종은 목차 페이지를 파싱해 사이드카 파일로 보관했습니다.
+> LLM 121회·5분을 들여 나온 트리가 TOC를 그대로 읽은 결과와 **제목 기준 동일**했고, 오히려 잘못된 페이지 범위가 2개 생겼습니다. 그래서 기본값은 **로컬 결정론 방식**을 유지합니다.
 >
-> 결과 JSON이 PageIndex 스키마와 동일하므로, 나중에 API 키가 생기면 **같은 파일을 덮어쓰는 것만으로 진짜 PageIndex로 갈아탈 수 있습니다.**
+> 다만 이 비교는 `--no-summary` 기준이라 **PageIndex의 진짜 강점인 LLM 요약은 검증 범위 밖**입니다. 요약 품질이 중요해지면 [5-C 경로](#c-지금-구조를-유지하며-요약만-개선)가 맞습니다.
+>
+> 두 방식의 JSON 스키마가 같으므로 언제든 파일만 덮어쓰면 전환됩니다.
 
 ---
 
@@ -132,12 +164,29 @@ $ python3 tools/search_index.py "KV cache" --top 3
 
 LLM 요약 품질이나 추론 기반 검색이 필요해지면:
 
-### A. 셀프호스팅 (OpenAI 키)
+### A-0. Claude Code 백엔드 ★ 키 불필요 · 검증 완료
+
+```bash
+git clone https://github.com/VectifyAI/PageIndex.git /tmp/PageIndex
+pip install PyPDF2                     # litellm은 스텁으로 대체하므로 설치 불필요
+
+python3 tools/pageindex_claude.py \
+  --pageindex /tmp/PageIndex \
+  --pdf knowledge/references/pdf/nhn-cloud-factoryx-gpu-whitepaper-2026.pdf \
+  --out index/ --no-summary
+```
+
+동작 원리: `litellm.completion` / `acompletion` / `token_counter`를 가로채 `claude -p`(헤드리스)로 돌립니다. litellm 실물이 없어도 `sys.modules`에 스텁을 꽂아 import를 만족시킵니다.
+
+⚠️ **비용이 사라지는 게 아니라 옮겨갑니다** — API 크레딧 대신 **Claude Code 구독 사용량**을 씁니다. 66페이지 PDF 하나에 호출 121회였으니, 259페이지 PDF는 수백 회가 됩니다. `--dry-run`으로 먼저 규모를 가늠하세요.
+
+### A. 셀프호스팅 (OpenAI / Anthropic API 키)
 
 ```bash
 git clone https://github.com/VectifyAI/PageIndex.git
 cd PageIndex && pip3 install -r requirements.txt
-echo "OPENAI_API_KEY=sk-..." > .env
+echo "ANTHROPIC_API_KEY=sk-ant-..." > .env
+# config.yaml 에서: model: "anthropic/claude-sonnet-4-6" (주석 해제)
 
 python3 run_pageindex.py \
   --pdf_path "../knowledge/references/pdf/inference-engineering-2026.pdf" \
@@ -147,7 +196,7 @@ python3 run_pageindex.py \
 
 생성된 파일을 이 폴더에 덮어쓰면 `tools/search_index.py`가 **그대로 동작**합니다 (스키마 동일).
 
-> ⚠️ 문서가 OpenAI로 전송됩니다. 노션 출처 자료의 외부 전파 금지 정책을 고려해 판단하세요. 위 3종 PDF는 **공개 배포 자료**라 상대적으로 부담이 적지만, `knowledge/` 정리 문서는 스터디 내부 자료입니다.
+> ⚠️ 문서가 해당 프로바이더로 전송됩니다. 노션 출처 자료의 외부 전파 금지 정책을 고려해 판단하세요. 위 3종 PDF는 **공개 배포 자료**라 상대적으로 부담이 적지만, `knowledge/` 정리 문서는 스터디 내부 자료입니다.
 
 ### B. 클라우드 API / MCP
 

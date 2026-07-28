@@ -73,7 +73,7 @@
       "doc_description": "PageIndex 적용 검토 및 로컬 인덱스",
       "meta": {
         "type": "markdown",
-        "lines": 172,
+        "lines": 221,
         "index_unit": "line",
         "summary_method": "extractive-first-paragraph",
         "generator": "tools/build_pageindex.py"
@@ -107,7 +107,7 @@
               "node_id": "0312",
               "start_index": 35,
               "end_index": 36,
-              "summary": "근거 · 설명 자료가 \"긴 문서\" 중심 · PDF 3종 527페이지. 청크 기반 벡터 RAG는 \"5.3.2 Where to Store the KV Cache\" 같은 섹션 경계를 뭉갠다 이미 목차가 훌륭함 · 3종 중 2종이 PDF 내장 TOC 보유(146 · 54 항목). 트리를 새로 추론할 필요가 거의 없다 탐색 질의가 \"어디에 있나\" 형태 · 스터디 중 질문은 \"KV cache 사이징은 어느 자료 몇 페이지?\"에 가깝다. …",
+              "summary": "처음엔 \"OpenAI 키가 필요하다\"고 판단했지만 틀렸습니다. PageIndex는 requirements.txt에 litellm==1.84.0을 쓰고, pageindex/config.yaml에는 아래 줄이 주석으로 이미 들어 있습니다: 즉 프로바이더 중립입니다. 나아가 LLM 호출 지점이 llm_completion / llm_acompletion 두 개뿐이라, 그 아래의 litellm.completion을 가로채면 어떤 LLM이든 붙일 수 있습니다. …",
               "nodes": [
                 {
                   "title": "적합하다고 본 이유",
@@ -117,95 +117,116 @@
                   "summary": "근거 · 설명 자료가 \"긴 문서\" 중심 · PDF 3종 527페이지. 청크 기반 벡터 RAG는 \"5.3.2 Where to Store the KV Cache\" 같은 섹션 경계를 뭉갠다 이미 목차가 훌륭함 · 3종 중 2종이 PDF 내장 TOC 보유(146 · 54 항목). 트리를 새로 추론할 필요가 거의 없다 탐색 질의가 \"어디에 있나\" 형태 · 스터디 중 질문은 \"KV cache 사이징은 어느 자료 몇 페이지?\"에 가깝다. …"
                 },
                 {
-                  "title": "그대로 쓰기 어려웠던 이유 ⚠️",
+                  "title": "진입 장벽",
                   "node_id": "0314",
                   "start_index": 46,
-                  "end_index": 55,
-                  "summary": "장벽 · 실제 확인 결과 PyPI 패키지는 클라우드 SDK · pip install pageindex(v0.2.8, 6KB)를 받아 열어보니 PageIndexClient 하나뿐 — api.pageindex.ai로 업로드하는 래퍼. PageIndex 클라우드 API 키 필요 셀프호스팅은 OpenAI 키 필요 · GitHub의 run_pageindex.py는 트리 생성·요약 전 과정에서 LLM 호출. …"
+                  "end_index": 54,
+                  "summary": "장벽 · 실제 확인 결과 PyPI 패키지는 클라우드 SDK · pip install pageindex(v0.2.8, 6KB)를 받아 열어보니 PageIndexClient 하나뿐 — api.pageindex.ai로 업로드하는 래퍼. PageIndex 클라우드 API 키 필요 셀프호스팅도 LLM 필요 · run_pageindex.py는 TOC 탐지·트리 생성·요약 전 과정에서 LLM 호출. …"
+                },
+                {
+                  "title": "⚠️ 정정 — API 키는 필수가 아니었다",
+                  "node_id": "0315",
+                  "start_index": 55,
+                  "end_index": 67,
+                  "summary": "처음엔 \"OpenAI 키가 필요하다\"고 판단했지만 틀렸습니다. PageIndex는 requirements.txt에 litellm==1.84.0을 쓰고, pageindex/config.yaml에는 아래 줄이 주석으로 이미 들어 있습니다: 즉 프로바이더 중립입니다. 나아가 LLM 호출 지점이 llm_completion / llm_acompletion 두 개뿐이라, 그 아래의 litellm.completion을 가로채면 어떤 LLM이든 붙일 수 있습니다. …"
+                },
+                {
+                  "title": "실측 검증 결과 (NHN 백서 66p, `--no-summary`)",
+                  "node_id": "0316",
+                  "start_index": 68,
+                  "end_index": 85,
+                  "summary": "항목 · 값 LLM 호출 · 121회 (실패 0회) 벽시계 시간 · 278초 (동시 3) 입출력 · 입력 33.9만 자 / 출력 5.1만 자 TOC 정확도 · PageIndex 자체 리포트 100% 산출 노드 · 55개 로컬 결정론 버전(LLM 0회, 1초 미만)과 비교: 비교 항목 · 결과 노드 제목 · 54/54 완전 일치 (PageIndex에 Preface 1개 추가) 페이지 범위 · 10개 노드가 다름 — PageIndex는 다음 섹션 시작까지 겹치게 잡고, 로컬은 겹치지 않게 자름 범위 오류(end < start) · Pa …"
                 },
                 {
                   "title": "결론",
-                  "node_id": "0315",
-                  "start_index": 56,
-                  "end_index": 65,
+                  "node_id": "0317",
+                  "start_index": 86,
+                  "end_index": 97,
                   "summary": ""
                 }
               ]
             },
             {
               "title": "3. 생성된 인덱스",
-              "node_id": "0316",
-              "start_index": 66,
-              "end_index": 76,
+              "node_id": "0318",
+              "start_index": 98,
+              "end_index": 108,
               "summary": "python3 tools/build_pageindex.py 로 생성 · 재생성합니다. (총 612 노드, 약 290 KB)",
               "nodes": [
                 {
                   "title": "진짜 PageIndex와 다른 점 (정직하게)",
-                  "node_id": "0317",
-                  "start_index": 77,
-                  "end_index": 91,
+                  "node_id": "0319",
+                  "start_index": 109,
+                  "end_index": 123,
                   "summary": "각 JSON의 meta.summary_method에 이 사실을 표기했습니다. 요약 추출은 3단계 폴백입니다: ① 자기 구간의 산문 → ② 비면 하위 트리까지 확장 → ③ 그래도 비면 표 셀 내용까지 긁음(이 저장소는 표 비중이 큼). 그 결과 빈 요약이 71개(14.1%) → 19개(3.1%) 로 줄었습니다. 남은 19개는 구분선·이미지만 있는 섹션입니다."
                 }
               ]
             },
             {
               "title": "4. 사용법",
-              "node_id": "0318",
-              "start_index": 92,
-              "end_index": 93,
+              "node_id": "0320",
+              "start_index": 124,
+              "end_index": 125,
               "summary": "필요 패키지: pymupdf (PDF 처리용, 이미 설치되어 있음) 실행 예: → \"KV cache 어디에 저장하나\"가 궁금하면 Inference Engineering 141쪽임을 바로 알 수 있습니다. 벡터 DB도, API 키도 없이.",
               "nodes": [
                 {
                   "title": "인덱스 재생성",
-                  "node_id": "0319",
-                  "start_index": 94,
-                  "end_index": 103,
+                  "node_id": "0321",
+                  "start_index": 126,
+                  "end_index": 135,
                   "summary": "필요 패키지: pymupdf (PDF 처리용, 이미 설치되어 있음)"
                 },
                 {
                   "title": "탐색",
-                  "node_id": "0320",
-                  "start_index": 104,
-                  "end_index": 130,
+                  "node_id": "0322",
+                  "start_index": 136,
+                  "end_index": 162,
                   "summary": "실행 예: → \"KV cache 어디에 저장하나\"가 궁금하면 Inference Engineering 141쪽임을 바로 알 수 있습니다. 벡터 DB도, API 키도 없이."
                 }
               ]
             },
             {
               "title": "5. 진짜 PageIndex로 업그레이드하려면",
-              "node_id": "0321",
-              "start_index": 131,
-              "end_index": 134,
-              "summary": "LLM 요약 품질이나 추론 기반 검색이 필요해지면: 생성된 파일을 이 폴더에 덮어쓰면 tools/search_index.py가 그대로 동작합니다 (스키마 동일). OCR 강화판과 MCP 연동이 제공됩니다. 다만 문서 업로드가 전제입니다. 가장 현실적인 중간 지점입니다. tools/build_pageindex.py의 make_summary()만 LLM 호출로 바꾸면 트리는 그대로 두고 요약 품질만 올릴 수 있습니다. 트리가 이미 정확하므로 LLM은 요약에만 쓰면 됩니다.",
+              "node_id": "0323",
+              "start_index": 163,
+              "end_index": 166,
+              "summary": "LLM 요약 품질이나 추론 기반 검색이 필요해지면: 동작 원리: litellm.completion / acompletion / token_counter를 가로채 claude -p(헤드리스)로 돌립니다. litellm 실물이 없어도 sys.modules에 스텁을 꽂아 import를 만족시킵니다. ⚠️ 비용이 사라지는 게 아니라 옮겨갑니다 — API 크레딧 대신 Claude Code 구독 사용량을 씁니다. 66페이지 PDF 하나에 호출 121회였으니, 259페이지 PDF는 수백 회가 됩니다. …",
               "nodes": [
                 {
-                  "title": "A. 셀프호스팅 (OpenAI 키)",
-                  "node_id": "0322",
-                  "start_index": 135,
-                  "end_index": 151,
+                  "title": "A-0. Claude Code 백엔드 ★ 키 불필요 · 검증 완료",
+                  "node_id": "0324",
+                  "start_index": 167,
+                  "end_index": 182,
+                  "summary": "동작 원리: litellm.completion / acompletion / token_counter를 가로채 claude -p(헤드리스)로 돌립니다. litellm 실물이 없어도 sys.modules에 스텁을 꽂아 import를 만족시킵니다. ⚠️ 비용이 사라지는 게 아니라 옮겨갑니다 — API 크레딧 대신 Claude Code 구독 사용량을 씁니다. 66페이지 PDF 하나에 호출 121회였으니, 259페이지 PDF는 수백 회가 됩니다. --dry-run으로 먼저 규모를 가늠하세요."
+                },
+                {
+                  "title": "A. 셀프호스팅 (OpenAI / Anthropic API 키)",
+                  "node_id": "0325",
+                  "start_index": 183,
+                  "end_index": 200,
                   "summary": "생성된 파일을 이 폴더에 덮어쓰면 tools/search_index.py가 그대로 동작합니다 (스키마 동일)."
                 },
                 {
                   "title": "B. 클라우드 API / MCP",
-                  "node_id": "0323",
-                  "start_index": 152,
-                  "end_index": 161,
+                  "node_id": "0326",
+                  "start_index": 201,
+                  "end_index": 210,
                   "summary": "OCR 강화판과 MCP 연동이 제공됩니다. 다만 문서 업로드가 전제입니다."
                 },
                 {
                   "title": "C. 지금 구조를 유지하며 요약만 개선",
-                  "node_id": "0324",
-                  "start_index": 162,
-                  "end_index": 167,
+                  "node_id": "0327",
+                  "start_index": 211,
+                  "end_index": 216,
                   "summary": "가장 현실적인 중간 지점입니다. tools/build_pageindex.py의 make_summary()만 LLM 호출로 바꾸면 트리는 그대로 두고 요약 품질만 올릴 수 있습니다. 트리가 이미 정확하므로 LLM은 요약에만 쓰면 됩니다."
                 }
               ]
             },
             {
               "title": "6. 앞으로",
-              "node_id": "0325",
-              "start_index": 168,
-              "end_index": 172,
+              "node_id": "0328",
+              "start_index": 217,
+              "end_index": 221,
               "summary": "주차별 정리 문서가 추가되면 --only md로 재생성 새 PDF를 받으면 knowledge/references/pdf/에 넣고 재생성 (내장 TOC 없으면 tools/toc/<이름>.json 추가) index/*.json은 생성물이지만 커밋해 두는 것을 권장 — 재생성 없이 바로 탐색 가능하고, 문서 구조 변화가 diff로 보임"
             }
           ]
