@@ -121,7 +121,7 @@ model: "gpt-4o-2024-11-20"
 > - **트리**: LLM을 쓸 이유가 없음이 확인됨. 내장 TOC가 더 정확하고, 공짜이고, **재현 가능**함
 > - **요약**: LLM 쪽이 내용은 확실히 풍부하나, **붙어 있는 트리가 매번 흔들리고 언어도 원문과 다름**
 >
-> 요약 깊이가 필요해지면 정답은 PageIndex 통째로가 아니라 **[5-C 경로](#c-지금-구조를-유지하며-요약만-개선)** 입니다 — 트리는 결정론적으로 두고 요약만 LLM에 맡기면, 재현성 문제와 언어 문제(프롬프트로 한국어 지정)를 동시에 피할 수 있습니다.
+> 요약 깊이가 필요해지면 정답은 PageIndex 통째로가 아니라 **[5-C 경로](#c-plan)** 입니다 — 트리는 결정론적으로 두고 요약만 LLM에 맡기면, 재현성 문제와 언어 문제(프롬프트로 한국어 지정)를 동시에 피할 수 있습니다.
 >
 > 두 방식의 JSON 스키마가 같으므로 언제든 파일만 덮어쓰면 전환됩니다. 실측 산출물은 [`_verify/`](./_verify/)에 보관했습니다.
 
@@ -133,7 +133,7 @@ model: "gpt-4o-2024-11-20"
 
 | 파일 | 대상 | 노드 | 트리 출처 |
 |---|---|---|---|
-| [`inference-engineering-2026_structure.json`](./inference-engineering-2026_structure.json) | 259p PDF | 146 | PDF 내장 TOC |
+| [`inference-engineering-2026_structure.json`](./inference-engineering-2026_structure.json) ★ | 259p PDF | 146 | PDF 내장 TOC + **LLM 한국어 요약** |
 | [`gpu-enabled-platforms-on-kubernetes-v2-2026_structure.json`](./gpu-enabled-platforms-on-kubernetes-v2-2026_structure.json) | 202p PDF | 86 | 사이드카 (`tools/toc/`) |
 | [`nhn-cloud-factoryx-gpu-whitepaper-2026_structure.json`](./nhn-cloud-factoryx-gpu-whitepaper-2026_structure.json) | 66p PDF | 54 | PDF 내장 TOC |
 | [`knowledge_structure.json`](./knowledge_structure.json) | repo 내 md **25개** (루트 README 포함) | 326 | 마크다운 헤딩 |
@@ -147,9 +147,11 @@ model: "gpt-4o-2024-11-20"
 | 검색 | LLM이 트리를 추론하며 순회 | 키워드 스코어링 (`tools/search_index.py`) |
 | 비용 / 재현성 | API 비용 발생, 비결정론적 | **0원, 결정론적** |
 
-각 JSON의 `meta.summary_method`에 이 사실을 표기했습니다.
+각 JSON의 `meta.summary_method`에 어느 방식인지 표기했습니다 — `extractive-*`(발췌) 또는 `llm-claude-code-korean`(C안 적용).
 
-요약 추출은 3단계 폴백입니다: ① 자기 구간의 산문 → ② 비면 하위 트리까지 확장 → ③ 그래도 비면 **표 셀 내용까지** 긁음(이 저장소는 표 비중이 큼). 그 결과 빈 요약이 **71개(14.1%) → 19개(3.1%)** 로 줄었습니다. 남은 19개는 구분선·이미지만 있는 섹션입니다.
+**Inference Engineering은 C안을 적용했습니다** (아래 §5-C). 나머지는 발췌 방식입니다.
+
+발췌 방식의 요약 추출은 3단계 폴백입니다: ① 자기 구간의 산문 → ② 비면 하위 트리까지 확장 → ③ 그래도 비면 **표 셀 내용까지** 긁음(이 저장소는 표 비중이 큼). 그 결과 빈 요약이 **71개(14.1%) → 19개(3.1%)** 로 줄었습니다. 남은 19개는 구분선·이미지만 있는 섹션입니다.
 
 ---
 
@@ -240,9 +242,64 @@ doc = client.submit_document("....pdf")
 
 OCR 강화판과 MCP 연동이 제공됩니다. 다만 **문서 업로드가 전제**입니다.
 
-### C. 지금 구조를 유지하며 요약만 개선
+<a id="c-plan"></a>
 
-가장 현실적인 중간 지점입니다. `tools/build_pageindex.py`의 `make_summary()`만 LLM 호출로 바꾸면 트리는 그대로 두고 요약 품질만 올릴 수 있습니다. 트리가 이미 정확하므로 **LLM은 요약에만 쓰면 됩니다.**
+### C. 트리는 로컬, 요약만 LLM ★ 채택
+
+실측 끝에 고른 방식입니다. [`tools/enrich_summaries.py`](../tools/enrich_summaries.py)가 **기존 인덱스의 `summary` 필드만** LLM 요약으로 교체합니다. 트리는 결정론적 결과 그대로라 **재현성이 유지되고**, 프롬프트로 언어를 지정해 **한국어 요약**을 얻습니다 — PageIndex 통째 실행에서 나온 두 문제를 동시에 피합니다.
+
+```bash
+# 규모·비용 먼저 (LLM 호출 없음)
+python3 tools/enrich_summaries.py --dry-run
+
+# 문서 하나만, 상위 2단계, 5건 시험
+python3 tools/enrich_summaries.py --doc nhn --max-depth 2 --limit 5
+
+# 실제 적용 (--max-depth 0 = 전체 깊이)
+python3 tools/enrich_summaries.py --doc inference --max-depth 0
+```
+
+| 특징 | 내용 |
+|---|---|
+| **캐시** | 노드 원문 해시 기준. 중단 후 재실행하면 만든 것은 건너뜀 (`index/.summary_cache.json`, 커밋 제외) |
+| **부분 실행** | `--doc` / `--max-depth` / `--limit` 으로 비용 조절 |
+| **원본 보존** | `summary` 외 필드는 손대지 않음 |
+| **표시** | 갱신된 문서는 `meta.summary_method`가 `llm-claude-code-korean` 으로 바뀜 |
+
+문서별 대상 노드 수 (`--max-depth 0` 기준): Inference Engineering **145** · GPU on K8s **81** · NHN 백서 **54** · 마크다운 전체 171
+
+#### 적용 결과 — Inference Engineering (145노드)
+
+| 항목 | 값 |
+|---|---|
+| LLM 호출 | **142회** (캐시 적중 3, 실패 0) |
+| 요약 평균 길이 | **382자** (발췌 246자 / PageIndex 통째 1,934자) |
+| **트리 보존** | node_id 집합·제목 **100% 동일** — 재현성 문제 해결 ✅ |
+| **한국어 비율** | 145개 중 **131개**(90%) — PageIndex 통째는 2% ✅ |
+
+**가장 큰 이득은 한국어 검색이 생긴 것입니다.** 이 PDF는 영문이라 이전에는 한국어 질의로 아무것도 찾을 수 없었습니다.
+
+| 한국어 질의 | 이전(발췌) | 이후(LLM) |
+|---|---|---|
+| 양자화 | 0 | **11** |
+| 캐시 | 0 | **7** |
+| 병렬 | 0 | **12** |
+| 메모리 대역폭 | 0 | **9** |
+| 커널 | 0 | **16** |
+| 추론 | 0 | **83** |
+
+> 한글이 포함된 요약: **0개 → 145개**. 영문 원서를 한국어로 검색할 수 있게 된 것이 이 작업의 실질 성과입니다.
+
+실행 예:
+
+```
+$ python3 tools/search_index.py "양자화" --top 1
+ 1. inference-engineering-2026.pdf  p.130-130
+      Table of Contents › Chapter 5: Techniques › 5.1 Quantization
+      ▸ 5.1.3 Measuring Quality Impact
+        양자화 후 품질 검증 방법으로 perplexity, MMLU·SWE-bench 같은 intelligence
+        benchmark, 제품 특화 custom eval 세 가지를 제시하고…
+```
 
 ---
 

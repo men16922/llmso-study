@@ -20,3 +20,6 @@ results/
 
 # PageIndex 실행 로그 (tools/pageindex_claude.py 부산물)
 logs/
+
+# 요약 캐시 (재실행 시 LLM 호출 절약, 용량이 커서 제외)
+index/.summary_cache.json
