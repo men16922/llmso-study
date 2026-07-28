@@ -14,12 +14,13 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소�
 
 ```
 .
-├── knowledge/           스터디 자료 정리 (문서 23개)
+├── knowledge/           스터디 자료 정리 (문서 24개)
 │   ├── 00-study-overview.md      커리큘럼 · 교재 CH1~10 매핑
 │   ├── 01-environment-setup.md   GPU 실습 환경
 │   ├── 02-assignments.md         과제 규정 · 마감표
 │   ├── 03-study-rules.md         저작권 · 슬랙/ZOOM · 질문법
-│   ├── 04-kickoff-checklist.md   시작 전 실행 체크리스트 (D-5)
+│   ├── 04-kickoff-checklist.md   시작 전 실행 체크리스트
+│   ├── 05-week1-prep.md          1주차 CH1~2 예습 노트
 │   ├── subpages/                 노션 서브페이지 8종 정리 (실습 가이드)
 │   └── references/               외부 자료 인덱스
 │       ├── priority-guide.md     ★ 중요/선택 등급 분류
@@ -34,7 +35,8 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소�
 
 | 하고 싶은 것 | 명령 / 문서 |
 |---|---|
-| **시작 전 준비 (D-5)** | [`knowledge/04-kickoff-checklist.md`](./knowledge/04-kickoff-checklist.md) |
+| **시작 전 준비** | [`knowledge/04-kickoff-checklist.md`](./knowledge/04-kickoff-checklist.md) |
+| **1주차 예습** | [`knowledge/05-week1-prep.md`](./knowledge/05-week1-prep.md) |
 | 스터디 전반 파악 | [`knowledge/README.md`](./knowledge/README.md) |
 | **뭘 먼저 봐야 하나** | [`knowledge/references/priority-guide.md`](./knowledge/references/priority-guide.md) |
 | 자료 내용이 궁금 | [`knowledge/references/deep-dives.md`](./knowledge/references/deep-dives.md) |

@@ -3,7 +3,7 @@
 CloudNet@ **Hands-On LLM Serving and Optimization Study (LLMSO)** 멤버 페이지 전체(메인 + 서브페이지 8개 + 접힌 토글 포함)를 정리한 폴더입니다.
 
 - 원본: [Notion — Hands-On LLM Serving and Optimization Study](https://app.notion.com/p/gasidaseo/Hands-On-LLM-Serving-and-Optimization-Study-3aa50aec5edf8027b6a6ffff4325d077) (멤버 전용)
-- 정리 기준일: 2026-07-28
+- 정리 기준일: 2026-07-29
 
 > ⚠️ **원문 노션은 저작권 보호 내용이 포함되어 외부 공개·전파가 금지**되어 있습니다. 이 폴더는 개인 학습용 정리이며 그대로 외부에 공개하지 마세요. 가공하여 활용(블로그 포스팅 등)하는 것은 스터디에서 권장합니다. → [03-study-rules.md](./03-study-rules.md)
 
@@ -15,7 +15,8 @@ knowledge/
 ├── 01-environment-setup.md   실습 환경 요구사항 · 체크리스트 · 비용 주의
 ├── 02-assignments.md         과제 방법 · 마감표 · 제명 규칙 · 발표 가이드
 ├── 03-study-rules.md         저작권 정책 · 슬랙/노션/ZOOM 준비 · 질문하는 법
-├── 04-kickoff-checklist.md   ★ 시작 전 실행 체크리스트 (D-5)
+├── 04-kickoff-checklist.md   ★ 시작 전 실행 체크리스트
+├── 05-week1-prep.md          ★ 1주차 CH1~2 예습 노트
 │
 ├── subpages/                 ★ 노션 서브페이지 8종 정리
 │   ├── README.md             인덱스 · 주제 지도 · 읽는 순서
@@ -58,8 +59,9 @@ knowledge/
 | 상황 | 문서 |
 |---|---|
 | 스터디가 뭘 하는지 알고 싶다 | [00-study-overview.md](./00-study-overview.md) |
-| **지금 뭘 해야 하나 (D-5)** | **[04-kickoff-checklist.md](./04-kickoff-checklist.md)** — 체크하며 실행 |
+| **지금 뭘 해야 하나** | **[04-kickoff-checklist.md](./04-kickoff-checklist.md)** — 체크하며 실행 |
 | 시작 전 준비물 상세 | [03-study-rules.md](./03-study-rules.md) → [01-environment-setup.md](./01-environment-setup.md) |
+| **1주차 예습** | **[05-week1-prep.md](./05-week1-prep.md)** — CH1~2 핵심 미리보기 |
 | **자료가 너무 많다, 뭘 봐야 하나** | **[references/priority-guide.md](./references/priority-guide.md)** — 필수 12개만 추림 |
 | 그 자료가 무슨 내용인지 먼저 알고 싶다 | [references/deep-dives.md](./references/deep-dives.md) |
 | 이번 주 뭘 읽어야 하나 | [references/priority-guide.md](./references/priority-guide.md) 주차별 권장 |

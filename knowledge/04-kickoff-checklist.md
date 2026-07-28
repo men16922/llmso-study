@@ -1,12 +1,12 @@
-# 04. 시작 전 체크리스트 (D-5)
+# 04. 시작 전 체크리스트
 
-스터디 시작: **2026-08-02 (일) 20:30** · 작성 기준일 2026-07-28
+**스터디 시작: 2026-08-02 (일) 20:30**
 
-> 이 문서는 "읽는 문서"가 아니라 **체크하며 실행하는 문서**입니다. 순서대로 하세요.
+> 이 문서는 "읽는 문서"가 아니라 **체크하며 실행하는 문서**입니다. 위에서부터 순서대로 하세요.
 
-## 지금 당장 (오늘, 7/28) — 승인 대기가 걸리는 것부터
+## ① 최우선 — 승인·처리에 며칠 걸리는 것
 
-승인·처리에 며칠 걸리는 것들이라 **먼저 걸어두고** 나머지를 진행하세요.
+지금 어느 날짜든, **이 블록이 안 끝났으면 여기부터** 하세요. 나머지는 뒤로 미뤄도 되지만 이건 대기 시간이 있어 미룰수록 손해입니다.
 
 - [ ] **AWS GPU 쿼터 증설 신청** ← 가장 급함, 아래 상세 참조
 - [ ] 슬랙 초대 메일 확인 → `CloudNetaStudy` 워크스페이스 `llmso` 채널 입장
@@ -39,7 +39,7 @@ AWS Console → Service Quotas → AWS services → Amazon Elastic Compute Cloud
 
 ---
 
-## 7/29 ~ 7/31 — 필수 영상 (총 55분)
+## ② 필수 영상 (총 55분) — 8/1까지
 
 [priority-guide.md](./references/priority-guide.md)의 🔴필수 5편입니다. **시간이 없으면 1~3번 20분만이라도.**
 
@@ -55,10 +55,11 @@ AWS Console → Service Quotas → AWS services → Amazon Elastic Compute Cloud
 
 ---
 
-## 8/1 (토) — 1주차 예습
+## ③ 1주차 예습 — 8/1 (토) 권장
 
 1주차 범위: **CH1 (Introduction to Model Serving) + CH2 (Large Language Model Serving)**
 
+- [ ] **[05-week1-prep.md](./05-week1-prep.md) 읽기** — CH1~2 핵심을 미리 정리해둔 노트
 - [ ] [00-study-overview.md](./00-study-overview.md) 주차별 커리큘럼 표 훑기
 - [ ] 교재가 있다면 CH1~2, 없다면 아래 대체 자료
   - [ ] [Inference Engineering PDF](./references/pdf/inference-engineering-2026.pdf) **CH0 Inference (p.17)** + **CH2 Models (p.41)**
@@ -73,7 +74,7 @@ python3 tools/search_index.py "attention"
 
 ---
 
-## 8/2 (일) 스터디 당일
+## ④ 8/2 (일) 스터디 당일
 
 - [ ] 20:20까지 ZOOM 입장 (영상·음성 OFF 기본)
 - [ ] 질문은 슬랙/줌 채팅 모두 사용 가능
@@ -88,7 +89,7 @@ python3 tools/search_index.py "attention"
 
 ---
 
-## 옵션 — 로컬 GPU가 있다면
+## ⑤ (옵션) 로컬 GPU가 있다면
 
 없어도 스터디 참여에 지장은 없습니다. 있다면 미리 해두면 실습이 수월합니다.
 
@@ -117,11 +118,11 @@ python3 tools/search_index.py "attention"
 
 ## 진행 상황 한눈에
 
-```
-7/28 (오늘)  AWS 쿼터 신청 · 슬랙/노션/ZOOM 가입          ← 승인 대기 시작
-7/29~31      필수 영상 20분 (prefill → KV cache → Flash)
-8/1  (토)    1주차 CH1~2 예습
-8/2  (일)    스터디 1주차 20:30
-8/9  (일)    1주차 과제 마감 09:00
-9/6  (일)    6주차 EKS 실습 ← 쿼터가 여기서 필요
-```
+| 날짜 | 할 일 | 비고 |
+|---|---|---|
+| **~7/30** | AWS 쿼터 신청 · 슬랙/노션/ZOOM 가입 | **승인 대기가 걸리므로 가장 먼저** |
+| ~8/1 | 필수 영상 20분 (prefill → KV cache → Flash) | 1주차 CH2가 이 순서로 진행 |
+| 8/1 (토) | 1주차 CH1~2 예습 | → [1주차 예습 노트](./05-week1-prep.md) |
+| **8/2 (일) 20:30** | **스터디 1주차** | ZOOM |
+| 8/9 (일) 09:00 | 1주차 과제 마감 | 미공유 1회 = 제명 |
+| 9/6 (일) | 6주차 EKS 실습 | **쿼터가 여기서 필요** |
