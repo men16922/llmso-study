@@ -1,0 +1,649 @@
+{
+  "doc_name": "gpu-enabled-platforms-on-kubernetes-v2-2026.pdf",
+  "doc_description": "LearnKube",
+  "meta": {
+    "type": "pdf",
+    "pages": 202,
+    "author": null,
+    "index_unit": "page",
+    "toc_source": "sidecar_toc",
+    "summary_method": "extractive-first-page",
+    "generator": "tools/build_pageindex.py"
+  },
+  "structure": [
+    {
+      "title": "The GPU Challenge at Scale (front matter)",
+      "node_id": "0000",
+      "start_index": 2,
+      "end_index": 6,
+      "summary": "The GPU Challenge at Scale Table of contents 2 Foundations - How GPUs Meet Kubernetes 7 Syscalls: The Kernel's API Surface 8 Control Groups (cgroups): Enforcing Resource Limits 11 Namespaces: Isolating What a Process Can See 13 From Kernel Primitives to Docker 15 CPU: Preemptive Multitasking 15 Memo …"
+    },
+    {
+      "title": "Chapter 1. Foundations - How GPUs Meet Kubernetes",
+      "node_id": "0001",
+      "start_index": 7,
+      "end_index": 7,
+      "summary": "Foundations - How GPUs Meet Kubernetes Chapter 1 In this chapter, you will learn: How containers work through syscalls, cgroups, and namespaces Why GPUs break every assumption about resource isolation How device plugins bridge GPUs into Kubernetes The integer resource problem and its implications Le …",
+      "nodes": [
+        {
+          "title": "Syscalls: The Kernel's API Surface",
+          "node_id": "0002",
+          "start_index": 8,
+          "end_index": 10,
+          "summary": "In this chapter, you will learn: How containers work through syscalls, cgroups, and namespaces Why GPUs break every assumption about resource isolation How device plugins bridge GPUs into Kubernetes The integer resource problem and its implications Let's start with understanding how the Linux kernel …"
+        },
+        {
+          "title": "Control Groups (cgroups): Enforcing Resource Limits",
+          "node_id": "0003",
+          "start_index": 11,
+          "end_index": 12,
+          "summary": "That's why Linux adds another layer to contain that risk: control groups, or cgroups. Control Groups (cgroups): Enforcing Resource Limits Control groups are kernel-level mechanisms that restrict the amount of CPU, memory, I/O, and other resources a process or a group of processes can consume. …"
+        },
+        {
+          "title": "Namespaces: Isolating What a Process Can See",
+          "node_id": "0004",
+          "start_index": 13,
+          "end_index": 14,
+          "summary": "This lets you isolate workloads by physical limits on what they can consume. But while cgroups enforce resource boundaries, they don't isolate what a process can see or interact with. For that, Linux relies on another primitive: namespaces. …"
+        },
+        {
+          "title": "From Kernel Primitives to Docker",
+          "node_id": "0005",
+          "start_index": 15,
+          "end_index": 15,
+          "summary": "own isolated environment, each with resource limits, and each believing it's alone. Together with cgroups, namespaces form the backbone of container isolation. But manually creating cgroups and namespaces is verbose and error-prone. This is where tools such as Docker come in. …",
+          "nodes": [
+            {
+              "title": "CPU: Preemptive Multitasking",
+              "node_id": "0006",
+              "start_index": 15,
+              "end_index": 17,
+              "summary": "own isolated environment, each with resource limits, and each believing it's alone. Together with cgroups, namespaces form the backbone of container isolation. But manually creating cgroups and namespaces is verbose and error-prone. This is where tools such as Docker come in. …"
+            },
+            {
+              "title": "Memory: Page-by-Page Allocation",
+              "node_id": "0007",
+              "start_index": 18,
+              "end_index": 19,
+              "summary": "Fig. 3 Process 2 first saves its state (step 1), then Process 1 loads its saved state (step 2) to continue where it left off. This is fast and reliable on CPUs because the hardware was designed for it. …"
+            }
+          ]
+        },
+        {
+          "title": "CUDA Fundamentals: Contexts, Kernels, and Memory",
+          "node_id": "0008",
+          "start_index": 20,
+          "end_index": 22,
+          "summary": "physically across RAM. The kernel tracks every byte, recovers unused pages, swaps to disk, and enforces limits through cgroups. If a process exceeds its memory cgroup limit: The kernel's out-of-memory killer terminates it immediately. …",
+          "nodes": [
+            {
+              "title": "CUDA Kernels: The GPU Programs",
+              "node_id": "0009",
+              "start_index": 23,
+              "end_index": 26,
+              "summary": "Every time data moves between the CPU and GPU, typically it takes extra time because it has to travel across the physical connection that links them. This is why GPU programming often focuses on minimizing data movement. …"
+            },
+            {
+              "title": "Why GPUs Don't Support Kernel Preemption",
+              "node_id": "0010",
+              "start_index": 27,
+              "end_index": 28,
+              "summary": "But even with streams (and MPS), individual kernels still can't be preempted. Why don't GPUs simply pause and resume kernels the way CPUs do? Why GPUs Don't Support Kernel Preemption We must look at the hardware architecture and ALUs (Arithmetic Logic Units) to understand why GPUs can't pause and re …"
+            },
+            {
+              "title": "GPU Memory: A Completely Different Model",
+              "node_id": "0011",
+              "start_index": 29,
+              "end_index": 31,
+              "summary": "But this design comes with a cost: there are no interrupts, no preemption, and no ability to pause and resume. Adding these features would require the complex control logic GPUs specifically gave up to pack in more ALUs. …"
+            },
+            {
+              "title": "The Critical Differences",
+              "node_id": "0012",
+              "start_index": 32,
+              "end_index": 33,
+              "summary": "Fig. GPU memory pooling diagram showing how CUDA allocates memory in large chunks (pools) rather than exact requested sizes But it makes monitoring and capacity planning nearly impossible. You might see 2GB allocated in nvidia-smi when your application only uses 100MB of data. …"
+            }
+          ]
+        },
+        {
+          "title": "Kubernetes and the Container Runtime Interface",
+          "node_id": "0013",
+          "start_index": 34,
+          "end_index": 36,
+          "summary": "There are no GPU namespaces: /dev/nvidia0 is visible to everyone. There's no way to hide GPUs from specific processes or create virtual GPU views. The Linux kernel has no visibility. …"
+        },
+        {
+          "title": "The GPU Problem in Kubernetes",
+          "node_id": "0014",
+          "start_index": 37,
+          "end_index": 44,
+          "summary": "process begins running, and the kernel enforces all the cgroups and namespace boundaries you've configured. The CRI handles the translation from Kubernetes pod specs to actual Linux kernel primitives. The GPU Problem in Kubernetes But what about GPUs? We face two fundamental problems: 1. …"
+        },
+        {
+          "title": "Running a GPU Pod: End-to-End",
+          "node_id": "0015",
+          "start_index": 45,
+          "end_index": 50,
+          "summary": "Resource Lifecycle control extends from allocation through cleanup. Unlike CPU slices managed by the Linux kernel, your plugin orchestrates the entire GPU journey: it mounts devices, sets environment variables, and ensures clean teardown when pods terminate. …"
+        },
+        {
+          "title": "The Sharing Challenge",
+          "node_id": "0016",
+          "start_index": 51,
+          "end_index": 51,
+          "summary": "magically gains GPU access. Finally, the application starts. When it runs nvidia-smi , it can see the GPU: The application can now: Create CUDA contexts (200-300ms initialization) Allocate GPU memory (in large pools) Launch kernels (non-preemptible execution) Process data on thousands of cores But h …"
+        },
+        {
+          "title": "Key Takeaways",
+          "node_id": "0017",
+          "start_index": 52,
+          "end_index": 52,
+          "summary": "You might want to share this GPU across teams or workloads, but that opens up a whole new set of challenges: How do you prevent one workload from monopolizing the GPU? What happens when multiple pods try to use the same GPU memory? How do you ensure fair scheduling without kernel support? …"
+        }
+      ]
+    },
+    {
+      "title": "Chapter 2. Why GPU Multi-Tenancy Is Hard",
+      "node_id": "0018",
+      "start_index": 53,
+      "end_index": 53,
+      "summary": "Why GPU Multi- Tenancy Is Hard Chapter 2 In this chapter, you will learn: How traditional Kubernetes isolation mechanisms (namespaces, cgroups, RBAC) work and why they fail for GPUs The specific security vulnerabilities that emerge when sharing GPUs across tenants How to evaluate different GPU shari …",
+      "nodes": [
+        {
+          "title": "Traditional Kubernetes Isolation: The Foundation That Works",
+          "node_id": "0019",
+          "start_index": 54,
+          "end_index": 54,
+          "summary": "In this chapter, you will learn: How traditional Kubernetes isolation mechanisms (namespaces, cgroups, RBAC) work and why they fail for GPUs The specific security vulnerabilities that emerge when sharing GPUs across tenants How to evaluate different GPU sharing approaches (MPS, time-slicing, MIG, vG …",
+          "nodes": [
+            {
+              "title": "Namespaces: Control Plane Separation",
+              "node_id": "0020",
+              "start_index": 55,
+              "end_index": 56,
+              "summary": "Namespaces: Control Plane Separation Namespaces divide Kubernetes resources into logical domains. Each tenant— whether a team, department, or customer—gets its own namespace. At first glance this looks like strong isolation. But namespaces only exist in the Kubernetes API. …"
+            },
+            {
+              "title": "Cgroups: The kernel is always in control",
+              "node_id": "0021",
+              "start_index": 57,
+              "end_index": 57,
+              "summary": "A pod in fraud-detection cannot list pods in data-analytics through the API, but it can still reach them over the network unless you add network policies. Namespaces don't isolate CPU, memory, or devices, they are an API-level construct only. …"
+            },
+            {
+              "title": "RBAC: Access Control Boundaries",
+              "node_id": "0022",
+              "start_index": 58,
+              "end_index": 61,
+              "summary": "These are hard limits. If a process tries to exceed its CPU share, the kernel throttles it. If it tries to allocate beyond 1 GiB, the kernel's OOM killer terminates it. Every byte and every cycle is visible to the kernel, which enforces fairness across tenants. …"
+            },
+            {
+              "title": "Why This Multi-Tenancy Model Works",
+              "node_id": "0023",
+              "start_index": 62,
+              "end_index": 62,
+              "summary": "Still, with these three layers (e.g., namespaces for logical separation, RBAC for control-plane permissions, and cgroups for hardware limits) Kubernetes achieves effective multi-tenancy for CPU and memory. This works because the kernel is always in the loop. …"
+            }
+          ]
+        },
+        {
+          "title": "Why This Model Collapses for GPUs",
+          "node_id": "0024",
+          "start_index": 62,
+          "end_index": 63,
+          "summary": "Still, with these three layers (e.g., namespaces for logical separation, RBAC for control-plane permissions, and cgroups for hardware limits) Kubernetes achieves effective multi-tenancy for CPU and memory. This works because the kernel is always in the loop. …",
+          "nodes": [
+            {
+              "title": "GPU Scheduling Happens Outside the Kernel",
+              "node_id": "0025",
+              "start_index": 64,
+              "end_index": 64,
+              "summary": "GPU Scheduling Happens Outside the Kernel On CPUs, the Linux kernel preempts processes in microseconds, saving and restoring their state to enforce fair sharing. On GPUs, kernels launch through the NVIDIA driver. Once a kernel begins, it runs to completion. …"
+            },
+            {
+              "title": "CUDA Contexts Span Containers",
+              "node_id": "0026",
+              "start_index": 65,
+              "end_index": 66,
+              "summary": "When you check the logs, something interesting happens: The CPU task runs under the kernel's control. Because the container is limited to 200m (20% of a core), the task takes several seconds to complete. The kernel throttles it exactly as configured. …"
+            },
+            {
+              "title": "Kubernetes Enforces Scheduling Only at the API Layer",
+              "node_id": "0027",
+              "start_index": 67,
+              "end_index": 67,
+              "summary": "These are just two processes sharing the same physical device at the GPU driver level. The driver doesn't know or care that they are in different containers. It only sees two file descriptors opened to /dev/nvidia0 . …"
+            }
+          ]
+        },
+        {
+          "title": "Threat Scenarios in Practice",
+          "node_id": "0028",
+          "start_index": 68,
+          "end_index": 75,
+          "summary": "1. The scheduler sees nvidia.com/gpu as just a number. 2. It finds a node that advertises at least one available GPU. 3. It assigns the pod to that node using its normal scoring rules. 4. The kubelet on that node receives the pod specification. 5. …"
+        },
+        {
+          "title": "Time-Slicing: Multiplying GPU Count",
+          "node_id": "0029",
+          "start_index": 76,
+          "end_index": 80,
+          "summary": "This makes debugging and capacity planning nearly impossible. Third, and most critically, all processes share the same memory space. This creates a massive security vulnerability: If one process crashes or corrupts memory, it can bring down all other processes using that GPU. …"
+        },
+        {
+          "title": "MIG: Hardware Partitioning",
+          "node_id": "0030",
+          "start_index": 81,
+          "end_index": 82,
+          "summary": "If workload-1 allocates 12GB for its model, that memory stays allocated as long as the pod runs. The other three workloads must share the remaining 4GB, potentially failing if they need more. MIG: Hardware Partitioning provides true hardware-level isolation, but only on and GPUs. …"
+        },
+        {
+          "title": "vGPU: The Enterprise Solution",
+          "node_id": "0031",
+          "start_index": 83,
+          "end_index": 84,
+          "summary": "MIG provides true isolation: one slice cannot access another's memory or interfere with its computation. But you need A100/H100 hardware, and you're limited to seven slices maximum. …"
+        },
+        {
+          "title": "The Trust Spectrum: Choosing Your Strategy",
+          "node_id": "0032",
+          "start_index": 85,
+          "end_index": 85,
+          "summary": "They can install drivers, run CUDA applications, and even use tools like nvidia-smi without knowing they're on shared hardware. The hypervisor enforces strict boundaries between VMs. If one VM tries to allocate more GPU memory than its profile allows, it gets an out-of-memory error. …"
+        },
+        {
+          "title": "Comparing All Options",
+          "node_id": "0033",
+          "start_index": 86,
+          "end_index": 86,
+          "summary": "People coordinate informally, share resources willingly, and tolerate occasional interference. You might need MIG or dedicated GPUs for each department if you have different departments with competing priorities. Accidental interference is likely without hardware boundaries. …"
+        },
+        {
+          "title": "Key Takeaways",
+          "node_id": "0034",
+          "start_index": 87,
+          "end_index": 88,
+          "summary": "Approach Isolation Performance Complexity Hardware Requirement MPS None Excellent Low Any GPU Time- slicing None Good Low Any GPU MIG Hardware Good Medium A100/H100 only vGPU VM-level Fair (70– 80%) High License + specific GPUs Dedicated Complete Perfect Low Any GPU Key Takeaways GPU multi-tenancy c …"
+        }
+      ]
+    },
+    {
+      "title": "Chapter 3. Orchestrating GPU Sharing - How Kubernetes Manages Turn-Taking",
+      "node_id": "0035",
+      "start_index": 89,
+      "end_index": 89,
+      "summary": "Orchestrating GPU Sharing - How Kubernetes Manages Turn-Taking Chapter 3 In this chapter, you will learn: How GPUs have always supported multiple processes through automatic context switching Why GPU memory isn't partitioned between processes like CPU memory How KAI-Scheduler uses \"reservation pods\" …",
+      "nodes": [
+        {
+          "title": "The Hidden Truth: GPUs Already Support Sharing",
+          "node_id": "0036",
+          "start_index": 90,
+          "end_index": 90,
+          "summary": "In this chapter, you will learn: How GPUs have always supported multiple processes through automatic context switching Why GPU memory isn't partitioned between processes like CPU memory How KAI-Scheduler uses \"reservation pods\" to trick Kubernetes into GPU sharing What NVIDIA \"time-slicing\" actually …"
+        },
+        {
+          "title": "Understanding GPU Context Switching",
+          "node_id": "0037",
+          "start_index": 91,
+          "end_index": 92,
+          "summary": "Both processes are using the same GPU. Check nvidia-smi: Two processes, one GPU, both running. No special configuration required. This has worked since CUDA was invented. But how does this actually work under the hood? …"
+        },
+        {
+          "title": "The Memory Illusion",
+          "node_id": "0038",
+          "start_index": 93,
+          "end_index": 96,
+          "summary": "The Memory Illusion Here's where things get counterintuitive. Let's say you have a 24GB GPU, and you want to run: Application A that needs 16GB Application B that needs 8GB You might think: \"Perfect! 16 + 8 = 24GB, they'll fit together.\" It's more complex than that. …"
+        },
+        {
+          "title": "The Kubernetes Orchestration Problem",
+          "node_id": "0039",
+          "start_index": 97,
+          "end_index": 97,
+          "summary": "The Kubernetes Orchestration Problem Kubernetes elegantly handles CPU and memory sharing. When you write: Kubernetes understands fractions, enforces limits through cgroups, and schedules pods based on available resources. But GPUs break this model entirely. …"
+        },
+        {
+          "title": "KAI-Scheduler's Reservation Pod Strategy",
+          "node_id": "0040",
+          "start_index": 98,
+          "end_index": 102,
+          "summary": "Kubernetes has no native concept of GPU sharing. So if you want two pods to share a GPU, you need to somehow: 1. Get both pods scheduled to the same node 2. Make both pods see the same physical GPU 3. Prevent Kubernetes from giving that GPU to other pods 4. …",
+          "nodes": [
+            {
+              "title": "KAI: The Clever Parts and the Limitations",
+              "node_id": "0041",
+              "start_index": 103,
+              "end_index": 103,
+              "summary": "KAI: The Clever Parts and the Limitations What makes clever is how it solves the fundamental mismatch between what users want and what Kubernetes provides. Users want to request specific amounts of GPU memory, such as 2GB for inference and 8GB for training. …"
+            }
+          ]
+        },
+        {
+          "title": "NVIDIA \"Time-Slicing\" - The Misleading Name",
+          "node_id": "0042",
+          "start_index": 104,
+          "end_index": 105,
+          "summary": "A pod constantly launching kernels will dominate GPU time, starving others regardless of their allocated \"share.\" KAI-Scheduler is orchestrating sharing, not enforcing it. …",
+          "nodes": [
+            {
+              "title": "Why \"Time-Slicing\" Is Misleading",
+              "node_id": "0043",
+              "start_index": 106,
+              "end_index": 106,
+              "summary": "All four pods see the same physical GPU. They're taking turns running kernels, just like in the earlier manual example where matrix_multiply.py and vector_add.py both ran on the same GPU. …"
+            },
+            {
+              "title": "Time-slicing Critical Limitations",
+              "node_id": "0044",
+              "start_index": 107,
+              "end_index": 108,
+              "summary": "That's not what happens. Pods take turns when their kernels complete. This is the same behavior GPUs have always had. There's no fair scheduling either. If Pod A launches a kernel that runs for 5 seconds, Pods B, C, and D wait the full 5 seconds. …"
+            }
+          ]
+        },
+        {
+          "title": "Comparing the Approaches: Same Reality, Different Tricks",
+          "node_id": "0045",
+          "start_index": 109,
+          "end_index": 110,
+          "summary": "Comparing the Approaches: Same Reality, Different Tricks Let's be clear about what both solutions actually provide: 109 Aspect KAI-Scheduler NVIDIA \"Time- Slicing\" How it tricks Kubernetes Reservation pod claims whole GPU Device plugin reports N fake GPUs Node placement Automatic (KAI handles it) Ma …"
+        },
+        {
+          "title": "A Practical Example: The Scheduler Showdown",
+          "node_id": "0046",
+          "start_index": 111,
+          "end_index": 112,
+          "summary": "A Practical Example: The Scheduler Showdown Let's see how each approach handles a real scenario. You have a Tesla T4 (16GB memory) and need to run: 2 inference services (2GB each) 1 training job (8GB) 1 data preprocessing job (3GB) Total requested: 16GB (looks like it fits!) Let's deploy those workl …"
+        },
+        {
+          "title": "Orchestrating sharing",
+          "node_id": "0047",
+          "start_index": 113,
+          "end_index": 113,
+          "summary": "Orchestrating sharing Both solutions are orchestration layers, not isolation mechanisms. They solve the scheduling problem: \"How do we trick Kubernetes into allowing multiple pods on one GPU?\" They don't solve the sharing problem: \"How do we ensure pods play nicely together?\" This is why both approa …"
+        },
+        {
+          "title": "Key Takeaways",
+          "node_id": "0048",
+          "start_index": 114,
+          "end_index": 114,
+          "summary": "Key Takeaways Understanding GPU sharing in Kubernetes requires separating orchestration from execution: GPUs have always supported multiple processes through context switching. No special features needed—the NVIDIA driver handles kernel queueing automatically. Memory is not partitioned. …"
+        }
+      ]
+    },
+    {
+      "title": "Chapter 4. Hardware Isolation and Enforcement",
+      "node_id": "0049",
+      "start_index": 115,
+      "end_index": 115,
+      "summary": "Hardware Isolation and Enforcement Chapter 4 In this chapter, you will learn: How to achieve true parallel GPU execution instead of time-sharing with MIG (Multi-Instance GPU) Why software enforcement through HAMi works on any GPU, not just expensive ones When hardware isolation justifies the cost ve …",
+      "nodes": [
+        {
+          "title": "The Fundamental Difference: Parallel vs Sequential",
+          "node_id": "0050",
+          "start_index": 116,
+          "end_index": 117,
+          "summary": "In this chapter, you will learn: How to achieve true parallel GPU execution instead of time-sharing with MIG (Multi-Instance GPU) Why software enforcement through HAMi works on any GPU, not just expensive ones When hardware isolation justifies the cost versus software alternatives How to implement b …"
+        },
+        {
+          "title": "MIG: When NVIDIA Decided to Fix This in Silicon",
+          "node_id": "0051",
+          "start_index": 118,
+          "end_index": 118,
+          "summary": "Even with perfect memory isolation, Pod B is stuck waiting. But what if pods could run simultaneously? MIG: When NVIDIA Decided to Fix This in Silicon represents NVIDIA's hardware solution to the sharing problem. …",
+          "nodes": [
+            {
+              "title": "Why Seven Slices?",
+              "node_id": "0052",
+              "start_index": 119,
+              "end_index": 120,
+              "summary": "Our T4 doesn't support MIG. This is the first harsh reality: MIG only works on specific, expensive GPUs. Let's switch to an H100 to see MIG in action: The H100 can be split multiple ways. …"
+            },
+            {
+              "title": "Creating MIG Instances",
+              "node_id": "0053",
+              "start_index": 121,
+              "end_index": 123,
+              "summary": "Each profile consumes a specific number of base units: 1g.10gb = 1 unit 2g.20gb = 2 units 3g.40gb = 3 units 4g.40gb = 4 units 7g.80gb = 7 units Think of it like dividing a pizza into sevenths. You can group the slices however you want, but you can't create an eighth slice. …"
+            },
+            {
+              "title": "Using MIG Instances in Pods",
+              "node_id": "0054",
+              "start_index": 124,
+              "end_index": 126,
+              "summary": "Label nodes to apply MIG configuration: The GPU Operator automatically: 1. Enables MIG mode 2. Creates the specified instances 3. Configures the device plugin to expose them Using MIG Instances in Pods Each MIG profile appears as a native Kubernetes resource: mig-config.yaml apiVersion: v1 kind: Con …"
+            },
+            {
+              "title": "MIG's Achilles' Heel: Cost and Architecture Trade-offs",
+              "node_id": "0055",
+              "start_index": 127,
+              "end_index": 128,
+              "summary": "The hardware enforced the 10GB boundary. No API interception needed. No trust required. MIG's Achilles' Heel: Cost and Architecture Trade-offs MIG is nearly perfect, except for several critical considerations: An costs over 13× more than a . …"
+            }
+          ]
+        },
+        {
+          "title": "HAMi: The Software Enforcement Revolution",
+          "node_id": "0056",
+          "start_index": 129,
+          "end_index": 131,
+          "summary": "When one T4 node crashes, six workloads continue running. When your H100 node fails, everything stops. You also get geographic flexibility. Those seven T4s can span availability zones, giving you real disaster recovery. Your H100 sits in one rack, one zone, one failure domain. …",
+          "nodes": [
+            {
+              "title": "Compute Throttling: Token Bucket in Action",
+              "node_id": "0057",
+              "start_index": 132,
+              "end_index": 136,
+              "summary": "HAMi responds: \"4GB total, 3GB free\" (based on pod's limit) The application thinks it's running on a smaller GPU and adjusts accordingly. This prevents well-behaved applications from even trying to exceed their limits. …"
+            },
+            {
+              "title": "The Reality of Software Enforcement",
+              "node_id": "0058",
+              "start_index": 137,
+              "end_index": 138,
+              "summary": "HAMi successfully enforced both memory and compute limits on our Tesla T4. The Reality of Software Enforcement HAMi is impressive, but it's still a hack. Here's what can go wrong. The most immediate problem is version sensitivity. CUDA evolves constantly, adding new APIs and deprecating old ones. …"
+            },
+            {
+              "title": "Production Considerations",
+              "node_id": "0059",
+              "start_index": 139,
+              "end_index": 140,
+              "summary": "But here's the thing: despite these limitations, HAMi provides real enforcement where hardware solutions don't exist. For many teams, that's good enough. Production Considerations Running MIG or HAMi in production reveals operational challenges that don't appear in proof-of-concepts. …"
+            }
+          ]
+        },
+        {
+          "title": "The Evolution of GPU Sharing",
+          "node_id": "0060",
+          "start_index": 141,
+          "end_index": 141,
+          "summary": "This over-provisioning is intentional when nvidia.deviceMemoryScaling > 1, allowing memory overcommit similar to Linux RAM. Which monitoring system do you trust? How do you set alerts? …"
+        },
+        {
+          "title": "Key Takeaways",
+          "node_id": "0061",
+          "start_index": 142,
+          "end_index": 142,
+          "summary": "working? How do you monitor GPU utilization across different sharing mechanisms? How do you optimize allocation when every approach measures resources differently? That's where our journey continues—into GPU observability and optimization. …"
+        }
+      ]
+    },
+    {
+      "title": "Chapter 5. Monitoring GPU Clusters",
+      "node_id": "0062",
+      "start_index": 143,
+      "end_index": 144,
+      "summary": "Monitoring GPU Clusters Chapter 5 In this chapter, you will learn: Why nvidia-smi, Kubernetes metrics, and actual GPU usage tell three different stories about the same hardware How GPU utilization percentages mislead you into thinking busy GPUs are productive GPUs Why zombie processes can hold GPU m …",
+      "nodes": [
+        {
+          "title": "The Three Views of GPU Reality",
+          "node_id": "0063",
+          "start_index": 145,
+          "end_index": 146,
+          "summary": "show. Welcome to GPU monitoring, where what you see is rarely what's happening. The Three Views of GPU Reality GPU monitoring isn't like CPU monitoring. The kernel knows everything about CPUs—usage, allocation, and scheduling. With GPUs, you have three completely disconnected views of reality. …"
+        },
+        {
+          "title": "How nvidia-smi Actually Measures",
+          "node_id": "0064",
+          "start_index": 147,
+          "end_index": 147,
+          "summary": "accomplishes virtually nothing. But what actually happened? How can 0.1% real work show as 87% utilization? How nvidia-smi Actually Measures To understand the lie, we must realize how nvidia-smi works. The GPU driver doesn't continuously monitor GPU activity. …"
+        },
+        {
+          "title": "The Three-Layer Memory",
+          "node_id": "0065",
+          "start_index": 148,
+          "end_index": 149,
+          "summary": "nvidia-smi reported 100% utilization. The GPU actually computed for 0.046% of the time. This is why GPU utilization is misleading—it measures whether the GPU was used during each sample, not how much work actually got done. …"
+        },
+        {
+          "title": "The Zombie Process Problem",
+          "node_id": "0066",
+          "start_index": 150,
+          "end_index": 150,
+          "summary": "The Zombie Process Problem Here's the worst part: The process is gone. The pod is deleted. But 4GB of GPU memory is still allocated. Check deeper: A zombie process holding GPU memory. bash pod \"training-job-42\" deleted | No running processes found | # But... 4234 MiB # Memory still occupied! …",
+          "nodes": [
+            {
+              "title": "Why Zombie Processes Hold GPU Memory",
+              "node_id": "0067",
+              "start_index": 151,
+              "end_index": 156,
+              "summary": "Why Zombie Processes Hold GPU Memory When a process using GPU resources terminates, the cleanup dance between CUDA and the kernel matters more than you might think. In the normal flow, your Python script finishes its work and exits gracefully. …"
+            },
+            {
+              "title": "The Cascade Effect of GPU Hoarding",
+              "node_id": "0068",
+              "start_index": 157,
+              "end_index": 158,
+              "summary": "The rest sits empty. This three-layer discrepancy creates a cascade of waste. Other pods that need 3GB of GPU memory can't be scheduled to this node because KAI thinks 8GB is taken. The GPU has 4GB of free memory that no one can use. …"
+            }
+          ]
+        },
+        {
+          "title": "DCGM: Bridging the Reality Gap",
+          "node_id": "0069",
+          "start_index": 159,
+          "end_index": 161,
+          "summary": "generic applications. The situation gets worse as more small pods arrive. If similar lightweight pods take all 4 GPUs: You're now wasting 87% of your CPU and RAM capacity. These resources are allocated to the node, paid for, and powered on, but they sit idle because the GPUs are the bottleneck. …"
+        },
+        {
+          "title": "The Allocation vs Utilization Gap",
+          "node_id": "0070",
+          "start_index": 162,
+          "end_index": 162,
+          "summary": "The Allocation vs Utilization Gap Now that we can see reality, let's measure the waste. Finding GPU Hoarders Query Prometheus to find pods holding GPUs but not using them: Results: Pods ( sum by (pod, namespace) ( DCGM_FI_DEV_GPU_UTIL ) < 10 ) and ( sum by (pod, namespace) ( kube_pod_container_resou …"
+        },
+        {
+          "title": "Finding GPU Hoarders",
+          "node_id": "0071",
+          "start_index": 162,
+          "end_index": 164,
+          "summary": "The Allocation vs Utilization Gap Now that we can see reality, let's measure the waste. Finding GPU Hoarders Query Prometheus to find pods holding GPUs but not using them: Results: Pods ( sum by (pod, namespace) ( DCGM_FI_DEV_GPU_UTIL ) < 10 ) and ( sum by (pod, namespace) ( kube_pod_container_resou …"
+        },
+        {
+          "title": "Monitoring Patterns That Actually Matter",
+          "node_id": "0072",
+          "start_index": 165,
+          "end_index": 167,
+          "summary": "Monitoring Patterns That Actually Matter After implementing DCGM, you can finally detect and prevent the failure patterns that plague GPU clusters. Let's have a look at a few examples. GPU memory leaks are insidious because GPUs don't have garbage collection like CPU environments. …"
+        },
+        {
+          "title": "The Reality Check",
+          "node_id": "0073",
+          "start_index": 168,
+          "end_index": 168,
+          "summary": "another, then resumed. Each switch takes milliseconds, but with 12 processes competing, those milliseconds add up. In this example, the GPU spends 40% of its time switching contexts. You're getting 60% of the performance you paid for. …"
+        },
+        {
+          "title": "Key Takeaways",
+          "node_id": "0074",
+          "start_index": 169,
+          "end_index": 169,
+          "summary": "5. Failed experiments continue running because nobody checks The monitoring doesn't fix these problems. But it makes them impossible to ignore. Key Takeaways GPU monitoring requires three views: Physical (nvidia-smi), logical (Kubernetes), and actual usage (DCGM). Any single view lies by omission. …"
+        }
+      ]
+    },
+    {
+      "title": "Chapter 6. Multi-Tenant GPU Platforms with vCluster",
+      "node_id": "0075",
+      "start_index": 170,
+      "end_index": 170,
+      "summary": "Multi-Tenant GPU Platforms with vCluster Chapter 6 Now that you understand the need for GPUs in modern AI workloads, let's examine a typical enterprise scenario. …",
+      "nodes": [
+        {
+          "title": "The Alternative",
+          "node_id": "0076",
+          "start_index": 171,
+          "end_index": 173,
+          "summary": "Now that you understand the need for GPUs in modern AI workloads, let's examine a typical enterprise scenario. Imagine an organization that has provisioned 5 bare metal GPU nodes and 5 bare metal CPU nodes, whether on-prem or in the cloud (the same principles apply). …"
+        },
+        {
+          "title": "Understanding the vCluster Architecture: A Primer",
+          "node_id": "0077",
+          "start_index": 174,
+          "end_index": 188,
+          "summary": "multi-cluster tools to orchestrate deployments and policies. This model forces platform teams to choose between strong isolation and operational efficiency. That's where vCluster comes in. vCluster brings lightweight, isolated control planes without the overhead of full clusters. …"
+        },
+        {
+          "title": "Demo: KAI Scheduler with vCluster for Fractional GPU Sharing (Ollama RAG)",
+          "node_id": "0078",
+          "start_index": 189,
+          "end_index": 190,
+          "summary": "Fig. Data center architecture showing multiple virtual clusters, a single large Kubernetes cluster with shared node pool, and physical servers with 70% node utilization The data center should now have a single large Kubernetes cluster and multiple virtual Kubernetes clusters, one for each team. …",
+          "nodes": [
+            {
+              "title": "1. Prerequisites",
+              "node_id": "0079",
+              "start_index": 191,
+              "end_index": 191,
+              "summary": "1. Prerequisites Kubernetes cluster with NVIDIA GPUs (bare metal or GKE/AKS/EKS with GPU nodes) kubectl (v1.28+) installed and context set helm (v3.10+) installed vcluster CLI installed (brew install vcluster or docs) One Kubernetes cluster with at least 1 GPU node (e.g., g4dn.xlarge) In this exampl …"
+            },
+            {
+              "title": "2. NVIDIA GPU Operator Setup",
+              "node_id": "0080",
+              "start_index": 192,
+              "end_index": 193,
+              "summary": "Run the following command to create an EKS cluster using eksctl: Now, get the kubeconfig file and export the KUBECONFIG variable: 2. NVIDIA GPU Operator Setup Install the GPU operator and configure it to allow fractional GPU sharing using a time-slicing config: Install NVIDIA Operator: desiredCapaci …"
+            },
+            {
+              "title": "3. Install KAI-Scheduler",
+              "node_id": "0081",
+              "start_index": 194,
+              "end_index": 195,
+              "summary": "Restart the NVIDIA device plugin to apply the new configuration: Finally, confirm that the GPU capacity is exposed as two fractional devices: The single physical GPU was split into two logical devices. 3. …"
+            },
+            {
+              "title": "4. Create a vCluster with Kai Integration",
+              "node_id": "0082",
+              "start_index": 196,
+              "end_index": 196,
+              "summary": "We have a test queue successfully created as a child of the default queue: The queue is ready to use. 4. Create a vCluster with Kai Integration First, define the sync configuration that disables owner references and enables syncing of runtime classes: EOF overQuotaWeight: 1 gpu: quota: -1 limit: -1 …"
+            },
+            {
+              "title": "5. Deploy Application",
+              "node_id": "0083",
+              "start_index": 197,
+              "end_index": 199,
+              "summary": "Install the vcluster binary if not already present, then create a new virtual cluster named rag-legal inside the team-legal namespace: Verify the vCluster is running: 5. Deploy Application Now, create a simple GPU workload inside the vCluster. …"
+            },
+            {
+              "title": "6. Final Outcome",
+              "node_id": "0084",
+              "start_index": 200,
+              "end_index": 200,
+              "summary": "5. Final Outcome You now have: \u0000 Two vClusters, one for legal research, one for customer support \u0000 Each runs an isolated RAG application with Ollama \u0000 Each workload gets fractional GPU access (0.5) using Kai Scheduler \u0000 Complete failure isolation, scaling independence, and compliance separation This …"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Conclusion",
+      "node_id": "0085",
+      "start_index": 200,
+      "end_index": 202,
+      "summary": "5. Final Outcome You now have: \u0000 Two vClusters, one for legal research, one for customer support \u0000 Each runs an isolated RAG application with Ollama \u0000 Each workload gets fractional GPU access (0.5) using Kai Scheduler \u0000 Complete failure isolation, scaling independence, and compliance separation This …"
+    }
+  ]
+}

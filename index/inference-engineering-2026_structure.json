@@ -1,0 +1,1117 @@
+{
+  "doc_name": "inference-engineering-2026.pdf",
+  "doc_description": "Inference Engineering",
+  "meta": {
+    "type": "pdf",
+    "pages": 259,
+    "author": "Philip Kiely",
+    "index_unit": "page",
+    "toc_source": "embedded_toc",
+    "summary_method": "extractive-first-page",
+    "generator": "tools/build_pageindex.py"
+  },
+  "structure": [
+    {
+      "title": "Table of Contents",
+      "node_id": "0000",
+      "start_index": 5,
+      "end_index": 10,
+      "summary": "Table of Contents Preface....................................................................................................9 Chapter 0: Inference............................................................................15 Chapter 1: Prerequisites ................................................. …",
+      "nodes": [
+        {
+          "title": "Preface",
+          "node_id": "0001",
+          "start_index": 11,
+          "end_index": 16,
+          "summary": "Preface Inference is the most valuable category in the AI industry. Inference engineering, on the other hand, is still in its infancy. Inference engineers work across the stack from CUDA to Kubernetes in pursuit of faster, less expensive, more reliable serving of generative AI models in production. …"
+        },
+        {
+          "title": "Chapter 0: Inference",
+          "node_id": "0002",
+          "start_index": 17,
+          "end_index": 24,
+          "summary": "CHAPTER 0 Inference Inference 17 Inference Inference is the second phase in a generative AI model’s lifecycle: • Training: The process of learning model weights from data. • Inference: Serving generative AI models in production. …"
+        },
+        {
+          "title": "Chapter 1: Prerequisites",
+          "node_id": "0003",
+          "start_index": 25,
+          "end_index": 27,
+          "summary": "CHAPTER 1 Prerequisites Prerequisites 25 Prerequisites Inference engineering adds speed and scale to AI products by optimizing production serving of generative models. Optimization means identifying the best solution out of a range of options. …",
+          "nodes": [
+            {
+              "title": "1.1 Scale and Specialization",
+              "node_id": "0004",
+              "start_index": 28,
+              "end_index": 28,
+              "summary": "26 Chapter 1: Prerequisites You should know your: • Model requirements: Which model(s) do you need to run inference on? • Application interface: How will inputs be delivered to the model, and how is the output expected to be formatted? …"
+            },
+            {
+              "title": "1.2 About Your App",
+              "node_id": "0005",
+              "start_index": 29,
+              "end_index": 29,
+              "summary": "1.2 About Your App 27 Most AI products start with pay-per-token APIs because the tradeoffs make sense while looking for product-market fit or in the early stages of growth. …",
+              "nodes": [
+                {
+                  "title": "1.2.1 AI-Native Applications",
+                  "node_id": "0006",
+                  "start_index": 30,
+                  "end_index": 30,
+                  "summary": "28 Chapter 1: Prerequisites Similarly, the way your inference system will be used determines how you go about building it. There are two cases where inference engineers need to build at the high- est level of generality: • Foundation models: You have trained your own model and will sell consumption …"
+                },
+                {
+                  "title": "1.2.2 Online versus Offline",
+                  "node_id": "0007",
+                  "start_index": 31,
+                  "end_index": 31,
+                  "summary": "1.2.2 Online versus Offline 29 Category Example Considerations RecSys E-commerce product recommendations Consistent latency with high request volume Completion Tab completion for coding in an IDE Full completion chunk at user’s typing speed Moderation Scan user-generated content for safety High thro …"
+                },
+                {
+                  "title": "1.2.3 Consumer versus B2B",
+                  "node_id": "0008",
+                  "start_index": 32,
+                  "end_index": 32,
+                  "summary": "30 Chapter 1: Prerequisites It’s possible to have a single model that is used for both online and offline jobs. Whisper, a speech-to-text model, could be used in both a real-time dictation app and a batch transcription job. …"
+                }
+              ]
+            },
+            {
+              "title": "1.3 Model Selection",
+              "node_id": "0009",
+              "start_index": 33,
+              "end_index": 33,
+              "summary": "1.3 Model Selection 31 Inference engineers must work closely with security and legal experts to ensure that the infrastructure they are operating is compliant. …",
+              "nodes": [
+                {
+                  "title": "1.3.1 Model Evaluation",
+                  "node_id": "0010",
+                  "start_index": 33,
+                  "end_index": 33,
+                  "summary": "1.3 Model Selection 31 Inference engineers must work closely with security and legal experts to ensure that the infrastructure they are operating is compliant. …"
+                },
+                {
+                  "title": "1.3.2 Fine-Tuning for Domain- Specific Quality",
+                  "node_id": "0011",
+                  "start_index": 34,
+                  "end_index": 34,
+                  "summary": "32 Chapter 1: Prerequisites • Establish a baseline: Some performance optimization techniques risk reducing model quality, requiring a baseline to compare against. …"
+                },
+                {
+                  "title": "1.3.3 Distillation",
+                  "node_id": "0012",
+                  "start_index": 35,
+                  "end_index": 36,
+                  "summary": "1.3.3 Distillation 33 Figure 1.2: Fine-tuning a model changes the values of the model weights while keeping the same overall architecture. If you can fi ne-tune a small model to pass your evals, you set yourself up for an easier time hitting your latency and cost targets for inference. …"
+                }
+              ]
+            },
+            {
+              "title": "1.4 Measuring Latency and Throughput",
+              "node_id": "0013",
+              "start_index": 37,
+              "end_index": 37,
+              "summary": "1.4 Measuring Latency and Throughput 35 These distilled models showed similar reasoning behavior to the main DeepSeek-R1 model, albeit with worse intelligence benchmark scores, but the distilled models were relatively small and could take advantage of existing performance work for the Llama and Qwen …",
+              "nodes": [
+                {
+                  "title": "1.4.1 Latency Percentiles",
+                  "node_id": "0014",
+                  "start_index": 38,
+                  "end_index": 38,
+                  "summary": "36 Chapter 1: Prerequisites Figure 1.4: TTFT is the time it takes to generate the fi rst token, while TPS measures how quickly subsequent tokens are generated. TTFT and TPS are most commonly used for user-facing LLM systems like chatbots, where output is streamed to the user. …"
+                },
+                {
+                  "title": "1.4.2 End-to-End Metrics",
+                  "node_id": "0015",
+                  "start_index": 39,
+                  "end_index": 40,
+                  "summary": "1.4.2 End-to-End Metrics 37 The naive approach is to simply look at an average (mean) TTFT or TPS. However, this does not tell the whole story. LLM total response time is gen- erally a right-skewed distribution, where most times concentrate around a mode, but outliers can take significantly longer. …"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Chapter 2: Models",
+          "node_id": "0016",
+          "start_index": 41,
+          "end_index": 43,
+          "summary": "CHAPTER 2 Models Models 41 Models Inference engineering is the practice of making generative AI models faster, less expensive, and more reliable – without sacrificing the quality that makes them so valuable. …",
+          "nodes": [
+            {
+              "title": "2.1 Neural Networks",
+              "node_id": "0017",
+              "start_index": 44,
+              "end_index": 45,
+              "summary": "42 Chapter 2: Models This chapter explores the architectural details of LLMs (autoregressive token generation) and image generation models (iterative denoising). 2.1 Neural Networks Generations of research into neural networks form the theoretical foun- dation for generative AI. …",
+              "nodes": [
+                {
+                  "title": "2.1.1 Linear Layers and Matmul",
+                  "node_id": "0018",
+                  "start_index": 46,
+                  "end_index": 46,
+                  "summary": "44 Chapter 2: Models Modern LLMs are decoder-only, while encoder-only models are somewhat rare today, with old-school text embedding models from the BERT family as a prominent example. Many models in other modalities use an encoder-decoder architecture. …"
+                },
+                {
+                  "title": "2.1.2 Activation Functions",
+                  "node_id": "0019",
+                  "start_index": 46,
+                  "end_index": 47,
+                  "summary": "44 Chapter 2: Models Modern LLMs are decoder-only, while encoder-only models are somewhat rare today, with old-school text embedding models from the BERT family as a prominent example. Many models in other modalities use an encoder-decoder architecture. …"
+                }
+              ]
+            },
+            {
+              "title": "2.2 LLM Inference Mechanics",
+              "node_id": "0020",
+              "start_index": 48,
+              "end_index": 50,
+              "summary": "46 Chapter 2: Models Figure 2.4: Activation functions like ReLU are used to break linearity in multi-layer neural networks. 2.2 LLM Inference Mechanics LLMs are autoregressive token generation models. An LLM generates new tokens one at a time based on every previous token. …",
+              "nodes": [
+                {
+                  "title": "2.2.1 LLM Architecture",
+                  "node_id": "0021",
+                  "start_index": 51,
+                  "end_index": 51,
+                  "summary": "2.2.1 LLM Architecture 49 A lower temperature, top-k, or top-p makes LLM output more predictable as the model is constrained to selecting highly likely tokens. Setting the temperature to 0 or top-k to 1 makes token selection deterministic (always select the highest-probability token). …"
+                },
+                {
+                  "title": "2.2.2 Transformer Blocks",
+                  "node_id": "0022",
+                  "start_index": 52,
+                  "end_index": 53,
+                  "summary": "50 Chapter 2: Models These architectures matter because they determine runtime and engine support. If you have a highly optimized deployment of a given architecture, you can deploy another variant of the same architecture and enjoy the same performance improvements. …"
+                },
+                {
+                  "title": "2.2.3 Attention",
+                  "node_id": "0023",
+                  "start_index": 54,
+                  "end_index": 54,
+                  "summary": "52 Chapter 2: Models While linear sublayers are the largest portion of the weights, the more complex operation for inference is attention. 2.2.3 Attention Attention is the mechanism transformers use to relate a given token to other tokens in the sequence. …"
+                },
+                {
+                  "title": "2.2.4 Mixture of Experts Models",
+                  "node_id": "0024",
+                  "start_index": 55,
+                  "end_index": 56,
+                  "summary": "2.2.4 Mixture of Experts Models 53 There are two main types of attention: • Self-attention: Q, K, and V are all from the same sequence. • Cross-attention: Q is from a different sequence than K and V, condi- tioning Q on external information. …"
+                }
+              ]
+            },
+            {
+              "title": "2.3 Image Generation Inference Mechanics",
+              "node_id": "0025",
+              "start_index": 57,
+              "end_index": 58,
+              "summary": "2.3 Image Generation Inference Mechanics 55 2.3 Image Generation Inference Mechanics Image generation models take a text prompt and create an image based on the prompt. …",
+              "nodes": [
+                {
+                  "title": "2.3.1 Image Generation Model Architecture",
+                  "node_id": "0026",
+                  "start_index": 59,
+                  "end_index": 60,
+                  "summary": "2.3.1 Image Generation Model Architecture 57 2.3.1 Image Generation Model Architecture Image generation models are built on transformers, specifi cally diffusion transformers. …"
+                },
+                {
+                  "title": "2.3.2 Few-Step Image Generation Models",
+                  "node_id": "0027",
+                  "start_index": 61,
+                  "end_index": 61,
+                  "summary": "2.3.2 Few-Step Image Generation Models 59 2.3.2 Few-Step Image Generation Models The most time-consuming part of image generation is the 30 to 50 denois- ing steps. Rather than making each step faster, what if there was a way to optimize image models by simply using fewer steps? …"
+                },
+                {
+                  "title": "2.3.3 Video Generation",
+                  "node_id": "0028",
+                  "start_index": 61,
+                  "end_index": 62,
+                  "summary": "2.3.2 Few-Step Image Generation Models 59 2.3.2 Few-Step Image Generation Models The most time-consuming part of image generation is the 30 to 50 denois- ing steps. Rather than making each step faster, what if there was a way to optimize image models by simply using fewer steps? …"
+                }
+              ]
+            },
+            {
+              "title": "2.4 Calculating Inference Bottlenecks",
+              "node_id": "0029",
+              "start_index": 63,
+              "end_index": 63,
+              "summary": "2.4 Calculating Inference Bottlenecks 61 and other generative AI rendering models is a highly active area of research. One important direction in research is coming back around to the idea of autoregressive generation, like with blending LLM architecture into image generation models. …",
+              "nodes": [
+                {
+                  "title": "2.4.1 Ops: Byte Ratio and Arithmetic Intensity",
+                  "node_id": "0030",
+                  "start_index": 64,
+                  "end_index": 64,
+                  "summary": "62 Chapter 2: Models When optimizing performance on each of these phases, the goal is to make the bottleneck less limiting to system-wide performance. For example, batching multiple requests together makes LLM decode less memory bound because processing a batch of requests uses more com- pute for th …"
+                },
+                {
+                  "title": "2.4.2 LLM Inference Bottlenecks",
+                  "node_id": "0031",
+                  "start_index": 65,
+                  "end_index": 68,
+                  "summary": "2.4.2 LLM Inference Bottlenecks 63 Figure 2.13: A roofl ine chart shows the switch from memory to compute bottleneck based on arithmetic intensity. Plotting against the roofl ine model reveals if the algorithm is: • Compute bound: When the arithmetic intensity is higher than the hard- ware’s ops:byt …"
+                },
+                {
+                  "title": "2.4.3 Image Generation Inference Bottlenecks",
+                  "node_id": "0032",
+                  "start_index": 69,
+                  "end_index": 69,
+                  "summary": "2.4.3 Image Generation Inference Bottlenecks 67 2.4.3 Image Generation Inference Bottlenecks Image and video models are relatively small – they have a tenth as many parameters as frontier language models – but their attention mechanism is just as computationally demanding. …"
+                }
+              ]
+            },
+            {
+              "title": "2.5 Optimizing Attention",
+              "node_id": "0033",
+              "start_index": 69,
+              "end_index": 72,
+              "summary": "2.4.3 Image Generation Inference Bottlenecks 67 2.4.3 Image Generation Inference Bottlenecks Image and video models are relatively small – they have a tenth as many parameters as frontier language models – but their attention mechanism is just as computationally demanding. …"
+            }
+          ]
+        },
+        {
+          "title": "Chapter 3: Hardware",
+          "node_id": "0034",
+          "start_index": 73,
+          "end_index": 75,
+          "summary": "CHAPTER 3 Hardware Hardware 73 Hardware Inference engineering relies on accelerators: powerful hardware designed to load terabytes of data and perform trillions of operations per second. …",
+          "nodes": [
+            {
+              "title": "3.1 GPU Architecture",
+              "node_id": "0035",
+              "start_index": 76,
+              "end_index": 76,
+              "summary": "74 Chapter 3: Hardware Most inference engineers use cloud GPUs. Large enterprises and gov- ernments run on-premise and air-gapped deployments, but cloud-based GPUs offer the flexibility and access that fast-growing AI products need to scale. …",
+              "nodes": [
+                {
+                  "title": "3.1.1 Compute",
+                  "node_id": "0036",
+                  "start_index": 76,
+                  "end_index": 77,
+                  "summary": "74 Chapter 3: Hardware Most inference engineers use cloud GPUs. Large enterprises and gov- ernments run on-premise and air-gapped deployments, but cloud-based GPUs offer the flexibility and access that fast-growing AI products need to scale. …"
+                },
+                {
+                  "title": "3.1.2 Memory and Caches",
+                  "node_id": "0037",
+                  "start_index": 78,
+                  "end_index": 78,
+                  "summary": "76 Chapter 3: Hardware FLOPS generally double with each halving of precision. A GPU capable of one petaFLOPS on 16-bit numbers will be able to do two petaFLOPS on 8-bit numbers. This is relevant for inference – be sure to compare FLOPS across GPUs at identical precisions. …"
+                }
+              ]
+            },
+            {
+              "title": "3.2 GPU Architecture Generations",
+              "node_id": "0038",
+              "start_index": 79,
+              "end_index": 80,
+              "summary": "3.2 GPU Architecture Generations 77 Figure 3.2: A GPU has multiple SMs, each of which has multiple Tensor Cores. L1 cache sits within SMs and L2 cache is shared. The total amount of VRAM on a GPU limits the size of the model you can load onto it. …",
+              "nodes": [
+                {
+                  "title": "3.2.1 Hopper GPUs",
+                  "node_id": "0039",
+                  "start_index": 81,
+                  "end_index": 81,
+                  "summary": "3.2.1 Hopper GPUs 79 While GPU architectures go back decades, inference engineers generally work within the three to five most recent generations of GPUs. …"
+                },
+                {
+                  "title": "3.2.2 Ada Lovelace GPUs",
+                  "node_id": "0040",
+                  "start_index": 82,
+                  "end_index": 82,
+                  "summary": "80 Chapter 3: Hardware One such kernel is FlashAttention 3, which improves performance and memory efficiency for attention on Hopper GPUs. FlashAttention 3 takes advantage of the new asynchronous data transfer and execution features introduced with Hopper. …"
+                },
+                {
+                  "title": "3.2.3 Blackwell GPUs",
+                  "node_id": "0041",
+                  "start_index": 83,
+                  "end_index": 83,
+                  "summary": "3.2.3 Blackwell GPUs 81 3.2.3 Blackwell GPUs GPU FP8 compute (dense) Memory Bandwidth B200 ~5 petaFLOPS 192 GB Up to 8 TB/s B300 ~5 petaFLOPS 288 GB Up to 8 TB/s The Blackwell architecture, named for mathematician David Blackwell, was first released in November 2024 with the B200 GPU, followed by th …"
+                },
+                {
+                  "title": "3.2.4 Rubin GPUs",
+                  "node_id": "0042",
+                  "start_index": 83,
+                  "end_index": 83,
+                  "summary": "3.2.3 Blackwell GPUs 81 3.2.3 Blackwell GPUs GPU FP8 compute (dense) Memory Bandwidth B200 ~5 petaFLOPS 192 GB Up to 8 TB/s B300 ~5 petaFLOPS 288 GB Up to 8 TB/s The Blackwell architecture, named for mathematician David Blackwell, was first released in November 2024 with the B200 GPU, followed by th …"
+                },
+                {
+                  "title": "3.2.5 Grace and Vera CPUs",
+                  "node_id": "0043",
+                  "start_index": 84,
+                  "end_index": 84,
+                  "summary": "82 Chapter 3: Hardware tasks like LLM decode that are bound on memory bandwidth will benefi t from this higher-throughput VRAM. Rubin also introduces the new CPX, a separate chip that’s built for com- pute-bound tasks like LLM prefi ll. …"
+                }
+              ]
+            },
+            {
+              "title": "3.3 Instances",
+              "node_id": "0044",
+              "start_index": 85,
+              "end_index": 85,
+              "summary": "3.3 Instances 83 This CPU-to-GPU interconnect is several times faster than PCIe or other standard connections between CPUs and GPUs. Some inference setups call for offloading important information like LoRA fine-tune weights and KV caches from previous inference calls to CPU memory, which is far lar …",
+              "nodes": [
+                {
+                  "title": "3.3.1 Multi-GPU Instances",
+                  "node_id": "0045",
+                  "start_index": 86,
+                  "end_index": 87,
+                  "summary": "84 Chapter 3: Hardware When provisioning instances, it’s essential to understand exactly what you’re getting. Any component of the instance, not just the GPU, could present a bottleneck or failure point during inference. …"
+                },
+                {
+                  "title": "3.3.2 Multi-Instance GPUs",
+                  "node_id": "0046",
+                  "start_index": 88,
+                  "end_index": 88,
+                  "summary": "86 Chapter 3: Hardware When working with multi-GPU and multi-node systems, keep relative bandwidths in mind. When an interconnect like NVLink is an order of mag- nitude faster than Infi niBand, it can handle far more data before becom- ing a bottleneck. …"
+                }
+              ]
+            },
+            {
+              "title": "3.4 Other Datacenter Accelerator Options",
+              "node_id": "0047",
+              "start_index": 89,
+              "end_index": 90,
+              "summary": "3.4 Other Datacenter Accelerator Options 87 For example, an H100 MIG with three slices has about 3/7 of the available compute and can access as much as half of the total VRAM, or 40 GB. …"
+            },
+            {
+              "title": "3.5 Local Inference",
+              "node_id": "0048",
+              "start_index": 91,
+              "end_index": 91,
+              "summary": "3.5 Local Inference 89 Competition accelerates innovation. A market with more hardware options in the datacenter is good for every inference engineer. Competition in this space will only grow more robust as inference workloads become more valuable, as will exploration of options outside the datacent …",
+              "nodes": [
+                {
+                  "title": "3.5.1 Desktop Inference",
+                  "node_id": "0049",
+                  "start_index": 92,
+                  "end_index": 92,
+                  "summary": "90 Chapter 3: Hardware powerful computer, but a median user is more likely to have older devices with less powerful components. Local inference is turning the corner from experimentation to production, with a strong ecosystem across hardware and software and a vibrant community closely affiliated wi …"
+                },
+                {
+                  "title": "3.5.2 Mobile Inference",
+                  "node_id": "0050",
+                  "start_index": 93,
+                  "end_index": 94,
+                  "summary": "3.5.2 Mobile Inference 91 an individual user’s single request only touches a fraction of the model’s total weights. Image generation is also quite popular on personal computers, especially via ComfyUI, a tool for assembling multiple image model components together into a single pipeline. …"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Chapter 4: Software",
+          "node_id": "0051",
+          "start_index": 95,
+          "end_index": 97,
+          "summary": "CHAPTER 4 Software Software 95 Software NVIDIA’s market dominance in the inference space is in no small part due to the robust and mature software ecosystem around its hardware. Hardware iteration cycles are slow. …",
+          "nodes": [
+            {
+              "title": "4.1 CUDA",
+              "node_id": "0052",
+              "start_index": 98,
+              "end_index": 99,
+              "summary": "96 Chapter 4: Software • CUDA: Direct communication to the GPU for explicit control over com- putations and memory (section 4.1). • Deep learning frameworks: Abstractions over CUDA for training, exporting, and running neural networks in Python (section 4.2). …",
+              "nodes": [
+                {
+                  "title": "4.1.1 CUDA Kernels for Inference",
+                  "node_id": "0053",
+                  "start_index": 100,
+                  "end_index": 100,
+                  "summary": "98 Chapter 4: Software 4.1.1 CUDA Kernels for Inference Writing CUDA kernels does not mean building from scratch. The prior art to build upon predates CUDA by decades. …"
+                },
+                {
+                  "title": "4.1.2 CUDA Kernel Selection",
+                  "node_id": "0054",
+                  "start_index": 100,
+                  "end_index": 101,
+                  "summary": "98 Chapter 4: Software 4.1.1 CUDA Kernels for Inference Writing CUDA kernels does not mean building from scratch. The prior art to build upon predates CUDA by decades. …"
+                },
+                {
+                  "title": "4.1.3 Reducing Memory Accesses with Kernel Fusion",
+                  "node_id": "0055",
+                  "start_index": 102,
+                  "end_index": 102,
+                  "summary": "100 Chapter 4: Software 4.1.3 Reducing Memory Accesses with Kernel Fusion Running two different kernels back-to-back on the same data results in wasted reads from and writes to memory. As a simple example, imagine two kernels: multiply_by_2 and multiply_by_3. …"
+                }
+              ]
+            },
+            {
+              "title": "4.2 Deep Learning Frameworks and Libraries",
+              "node_id": "0056",
+              "start_index": 103,
+              "end_index": 103,
+              "summary": "4.2 Deep Learning Frameworks and Libraries 101 Figure 4.2: Kernel fusion reduces reads and writes between memory and compute within a GPU. Kernel fusion can be an automatic or a manual process. Compilers can identify straightforward fusion opportunities and automatically create fused kernels. …",
+              "nodes": [
+                {
+                  "title": "4.2.1 PyTorch",
+                  "node_id": "0057",
+                  "start_index": 104,
+                  "end_index": 104,
+                  "summary": "102 Chapter 4: Software The remainder of this section focuses on PyTorch and the technologies around and above it in the stack. 4.2.1 PyTorch PyTorch is a Python package for describing tensor operations. …"
+                },
+                {
+                  "title": "4.2.2 Model File Formats",
+                  "node_id": "0058",
+                  "start_index": 105,
+                  "end_index": 105,
+                  "summary": "4.2.2 Model File Formats 103 PyTorch automatically computes gradients for any differentiable function via its autograd module. This is what makes PyTorch so powerful for training – you define a computation graph, and you get a gradient to train against. …"
+                },
+                {
+                  "title": "4.2.3 ONNX Runtime and TensorRT",
+                  "node_id": "0059",
+                  "start_index": 106,
+                  "end_index": 106,
+                  "summary": "104 Chapter 4: Software Generative AI models have hundreds of gigabytes of weights. These weights are split across dozens of safetensors files. The safetensors for- mat uses memory mapping to ensure that the files are loadable without allocating the full memory, which makes loading model weights fas …"
+                },
+                {
+                  "title": "4.2.4 Transformers and Diffusers",
+                  "node_id": "0060",
+                  "start_index": 107,
+                  "end_index": 107,
+                  "summary": "4.2.4 Transformers and Diffusers 105 transformers architecture overall is simple enough that hand-fusing ker- nels is feasible. Today, it’s increasingly popular to skip directly from PyTorch to an inference engine like vLLM or TensorRT-LLM for models that these engines support, bypassing the interme …"
+                }
+              ]
+            },
+            {
+              "title": "4.3 Inference Engines",
+              "node_id": "0061",
+              "start_index": 107,
+              "end_index": 107,
+              "summary": "4.2.4 Transformers and Diffusers 105 transformers architecture overall is simple enough that hand-fusing ker- nels is feasible. Today, it’s increasingly popular to skip directly from PyTorch to an inference engine like vLLM or TensorRT-LLM for models that these engines support, bypassing the interme …",
+              "nodes": [
+                {
+                  "title": "4.3.1 vLLM",
+                  "node_id": "0062",
+                  "start_index": 108,
+                  "end_index": 109,
+                  "summary": "106 Chapter 4: Software In late 2025, vLLM and SGLang also began supporting some image and video generation models via vLLM Omni and SGLang Diffusion, respec- tively. TensorRT-LLM does not support image or video generation models. …"
+                },
+                {
+                  "title": "4.3.2 SGLang",
+                  "node_id": "0063",
+                  "start_index": 110,
+                  "end_index": 110,
+                  "summary": "108 Chapter 4: Software • You are using a smaller GPU or older architecture where TensorRT-LLM offers few performance benefi ts. 4.3.2 SGLang SGLang is the other major community-driven fast inference framework. …"
+                },
+                {
+                  "title": "4.3.3 TensorRT-LLM",
+                  "node_id": "0064",
+                  "start_index": 111,
+                  "end_index": 112,
+                  "summary": "4.3.3 TensorRT-LLM 109 SGLang also supports image and video generation model inference via SGLang Diffusion. SGLang Diffusion introduces a pipeline abstraction which orchestrates a number of stages. This flexible approach maps closely to the architec- ture of image and video generation models. …"
+                }
+              ]
+            },
+            {
+              "title": "4.4 NVIDIA Dynamo",
+              "node_id": "0065",
+              "start_index": 113,
+              "end_index": 113,
+              "summary": "4.4 NVIDIA Dynamo 111 Use TensorRT-LLM when: • You are running a well-supported model architecture on a Hopper or later GPU. • You are willing to do extra engineering work to get the best possible performance. …"
+            },
+            {
+              "title": "4.5 Performance Benchmarking and Load Testing",
+              "node_id": "0066",
+              "start_index": 114,
+              "end_index": 114,
+              "summary": "112 Chapter 4: Software As a general principle, the more scale you have, the more tools and tech- niques there are available to you for inference optimization. Dynamo is built for scale: big models, big traffic. …",
+              "nodes": [
+                {
+                  "title": "4.5.1 Performance Benchmarking Tooling",
+                  "node_id": "0067",
+                  "start_index": 115,
+                  "end_index": 115,
+                  "summary": "4.5.1 Performance Benchmarking Tooling 113 • Sequence lengths: Time to first token and memory usage rely on the input sequence length (ISL) and output sequence length (OSL), mean- ing the number of tokens in the prompt and response. …"
+                },
+                {
+                  "title": "4.5.2 Performance Benchmarking Tips",
+                  "node_id": "0068",
+                  "start_index": 116,
+                  "end_index": 116,
+                  "summary": "114 Chapter 4: Software 4.5.2 Performance Benchmarking Tips Along with being realistic, great benchmarks are also consistent. Make sure your benchmarks send enough traffic to get a good read on perfor- mance without being swayed by outliers. …"
+                },
+                {
+                  "title": "4.5.3 Profiling Performance",
+                  "node_id": "0069",
+                  "start_index": 116,
+                  "end_index": 118,
+                  "summary": "114 Chapter 4: Software 4.5.2 Performance Benchmarking Tips Along with being realistic, great benchmarks are also consistent. Make sure your benchmarks send enough traffic to get a good read on perfor- mance without being swayed by outliers. …"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Chapter 5: Techniques",
+          "node_id": "0070",
+          "start_index": 119,
+          "end_index": 121,
+          "summary": "CHAPTER 5 Techniques Techniques 119 Techniques One of the coolest parts about working in inference engineering is that unlike many industries where new academic research takes years or decades to be adopted by industry, techniques from new papers are live in production within months or even weeks. …",
+          "nodes": [
+            {
+              "title": "5.1 Quantization",
+              "node_id": "0071",
+              "start_index": 122,
+              "end_index": 122,
+              "summary": "120 Chapter 5: Techniques To make inference optimization even more complex, sometimes tech- niques are symbiotic and sometimes they are incompatible. For example, quantizing the KV cache alleviates a bottleneck in disaggregation, but increasing batch sizing reduces the compute available for speculat …",
+              "nodes": [
+                {
+                  "title": "5.1.1 Number Formats",
+                  "node_id": "0072",
+                  "start_index": 123,
+                  "end_index": 126,
+                  "summary": "5.1.1 Number Formats 121 The catch with quantization is that it runs the risk of reducing the model’s output quality. Quantization has the potential to introduce precision errors throughout the calculations that power inference. Precision errors compound over time. …"
+                },
+                {
+                  "title": "5.1.2 Quantization Approaches",
+                  "node_id": "0073",
+                  "start_index": 127,
+                  "end_index": 129,
+                  "summary": "5.1.2 Quantization Approaches 125 Instead, 8-bit floating-point formats (FP8, MXFP8) are generally the sweet spot for improving performance without sacrificing quality. …"
+                },
+                {
+                  "title": "5.1.3 Measuring Quality Impact",
+                  "node_id": "0074",
+                  "start_index": 130,
+                  "end_index": 130,
+                  "summary": "128 Chapter 5: Techniques 5.1.3 Measuring Quality Impact The standard for production-ready quantization is zero perceptible quality loss. After quantizing a model, it’s essential to thoroughly test its output quality versus the original precision. …"
+                }
+              ]
+            },
+            {
+              "title": "5.2 Speculative Decoding",
+              "node_id": "0075",
+              "start_index": 131,
+              "end_index": 132,
+              "summary": "5.2 Speculative Decoding 129 If you’re working in a highly sensitive domain and can’t risk model quality, no worries: every other technique in this chapter is lossless in terms of quality. …",
+              "nodes": [
+                {
+                  "title": "5.2.1 Draft-Target Speculative Decoding",
+                  "node_id": "0076",
+                  "start_index": 133,
+                  "end_index": 133,
+                  "summary": "5.2.1 Draft-Target Speculative Decoding 131 Aim for short, high-percentage sequences because generating and validat- ing tokens, while inexpensive relative to generating tokens in the original model, still comes with meaningful overhead. …"
+                },
+                {
+                  "title": "5.2.2 Medusa",
+                  "node_id": "0077",
+                  "start_index": 134,
+                  "end_index": 134,
+                  "summary": "132 Chapter 5: Techniques acceptance rate of these small models by teaching them to behave more like the target model. Draft-target speculative decoding is a good choice when you want some- thing that is quick to set up out of the box without doing any training or fine-tuning. …"
+                },
+                {
+                  "title": "5.2.3 EAGLE",
+                  "node_id": "0078",
+                  "start_index": 135,
+                  "end_index": 135,
+                  "summary": "5.2.3 EAGLE 133 Figure 5.4: Medusa heads each generate a draft token on top of the token generated by the target model. 5.2.3 EAGLE The main problem with using an off-the-shelf pretrained model as a draft model is that a model like Qwen 0.5B is designed to be a good standalone LLM on cheap hardware, …"
+                },
+                {
+                  "title": "5.2.4 N-gram Speculation and Lookahead Decoding",
+                  "node_id": "0079",
+                  "start_index": 136,
+                  "end_index": 137,
+                  "summary": "134 Chapter 5: Techniques of three hidden states: one from an early layer, one from a middle layer, and one from a late layer. EAGLE is often less than one billion parameters and scales well when given additional training data. …"
+                }
+              ]
+            },
+            {
+              "title": "5.3 Caching",
+              "node_id": "0080",
+              "start_index": 138,
+              "end_index": 138,
+              "summary": "136 Chapter 5: Techniques decode. N-gram speculation excels at code completion and similar tasks, while Lookahead Decoding generalizes in systems with excess compute. …",
+              "nodes": [
+                {
+                  "title": "5.3.1 Prefix Caching and KV Cache Re-Use",
+                  "node_id": "0081",
+                  "start_index": 138,
+                  "end_index": 140,
+                  "summary": "136 Chapter 5: Techniques decode. N-gram speculation excels at code completion and similar tasks, while Lookahead Decoding generalizes in systems with excess compute. …"
+                },
+                {
+                  "title": "5.3.2 Where to Store the KV Cache",
+                  "node_id": "0082",
+                  "start_index": 141,
+                  "end_index": 141,
+                  "summary": "5.3.2 Where to Store the KV Cache 139 5.3.2 Where to Store the KV Cache The KV cache is very valuable. But KV caches take up a lot of memory, and GPUs only have limited VRAM. You can confi gure how much memory your inference engine allocates to KV cache. …"
+                },
+                {
+                  "title": "5.3.3 Cache- Aware Routing",
+                  "node_id": "0083",
+                  "start_index": 142,
+                  "end_index": 142,
+                  "summary": "140 Chapter 5: Techniques Certain SKUs, like the GB200, come equipped with CPUs and intercon- nects offering much faster G2 storage making them great for KV cache offloading. NVIDIA Dynamo provides support for KV cache offloading via KVBM (KV Block Manager). …"
+                },
+                {
+                  "title": "5.3.4 Long Context Handling",
+                  "node_id": "0084",
+                  "start_index": 143,
+                  "end_index": 143,
+                  "summary": "5.3.4 Long Context Handling 141 cache will serve the request faster than a replica reading from G4 – but a global cache ensures that all replicas can eventually access any pre-com- puted sequence and that cached sequences are not lost when nodes cycle or are spun down during autoscaling. …"
+                }
+              ]
+            },
+            {
+              "title": "5.4 Model Parallelism",
+              "node_id": "0085",
+              "start_index": 144,
+              "end_index": 145,
+              "summary": "142 Chapter 5: Techniques 5.4 Model Parallelism Every frontier LLM on the market today is too big to fi t on a single GPU for batch inference. While GPUs have gotten bigger, so too have models, a trend that does not show signs of reversing. …",
+              "nodes": [
+                {
+                  "title": "5.4.1 Tensor Parallelism for Lower Latency",
+                  "node_id": "0086",
+                  "start_index": 146,
+                  "end_index": 146,
+                  "summary": "144 Chapter 5: Techniques Additionally, data parallelism strategies like Context Parallelism split com- putation across devices. These strategies are rare in LLM inference but essential for video generation (section 6.6). …"
+                },
+                {
+                  "title": "5.4.2 Expert Parallelism for Higher Throughput",
+                  "node_id": "0087",
+                  "start_index": 147,
+                  "end_index": 147,
+                  "summary": "5.4.2 Expert Parallelism for Higher Throughput 145 However, the results of each layer need to be communicated in an all-re- duce fashion into a single output before the next layer can be computed. …"
+                },
+                {
+                  "title": "5.4.3 Multi-Node Inference",
+                  "node_id": "0088",
+                  "start_index": 148,
+                  "end_index": 149,
+                  "summary": "146 Chapter 5: Techniques Figure 5.15: This deployment uses TP for attention and EP for the sparse MoE layer. Expert Parallelism requires less inter-GPU communication than Tensor Par- allelism. …"
+                }
+              ]
+            },
+            {
+              "title": "5.5 Disaggregation",
+              "node_id": "0089",
+              "start_index": 150,
+              "end_index": 150,
+              "summary": "148 Chapter 5: Techniques better off using the extra nodes for horizontal scaling across replicas, or for disaggregated serving. 5.5 Disaggregation Disaggregation combines three important ideas in inference engineering: 1. …",
+              "nodes": [
+                {
+                  "title": "5.5.1 How Disaggregation Works",
+                  "node_id": "0090",
+                  "start_index": 150,
+                  "end_index": 150,
+                  "summary": "148 Chapter 5: Techniques better off using the extra nodes for horizontal scaling across replicas, or for disaggregated serving. 5.5 Disaggregation Disaggregation combines three important ideas in inference engineering: 1. …"
+                },
+                {
+                  "title": "5.5.2 When to Use Disaggregation",
+                  "node_id": "0091",
+                  "start_index": 151,
+                  "end_index": 151,
+                  "summary": "5.5.2 When to Use Disaggregation 149 Figure 5.17: Disaggregation assigns prefi ll workers to generate the fi rst token and decode workers to generate subsequent tokens. 1. If it is, the decode engine handles prefi ll locally, skipping disaggregation. 2. …"
+                },
+                {
+                  "title": "5.5.3 Dynamic Disaggregation with NVIDIA Dynamo",
+                  "node_id": "0092",
+                  "start_index": 152,
+                  "end_index": 154,
+                  "summary": "150 Chapter 5: Techniques If either point one or two is not true, you’re likely wasting money on extra hardware for minimal performance gains. If point three is not true, you may be better off using the extra GPUs to scale replicas horizontally, as decode engines will be more efficient for short seq …"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Chapter 6: Modalities",
+          "node_id": "0093",
+          "start_index": 155,
+          "end_index": 157,
+          "summary": "CHAPTER 6 Modalities Modalities 155 Modalities The modality of a model describes what types of input it accepts and what types of output it creates. Chapters 1 through 5 focus on inference engineering for LLMs, which take text as input and produce text as output. …",
+          "nodes": [
+            {
+              "title": "6.1 Vision Language Models",
+              "node_id": "0094",
+              "start_index": 158,
+              "end_index": 159,
+              "summary": "156 Chapter 6: Modalities Many of the same inference engines and techniques used for LLMs also apply to these related modalities. Image and video generation models instead rely on iterative denoising, though increasingly hybrid diffusion transformer models are setting the frontier in quality. …",
+              "nodes": [
+                {
+                  "title": "6.1.1 Video Processing for Vision Language Models",
+                  "node_id": "0095",
+                  "start_index": 160,
+                  "end_index": 160,
+                  "summary": "158 Chapter 6: Modalities In addition to these techniques, VLMs introduce a new quality-speed tradeoff: downsampling. Images and videos can be converted into visual tokens at various resolutions. …"
+                },
+                {
+                  "title": "6.1.2 Omni-Modal Models",
+                  "node_id": "0096",
+                  "start_index": 161,
+                  "end_index": 161,
+                  "summary": "6.1.2 Omni-Modal Models 159 6.1.2 Omni-Modal Models Vision language models are an important part of a trend toward “omni” models that accept multiple types of input and produce multiple types of output. …"
+                }
+              ]
+            },
+            {
+              "title": "6.2 Embedding Models",
+              "node_id": "0097",
+              "start_index": 161,
+              "end_index": 161,
+              "summary": "6.1.2 Omni-Modal Models 159 6.1.2 Omni-Modal Models Vision language models are an important part of a trend toward “omni” models that accept multiple types of input and produce multiple types of output. …",
+              "nodes": [
+                {
+                  "title": "6.2.1 Embedding Model Architecture",
+                  "node_id": "0098",
+                  "start_index": 162,
+                  "end_index": 162,
+                  "summary": "160 Chapter 6: Modalities By encoding content into this shared semantic vector space, you can compare distance between items with simple math. Embedding models (along with vector databases) are used to build agent memory, RAG, search, and recommendation systems. …"
+                },
+                {
+                  "title": "6.2.2 Embedding Model Inference",
+                  "node_id": "0099",
+                  "start_index": 163,
+                  "end_index": 163,
+                  "summary": "6.2.2 Embedding Model Inference 161 Modern embedding models use Matryoshka representations to unlock dynamic tradeoffs between embedding dimensionality and quality while retaining more information on shorter vectors. …"
+                }
+              ]
+            },
+            {
+              "title": "6.3 ASR Models",
+              "node_id": "0100",
+              "start_index": 164,
+              "end_index": 164,
+              "summary": "162 Chapter 6: Modalities The easiest way to check embedding model quality post-quantization is to run the same inputs through both the original and the quantized model, then check the cosine similarity of the output vectors. …",
+              "nodes": [
+                {
+                  "title": "6.3.1 Single-Chunk Latency Optimization",
+                  "node_id": "0101",
+                  "start_index": 165,
+                  "end_index": 165,
+                  "summary": "6.3.1 Single-Chunk Latency Optimization 163 Whisper comes in various sizes, but the largest and highest-quality Whis- per model is just 1.55B parameters. Whisper runs extremely fast on frac- tions of large GPUs like H100 via Multi-Instance GPUs (MIGs). …"
+                },
+                {
+                  "title": "6.3.2 Long File Latency Optimization",
+                  "node_id": "0102",
+                  "start_index": 166,
+                  "end_index": 167,
+                  "summary": "164 Chapter 6: Modalities The biggest upgrade in product experience for ASR is streaming, which is implemented at the API server layer rather than the model runtime layer. …"
+                },
+                {
+                  "title": "6.3.3 Diarization",
+                  "node_id": "0103",
+                  "start_index": 168,
+                  "end_index": 168,
+                  "summary": "166 Chapter 6: Modalities 6.3.3 Diarization Diarization, or annotating a transcript with who is speaking when, is an adjacent problem to transcription. Diarization models categorize audio by voice feature, then segment and cluster across the fi le to timestamp changes in speaker. …"
+                }
+              ]
+            },
+            {
+              "title": "6.4 TTS Models",
+              "node_id": "0104",
+              "start_index": 168,
+              "end_index": 169,
+              "summary": "166 Chapter 6: Modalities 6.3.3 Diarization Diarization, or annotating a transcript with who is speaking when, is an adjacent problem to transcription. Diarization models categorize audio by voice feature, then segment and cluster across the fi le to timestamp changes in speaker. …",
+              "nodes": [
+                {
+                  "title": "6.4.1 Streaming Real-Time Text to Speech",
+                  "node_id": "0105",
+                  "start_index": 170,
+                  "end_index": 170,
+                  "summary": "168 Chapter 6: Modalities However, there are different goals for TPS on speech synthesis models. The tokens that the model generates are converted to audio waveforms. Depending on the model, it might take 80 to 100 tokens per second to generate audio in real time. …"
+                },
+                {
+                  "title": "6.4.2 Speech-to-Speech Models",
+                  "node_id": "0106",
+                  "start_index": 170,
+                  "end_index": 170,
+                  "summary": "168 Chapter 6: Modalities However, there are different goals for TPS on speech synthesis models. The tokens that the model generates are converted to audio waveforms. Depending on the model, it might take 80 to 100 tokens per second to generate audio in real time. …"
+                }
+              ]
+            },
+            {
+              "title": "6.5 Image Generation Models",
+              "node_id": "0107",
+              "start_index": 171,
+              "end_index": 171,
+              "summary": "6.5 Image Generation Models 169 Figure 6.7: Most voice-based applications use a cascading approach with a multi- model pipeline. Speech-to-speech models, like OpenAI’s gpt-realtime, augment a core LLM with audio consumption and production capabilities, effectively unifying the pipeline in a single m …",
+              "nodes": [
+                {
+                  "title": "6.5.1 Image Generation Kernel Optimization",
+                  "node_id": "0108",
+                  "start_index": 172,
+                  "end_index": 173,
+                  "summary": "170 Chapter 6: Modalities Working with image and video generation models is entirely different from working with large language models on a few axes. The first is architecture. …"
+                },
+                {
+                  "title": "6.5.2 One Weird Trick for Faster Image Generation",
+                  "node_id": "0109",
+                  "start_index": 174,
+                  "end_index": 174,
+                  "summary": "172 Chapter 6: Modalities 6.5.2 One Weird Trick for Faster Image Generation Kernel selection and Torch compilation are all bona fi de inference optimi- zation techniques. But the world of inference optimization has fun hacks as well, and here’s one of them. …"
+                }
+              ]
+            },
+            {
+              "title": "6.6 Video Generation Models",
+              "node_id": "0110",
+              "start_index": 175,
+              "end_index": 175,
+              "summary": "6.6 Video Generation Models 173 6.6 Video Generation Models Figure 6.10: Video generation models take text prompts and may take keyframes or other image, audio, and video input. Video generation is the most demanding modality. …",
+              "nodes": [
+                {
+                  "title": "6.6.1 Attention Optimization and Quantization",
+                  "node_id": "0111",
+                  "start_index": 176,
+                  "end_index": 177,
+                  "summary": "174 Chapter 6: Modalities Early video generation models were framewise. They generated frames one at a time. This reduced the quality and coherence of the video output. Today, video generation models run denoising steps on the video as a whole in latent space. …"
+                },
+                {
+                  "title": "6.6.2 Context Parallelism",
+                  "node_id": "0112",
+                  "start_index": 178,
+                  "end_index": 178,
+                  "summary": "176 Chapter 6: Modalities 6.6.2 Context Parallelism While video generation models generally run on a full node of eight GPUs, they use Context Parallelism rather than Tensor Parallelism. Context Parallelism copies the weights onto every GPU. …"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Chapter 7: Production",
+          "node_id": "0113",
+          "start_index": 179,
+          "end_index": 180,
+          "summary": "CHAPTER 7 Production Production 179 Production The purpose of inference engineering is to make generative AI models faster, less expensive, and more reliable to operate, which in turn lets you build better products. …",
+          "nodes": [
+            {
+              "title": "7.1 Containerization",
+              "node_id": "0114",
+              "start_index": 181,
+              "end_index": 182,
+              "summary": "Production 179 Production The purpose of inference engineering is to make generative AI models faster, less expensive, and more reliable to operate, which in turn lets you build better products. …",
+              "nodes": [
+                {
+                  "title": "7.1.1 Dependency Management",
+                  "node_id": "0115",
+                  "start_index": 183,
+                  "end_index": 184,
+                  "summary": "7.1.1 Dependency Management 181 Figure 7.1: Docker containers are composed of layers, from a base image up to an ephemeral, writable top layer. Inference engines like vLLM and SGLang offer official base images for active releases. …"
+                },
+                {
+                  "title": "7.1.2 NIMs",
+                  "node_id": "0116",
+                  "start_index": 185,
+                  "end_index": 185,
+                  "summary": "7.1.2 NIMs 183 7.1.2 NIMs NVIDIA Inference Microservices (NIMs) are pre-built Docker containers for popular open models. Containers make inference service implementations portable. …"
+                }
+              ]
+            },
+            {
+              "title": "7.2 Autoscaling",
+              "node_id": "0117",
+              "start_index": 185,
+              "end_index": 187,
+              "summary": "7.1.2 NIMs 183 7.1.2 NIMs NVIDIA Inference Microservices (NIMs) are pre-built Docker containers for popular open models. Containers make inference service implementations portable. …",
+              "nodes": [
+                {
+                  "title": "7.2.1 Concurrency and Batch Sizing",
+                  "node_id": "0118",
+                  "start_index": 188,
+                  "end_index": 189,
+                  "summary": "186 Chapter 7: Production Traffic-based scaling decisions can be made proactively, while utilization is a lagging indicator. Use both in combination to keep system resources matched with demand. …"
+                },
+                {
+                  "title": "7.2.2 Cold Starts",
+                  "node_id": "0119",
+                  "start_index": 190,
+                  "end_index": 191,
+                  "summary": "188 Chapter 7: Production Figure 7.8: Continuous batching operates at the token level, switching in new requests as old requests fi nish. Batch sizing trades off latency for throughput. Increasing the batch size will produce more throughput overall, but each user’s latency will get worse. …"
+                },
+                {
+                  "title": "7.2.3 Routing, Load Balancing, and Queueing",
+                  "node_id": "0120",
+                  "start_index": 192,
+                  "end_index": 193,
+                  "summary": "190 Chapter 7: Production For small models, the strategy used to be baking the weights into the image to simplify caching and loading. However, now that most models have dozens or hundreds of billions of parameters, the weights dwarf the image and are better loaded separately. …"
+                },
+                {
+                  "title": "7.2.4 Scale to Zero",
+                  "node_id": "0121",
+                  "start_index": 194,
+                  "end_index": 194,
+                  "summary": "192 Chapter 7: Production 7.2.4 Scale to Zero Advanced autoscaling systems implement a mechanism for scale to zero, where the system can scale down to zero active replicas if there is no traffic, then scale up automatically when traffic is received. …"
+                },
+                {
+                  "title": "7.2.5 Independent Component Scaling",
+                  "node_id": "0122",
+                  "start_index": 194,
+                  "end_index": 194,
+                  "summary": "192 Chapter 7: Production 7.2.4 Scale to Zero Advanced autoscaling systems implement a mechanism for scale to zero, where the system can scale down to zero active replicas if there is no traffic, then scale up automatically when traffic is received. …"
+                }
+              ]
+            },
+            {
+              "title": "7.3 Multi-Cloud Capacity Management",
+              "node_id": "0123",
+              "start_index": 195,
+              "end_index": 196,
+              "summary": "7.3 Multi-Cloud Capacity Management 193 Figure 7.10: Independent component scaling gives each model access to appropriate resources and individual scaling. …",
+              "nodes": [
+                {
+                  "title": "7.3.1 GPU Procurement",
+                  "node_id": "0124",
+                  "start_index": 197,
+                  "end_index": 197,
+                  "summary": "7.3.1 GPU Procurement 195 • Workload planes: Handles direct inference traffic and in-cluster scaling decisions, reports utilization and demand. This separation of responsibilities ensures that individual workload planes can serve traffic independently. …"
+                },
+                {
+                  "title": "7.3.2 Geo-Aware Load Balancing",
+                  "node_id": "0125",
+                  "start_index": 198,
+                  "end_index": 198,
+                  "summary": "196 Chapter 7: Production Large-scale inference generally uses a blend of GPU sources, with a baseline of low-cost reserved instances and a mix of on-demand and spot for handling peaks in traffic. These GPUs are distributed across multiple clusters worldwide for proximity to end users. …"
+                },
+                {
+                  "title": "7.3.3 Building for Reliability",
+                  "node_id": "0126",
+                  "start_index": 198,
+                  "end_index": 199,
+                  "summary": "196 Chapter 7: Production Large-scale inference generally uses a blend of GPU sources, with a baseline of low-cost reserved instances and a mix of on-demand and spot for handling peaks in traffic. These GPUs are distributed across multiple clusters worldwide for proximity to end users. …"
+                },
+                {
+                  "title": "7.3.4 Security and Compliance",
+                  "node_id": "0127",
+                  "start_index": 200,
+                  "end_index": 200,
+                  "summary": "198 Chapter 7: Production When individual clusters, regions, or cloud providers go down, seamlessly failing over to another workload plane keeps reliability high and latency low. …"
+                }
+              ]
+            },
+            {
+              "title": "7.4 Testing and Deployment",
+              "node_id": "0128",
+              "start_index": 201,
+              "end_index": 201,
+              "summary": "7.4 Testing and Deployment 199 requirements, where user data from their country cannot be processed on servers in a different country. For example, having one cluster in a provider near Toronto and another in a provider near New York lets you keep Canadian data in Canada and American data in the Uni …",
+              "nodes": [
+                {
+                  "title": "7.4.1 Zero-Downtime Deployment",
+                  "node_id": "0129",
+                  "start_index": 202,
+                  "end_index": 202,
+                  "summary": "200 Chapter 7: Production 7.4.1 Zero-Downtime Deployment Inference engineers use high-availability deployment strategies to avoid downtime. A traditional high-availability design is a blue-green deployment. …"
+                },
+                {
+                  "title": "7.4.2 Cost Estimation",
+                  "node_id": "0130",
+                  "start_index": 203,
+                  "end_index": 204,
+                  "summary": "7.4.2 Cost Estimation 201 2. Direct a small percentage of the incoming live traffic to the new service. 3. Monitor the new service and ensure it is handling traffic correctly. Revert if there are any issues. 4. …"
+                },
+                {
+                  "title": "7.4.3 Observability",
+                  "node_id": "0131",
+                  "start_index": 205,
+                  "end_index": 205,
+                  "summary": "7.4.3 Observability 203 The other factor to consider in dedicated deployments is the cost of engineering time spent building and maintaining inference systems. …"
+                }
+              ]
+            },
+            {
+              "title": "7.5 Client Code",
+              "node_id": "0132",
+              "start_index": 206,
+              "end_index": 206,
+              "summary": "204 Chapter 7: Production When things go wrong, inference engineers need information to fi x issues. Logs, both server logs and audit logs showing changes to an inference service, deliver that information in real time. Observability cannot be siloed. …",
+              "nodes": [
+                {
+                  "title": "7.5.1 Client Latency Overhead",
+                  "node_id": "0133",
+                  "start_index": 207,
+                  "end_index": 207,
+                  "summary": "7.5.1 Client Latency Overhead 205 7.5.1 Client Latency Overhead Depending on the client’s internet connection and the protocol used, establishing a session between a client and server takes a few dozen milliseconds. …"
+                },
+                {
+                  "title": "7.5.2 Asynchronous inference",
+                  "node_id": "0134",
+                  "start_index": 207,
+                  "end_index": 207,
+                  "summary": "7.5.1 Client Latency Overhead 205 7.5.1 Client Latency Overhead Depending on the client’s internet connection and the protocol used, establishing a session between a client and server takes a few dozen milliseconds. …"
+                },
+                {
+                  "title": "7.5.3 Streaming and Protocol Support",
+                  "node_id": "0135",
+                  "start_index": 207,
+                  "end_index": 209,
+                  "summary": "7.5.1 Client Latency Overhead 205 7.5.1 Client Latency Overhead Depending on the client’s internet connection and the protocol used, establishing a session between a client and server takes a few dozen milliseconds. …"
+                }
+              ]
+            },
+            {
+              "title": "7.6 Production Inference with Baseten",
+              "node_id": "0136",
+              "start_index": 210,
+              "end_index": 210,
+              "summary": "208 Chapter 7: Production 7.6 Production Inference with Baseten This book contains everything I’ve learned about inference in four years of working at Baseten. Baseten is an AI infrastructure company founded in 2019. …"
+            }
+          ]
+        },
+        {
+          "title": "Appendix A: Inference Glossary",
+          "node_id": "0137",
+          "start_index": 211,
+          "end_index": 232,
+          "summary": "APPENDIX A Inference Glossary Inference Glossary 211 Activation function: A (mostly) differentiable nonlinear function like ReLU inserted between linear layers to prevent multi-layer neural networks from collapsing into a single matmul. …"
+        },
+        {
+          "title": "Appendix B: Recommended Reading",
+          "node_id": "0138",
+          "start_index": 233,
+          "end_index": 235,
+          "summary": "APPENDIX B Recommended Reading Recommended Reading 233 This book is an introduction to the field of inference engineering. There is endless depth to explore in every one of the technologies and techniques behind performant inference at scale. …",
+          "nodes": [
+            {
+              "title": "Architecture",
+              "node_id": "0139",
+              "start_index": 236,
+              "end_index": 240,
+              "summary": "234 Recommended Reading Architecture “Attention is All You Need,” by Ashish Vaswani et al. (Neural Information Processing Systems, 2017), https:// arxiv.org/abs/1706.03762 “BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding,” by Jacob Devlin et al. …"
+            },
+            {
+              "title": "Developer Tools",
+              "node_id": "0140",
+              "start_index": 241,
+              "end_index": 244,
+              "summary": "Recommended Reading 239 Developer Tools BitsAndBytes by bitsandbytes-foundation, https://github. com/TimDettmers/bitsandbytes ComfyUI by comfyanonymous, https://github.com/ comfyanonymous/ComfyUI “CUDA by Example: An Introduction to General Purpose GPU Programming,” by Jason Sanders and Edward Kandr …"
+            },
+            {
+              "title": "Frontier Open Models",
+              "node_id": "0141",
+              "start_index": 245,
+              "end_index": 247,
+              "summary": "Recommended Reading 243 Frontier Open Models DeepSeek, by DeepSeek AI, https://huggingface.co/ deepseek-ai FLUX, by Black Forest Labs, https://huggingface.co/black- forest-labs Gemma, by Google, https://huggingface.co/google GLM, by Z.ai, https://huggingface.co/zai-org GPT OSS, by OpenAI, https://hu …"
+            },
+            {
+              "title": "GPU Infrastructure",
+              "node_id": "0142",
+              "start_index": 248,
+              "end_index": 250,
+              "summary": "246 Recommended Reading GPU Infrastructure Designing Data-Intensive Applications, by Martin Kleppmann (O’Reilly Media, 2017) https://dataintensive. net/ Grace Hopper / Grace Blackwell Systems by NVIDIA, https://www.nvidia.com/en-us/data-center/grace-cpu/ GPU Glossary, by Frye et al. …"
+            },
+            {
+              "title": "Inference Optimization Research",
+              "node_id": "0143",
+              "start_index": 251,
+              "end_index": 255,
+              "summary": "Recommended Reading 249 Inference Optimization Research “Adversarial Diffusion Distillation,” by Axel Sauer et al. (European Conference on Computer Vision, 2023), https:// arxiv.org/abs/2311.17042 “Train Short, Test Long: Attention with Linear Biases Enables Input Length Extrapolation,” by Ofir Pres …"
+            },
+            {
+              "title": "Intelligence Evaluation",
+              "node_id": "0144",
+              "start_index": 256,
+              "end_index": 258,
+              "summary": "254 Recommended Reading Intelligence Evaluation ARC AGI Prize by Greg Kamradt (2025), https://arcprize. org/ Evals for AI Engineers: Systematically Measuring and Improving AI Applications, by Shreya Shankar and Hamel Husain (O’Reilly Media, forthcoming 2026) https://www. …"
+            }
+          ]
+        },
+        {
+          "title": "Acknowledgements",
+          "node_id": "0145",
+          "start_index": 259,
+          "end_index": 259,
+          "summary": "Acknowledgements This book was made possible by people who invested in me early, without assurance of success. My thanks to Mike Bilodeau and Dannie Herzberg, who greenlit this project when I was supposed to be working on a dozen other priorities. …"
+        }
+      ]
+    }
+  ]
+}

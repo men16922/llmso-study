@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+._*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Claude Code 로컬 설정 (권한 등, 머신마다 다름)
+.claude/settings.local.json
+
+# 진짜 PageIndex 실행 시 생기는 결과물 (index/ 로 옮겨서 관리)
+results/
+
+# 임시
+*.tmp
+*.log
