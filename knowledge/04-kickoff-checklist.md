@@ -4,38 +4,14 @@
 
 > 이 문서는 "읽는 문서"가 아니라 **체크하며 실행하는 문서**입니다. 위에서부터 순서대로 하세요.
 
-## ① 최우선 — 승인·처리에 며칠 걸리는 것
+## ① 계정 준비 — 8/2 전까지
 
-지금 어느 날짜든, **이 블록이 안 끝났으면 여기부터** 하세요. 나머지는 뒤로 미뤄도 되지만 이건 대기 시간이 있어 미룰수록 손해입니다.
+- [x] 슬랙 초대 메일 확인 → `CloudNetaStudy` 워크스페이스 `llmso` 채널 입장
+- [x] 슬랙 프로필을 **`이름-닉네임`** 형식으로 변경 (예: `홍길동-gasida`)
+- [x] 노션 초대 메일 확인 → 임시암호키로 로그인 (Guest 권한, 유료 가입 불필요)
+- [x] ZOOM 무료 가입 + 프로필에 **본명·사진** 설정
 
-- [ ] **AWS GPU 쿼터 증설 신청** ← 가장 급함, 아래 상세 참조
-- [ ] 슬랙 초대 메일 확인 → `CloudNetaStudy` 워크스페이스 `llmso` 채널 입장
-- [ ] 슬랙 프로필을 **`이름-닉네임`** 형식으로 변경 (예: `홍길동-gasida`)
-- [ ] 노션 초대 메일 확인 → 임시암호키로 로그인 (Guest 권한, 유료 가입 불필요)
-- [ ] ZOOM 무료 가입 + 프로필에 **본명·사진** 설정
-
-### AWS GPU 쿼터 증설 — 상세
-
-6주차(9/6) EKS 실습에 GPU 인스턴스가 필요합니다. **신규 계정은 승인이 며칠~그 이상** 걸릴 수 있어 지금 신청해야 합니다.
-
-| 항목 | 값 |
-|---|---|
-| 서비스 | **Amazon EC2** |
-| 쿼터 이름 | **Running On-Demand G and VT instances** |
-| 단위 | **vCPU 수** (인스턴스 대수가 아님) |
-| 목표 인스턴스 | `g6e.2xlarge` = **8 vCPU** |
-| 신청 값 | 최소 **8**, 여유 있게 **16~32** 권장 |
-
-```
-AWS Console → Service Quotas → AWS services → Amazon Elastic Compute Cloud (Amazon EC2)
-→ "Running On-Demand G and VT instances" 검색 → Request increase at account level
-```
-
-- **리전을 확인하세요.** 쿼터는 리전별입니다. 워크숍을 돌릴 리전에 신청해야 합니다.
-- 신청 사유에는 "머신러닝 추론 워크숍 실습" 정도로 구체적으로 적으면 승인이 빠릅니다.
-- 거절되면 사유를 보고 재신청하거나 리전을 바꿔보세요.
-
-> GCP/Azure를 쓸 계획이면 각각 `GPUs (all regions)` 할당량, `Standard NCASv3_T4 Family vCPUs` 등에 해당하는 증설을 신청하세요. 다만 **6주차는 AWS EKS 환경**이라 AWS 계정은 별도로 필요합니다.
+> AWS GPU 쿼터는 여기 있었지만 **6주차(9/6)용이라 8월 하순으로 미뤘습니다.** → [아래 ⑥](#-aws-gpu-쿼터--8월-하순까지)
 
 ---
 
@@ -43,11 +19,11 @@ AWS Console → Service Quotas → AWS services → Amazon Elastic Compute Cloud
 
 [priority-guide.md](./references/priority-guide.md)의 🔴필수 5편입니다. **시간이 없으면 1~3번 20분만이라도.**
 
-- [ ] ① [LLM prefill 설명](https://youtu.be/Vuu27UTFUZ8) — 5분
-- [ ] ② [KV cache](https://youtu.be/sq3XGM1qdQY) — 8분
-- [ ] ③ [Flash attention의 원리](https://youtu.be/4Tw_ytMYHLI) — 7분
-- [ ] ④ [왜 컴퓨터는 한 가지 메모리만 쓰지 않을까](https://youtu.be/TfhL5kBiQVI) — 27분
-- [ ] ⑤ [LLM 설명 (요약버전)](https://youtu.be/HnvitMTkXro) — 8분 *(트랜스포머를 이미 안다면 생략 가능)*
+- [x] ① [LLM prefill 설명](https://youtu.be/Vuu27UTFUZ8) — 5분
+- [x] ② [KV cache](https://youtu.be/sq3XGM1qdQY) — 8분
+- [x] ③ [Flash attention의 원리](https://youtu.be/4Tw_ytMYHLI) — 7분
+- [x] ④ [왜 컴퓨터는 한 가지 메모리만 쓰지 않을까](https://youtu.be/TfhL5kBiQVI) — 27분
+- [x] ⑤ [LLM 설명 (요약버전)](https://youtu.be/HnvitMTkXro) — 8분 *(트랜스포머를 이미 안다면 생략 가능)*
 
 **왜 이 3편이 먼저인가**: 1주차 CH2가 트랜스포머 → 자기회귀 생성 → **KV cache → prefill/decode** → vLLM 순으로 나갑니다. ①②③을 보고 가면 강의 중 개념 설명을 따라가는 게 아니라 **적용을 보는** 상태가 됩니다.
 
@@ -104,11 +80,40 @@ python3 tools/search_index.py "attention"
 
 ---
 
+## ⑥ AWS GPU 쿼터 — 8월 하순까지
+
+**6주차(9/6) EKS 실습용**입니다. 표준 증설은 보통 몇 시간~며칠이면 승인되므로 지금 급하게 할 필요는 없습니다. **8월 셋째 주쯤(~8/23)** 신청해두면 거절 후 재신청할 여유까지 확보됩니다.
+
+- [ ] AWS 계정 준비 (없다면)
+- [ ] 쿼터 증설 신청 (아래 표)
+- [ ] 승인 확인
+
+| 항목 | 값 |
+|---|---|
+| 서비스 | **Amazon EC2** |
+| 쿼터 이름 | **Running On-Demand G and VT instances** |
+| 단위 | **vCPU 수** (인스턴스 대수가 아님) |
+| 목표 인스턴스 | `g6e.2xlarge` = **8 vCPU** |
+| 신청 값 | 최소 **8**, 여유 있게 **16~32** 권장 |
+
+```
+AWS Console → Service Quotas → AWS services → Amazon Elastic Compute Cloud (Amazon EC2)
+→ "Running On-Demand G and VT instances" 검색 → Request increase at account level
+```
+
+- **리전을 확인하세요.** 쿼터는 리전별입니다. 워크숍을 돌릴 리전에 신청해야 합니다.
+- 신청 사유에는 "머신러닝 추론 워크숍 실습" 정도로 구체적으로 적으면 승인이 빠릅니다.
+- 거절되면 사유를 보고 재신청하거나 리전을 바꿔보세요.
+
+> GCP/Azure를 쓸 계획이면 각각 `GPUs (all regions)` 할당량, `Standard NCASv3_T4 Family vCPUs` 등에 해당하는 증설을 신청하세요. 다만 **6주차는 AWS EKS 환경**이라 AWS 계정은 별도로 필요합니다.
+
+---
+
 ## 미리 알아둘 함정
 
 | 함정 | 대응 |
 |---|---|
-| **GPU 쿼터 승인 지연** | 오늘 신청. 리전별로 따로 신청해야 함 |
+| **GPU 쿼터 승인 지연** | 8월 하순까지는 신청. **리전별로 따로** 신청해야 함 |
 | **GPU 인스턴스 요금 누적** | 실습 후 `terraform destroy` / 인스턴스 종료 필수. NAT Gateway·LoadBalancer·EBS도 과금 |
 | **6주차 ODCR** | 용량 예약은 **예약 시점부터 과금**. 실습 직전에 만들고 끝나면 해제 |
 | **과제 제출표 이름 혼동** | 모든 멤버가 편집 권한 보유. 본인 이름 확인 후 업로드 |
@@ -120,9 +125,10 @@ python3 tools/search_index.py "attention"
 
 | 날짜 | 할 일 | 비고 |
 |---|---|---|
-| **~7/30** | AWS 쿼터 신청 · 슬랙/노션/ZOOM 가입 | **승인 대기가 걸리므로 가장 먼저** |
-| ~8/1 | 필수 영상 20분 (prefill → KV cache → Flash) | 1주차 CH2가 이 순서로 진행 |
+| ~8/1 | 슬랙·노션·ZOOM 가입 | ✅ 완료 |
+| ~8/1 | 필수 영상 20분 (prefill → KV cache → Flash) | ✅ 완료 |
 | 8/1 (토) | 1주차 CH1~2 예습 | → [1주차 예습 노트](./05-week1-prep.md) |
 | **8/2 (일) 20:30** | **스터디 1주차** | ZOOM |
 | 8/9 (일) 09:00 | 1주차 과제 마감 | 미공유 1회 = 제명 |
-| 9/6 (일) | 6주차 EKS 실습 | **쿼터가 여기서 필요** |
+| **~8/23** | **AWS GPU 쿼터 신청** | 남은 준비물은 이것뿐 |
+| 9/6 (일) | 6주차 EKS 실습 | 쿼터가 여기서 필요 |
