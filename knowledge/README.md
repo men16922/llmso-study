@@ -67,7 +67,7 @@ knowledge/
 | 이번 주 뭘 읽어야 하나 | [references/priority-guide.md](./references/priority-guide.md) 주차별 권장 |
 | GPU/K8s 실습을 따라해보고 싶다 | [subpages/README.md](./subpages/README.md) |
 | 과제 소재를 찾고 있다 | [references/priority-guide.md](./references/priority-guide.md) "과제용" 섹션 |
-| **PDF에서 개념 위치 찾기** | `python3 tools/search_index.py "KV cache"` → [index/](../index/) |
+| **PDF에서 개념 위치 찾기** | `python3 tools/search_index.py "KV cache"` → 사용법은 [index/USAGE.md](../index/USAGE.md) |
 | 자료 원문을 보고 싶다 | [references/pdf/](./references/pdf/) |
 
 > <Copyright. CloudNet@ All right reserved.>

@@ -2,6 +2,9 @@
 
 이 폴더는 [PageIndex](https://github.com/VectifyAI/PageIndex)를 이 저장소에 적용할 수 있는지 검토하고, **PageIndex와 동일한 스키마의 트리 인덱스를 로컬에서 생성한 결과**입니다.
 
+> 🔧 **바로 쓰는 법만 필요하면 → [USAGE.md](./USAGE.md)**
+> 이 문서는 "왜 이렇게 만들었나"(검토 과정과 실측 근거)를 다룹니다.
+
 ---
 
 ## 1. PageIndex란

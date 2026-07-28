@@ -3,7 +3,7 @@
   "doc_description": "LLMSO 스터디 정리 문서 모음",
   "meta": {
     "type": "markdown-collection",
-    "documents": 27,
+    "documents": 28,
     "index_unit": "line",
     "summary_method": "extractive-first-paragraph",
     "generator": "tools/build_pageindex.py"
@@ -14,7 +14,7 @@
       "doc_description": "Hands-On LLM Serving and Optimization Study (LLMSO)",
       "meta": {
         "type": "markdown",
-        "lines": 72,
+        "lines": 75,
         "index_unit": "line",
         "summary_method": "extractive-first-paragraph",
         "generator": "tools/build_pageindex.py"
@@ -31,21 +31,21 @@
               "title": "구조",
               "node_id": "0001",
               "start_index": 13,
-              "end_index": 33,
+              "end_index": 35,
               "summary": ""
             },
             {
               "title": "빠른 시작",
               "node_id": "0002",
-              "start_index": 34,
-              "end_index": 46,
+              "start_index": 36,
+              "end_index": 49,
               "summary": "하고 싶은 것 · 명령 / 문서 시작 전 준비 · knowledge/04-kickoff-checklist.md 1주차 예습 · knowledge/05-week1-prep.md 스터디 전반 파악 · knowledge/README.md 뭘 먼저 봐야 하나 · knowledge/references/priority-guide.md 자료 내용이 궁금 · knowledge/references/deep-dives.md PDF에서 개념 찾기 · python3 tools/search_index.py \"KV cache\" 문서 목차 보기 · pytho …",
               "nodes": [
                 {
                   "title": "검색 예시",
                   "node_id": "0003",
-                  "start_index": 47,
-                  "end_index": 58,
+                  "start_index": 50,
+                  "end_index": 61,
                   "summary": ""
                 }
               ]
@@ -53,15 +53,15 @@
             {
               "title": "스터디 개요",
               "node_id": "0004",
-              "start_index": 59,
-              "end_index": 65,
+              "start_index": 62,
+              "end_index": 68,
               "summary": "일정: 2026-08-02 ~ 09-13, 매주 일요일 20:30~22:30 (ZOOM) 교재: *Hands-On LLM Serving and Optimization* (Chi Wang, Peiheng Hu / O'Reilly 2026.4) 커리큘럼: 1~5주차 CH1~10 → 6주차 AWS EKS 워크숍 → 7주차 llm-d 과제: 매주 학습 내용을 공개 링크로 정리·공유 (다음 주 일요일 09:00까지)"
             },
             {
               "title": "필요 패키지",
               "node_id": "0005",
-              "start_index": 66,
-              "end_index": 72,
+              "start_index": 69,
+              "end_index": 75,
               "summary": "인덱싱·탐색은 LLM API 키가 필요 없습니다. 배경은 index/README.md 참조."
             }
           ]
@@ -73,7 +73,7 @@
       "doc_description": "PageIndex 적용 검토 및 로컬 인덱스",
       "meta": {
         "type": "markdown",
-        "lines": 310,
+        "lines": 313,
         "index_unit": "line",
         "summary_method": "extractive-first-paragraph",
         "generator": "tools/build_pageindex.py"
@@ -83,21 +83,21 @@
           "title": "PageIndex 적용 검토 및 로컬 인덱스",
           "node_id": "0324",
           "start_index": 1,
-          "end_index": 6,
+          "end_index": 9,
           "summary": "이 폴더는 PageIndex를 이 저장소에 적용할 수 있는지 검토하고, PageIndex와 동일한 스키마의 트리 인덱스를 로컬에서 생성한 결과입니다.",
           "nodes": [
             {
               "title": "1. PageIndex란",
               "node_id": "0325",
-              "start_index": 7,
-              "end_index": 19,
+              "start_index": 10,
+              "end_index": 22,
               "summary": "벡터 없는(vectorless), 추론 기반 RAG입니다. 임베딩 유사도 대신 사람이 목차를 훑듯 문서를 탐색합니다. 입력: PDF, Markdown 출력: ./results/{filename}_structure.json 벤치마크: 금융 문서에서 98.7% 정확도 (자사 주장)",
               "nodes": [
                 {
                   "title": "노드 스키마",
                   "node_id": "0326",
-                  "start_index": 20,
-                  "end_index": 34,
+                  "start_index": 23,
+                  "end_index": 37,
                   "summary": ""
                 }
               ]
@@ -105,57 +105,57 @@
             {
               "title": "2. 이 저장소에 적합한가 — 판단",
               "node_id": "0327",
-              "start_index": 35,
-              "end_index": 36,
+              "start_index": 38,
+              "end_index": 39,
               "summary": "처음엔 \"OpenAI 키가 필요하다\"고 판단했지만 틀렸습니다. PageIndex는 requirements.txt에 litellm==1.84.0을 쓰고, pageindex/config.yaml에는 아래 줄이 주석으로 이미 들어 있습니다: 즉 프로바이더 중립입니다. 나아가 LLM 호출 지점이 llm_completion / llm_acompletion 두 개뿐이라, 그 아래의 litellm.completion을 가로채면 어떤 LLM이든 붙일 수 있습니다. …",
               "nodes": [
                 {
                   "title": "적합하다고 본 이유",
                   "node_id": "0328",
-                  "start_index": 37,
-                  "end_index": 45,
+                  "start_index": 40,
+                  "end_index": 48,
                   "summary": "근거 · 설명 자료가 \"긴 문서\" 중심 · PDF 3종 527페이지. 청크 기반 벡터 RAG는 \"5.3.2 Where to Store the KV Cache\" 같은 섹션 경계를 뭉갠다 이미 목차가 훌륭함 · 3종 중 2종이 PDF 내장 TOC 보유(146 · 54 항목). 트리를 새로 추론할 필요가 거의 없다 탐색 질의가 \"어디에 있나\" 형태 · 스터디 중 질문은 \"KV cache 사이징은 어느 자료 몇 페이지?\"에 가깝다. …"
                 },
                 {
                   "title": "진입 장벽",
                   "node_id": "0329",
-                  "start_index": 46,
-                  "end_index": 54,
+                  "start_index": 49,
+                  "end_index": 57,
                   "summary": "장벽 · 실제 확인 결과 PyPI 패키지는 클라우드 SDK · pip install pageindex(v0.2.8, 6KB)를 받아 열어보니 PageIndexClient 하나뿐 — api.pageindex.ai로 업로드하는 래퍼. PageIndex 클라우드 API 키 필요 셀프호스팅도 LLM 필요 · run_pageindex.py는 TOC 탐지·트리 생성·요약 전 과정에서 LLM 호출. …"
                 },
                 {
                   "title": "⚠️ 정정 — API 키는 필수가 아니었다",
                   "node_id": "0330",
-                  "start_index": 55,
-                  "end_index": 67,
+                  "start_index": 58,
+                  "end_index": 70,
                   "summary": "처음엔 \"OpenAI 키가 필요하다\"고 판단했지만 틀렸습니다. PageIndex는 requirements.txt에 litellm==1.84.0을 쓰고, pageindex/config.yaml에는 아래 줄이 주석으로 이미 들어 있습니다: 즉 프로바이더 중립입니다. 나아가 LLM 호출 지점이 llm_completion / llm_acompletion 두 개뿐이라, 그 아래의 litellm.completion을 가로채면 어떤 LLM이든 붙일 수 있습니다. …"
                 },
                 {
                   "title": "실측 검증 결과 (NHN 백서 66p, `--no-summary`)",
                   "node_id": "0331",
-                  "start_index": 68,
-                  "end_index": 85,
+                  "start_index": 71,
+                  "end_index": 88,
                   "summary": "항목 · 값 LLM 호출 · 121회 (실패 0회) 벽시계 시간 · 278초 (동시 3) 입출력 · 입력 33.9만 자 / 출력 5.1만 자 TOC 정확도 · PageIndex 자체 리포트 100% 산출 노드 · 55개 로컬 결정론 버전(LLM 0회, 1초 미만)과 비교: 비교 항목 · 결과 노드 제목 · 54/54 완전 일치 (PageIndex에 Preface 1개 추가) 페이지 범위 · 10개 노드가 다름 — PageIndex는 다음 섹션 시작까지 겹치게 잡고, 로컬은 겹치지 않게 자름 범위 오류(end < start) · Pa …"
                 },
                 {
                   "title": "2차 실측 — 요약을 켜고 다시 (같은 PDF)",
                   "node_id": "0332",
-                  "start_index": 86,
-                  "end_index": 100,
+                  "start_index": 89,
+                  "end_index": 103,
                   "summary": "--no-summary를 빼고 한 번 더 돌렸습니다. 요약 품질은 확실히 좋습니다. 평균 1,934자로, 제 발췌본(265자)과는 성격이 다릅니다. 예를 들어 4.2.1 네트워크 병목 노드는 증상(SM Activity 저하, NIC 버스트 패턴, All-Reduce가 스텝 시간의 30% 초과)·원인(oversubscribed 토폴로지, rail 정렬 실패, NCCL 미튜닝)·진단법까지 서술합니다. 발췌 방식으로는 절대 나올 수 없는 내용입니다. 그런데 두 가지 문제가 드러났습니다.",
                   "nodes": [
                     {
                       "title": "① 실행 간 재현성이 낮다 ⚠️",
                       "node_id": "0333",
-                      "start_index": 101,
-                      "end_index": 112,
+                      "start_index": 104,
+                      "end_index": 115,
                       "summary": "두 실행은 --no-summary 여부만 달랐는데 트리 제목이 달라졌습니다. 같은 PDF·같은 목차인데 LLM이 매번 다르게 정규화합니다. 인덱스를 다시 만들 때마다 노드 제목이 바뀌면 북마크·인용·diff가 전부 깨집니다."
                     },
                     {
                       "title": "② 한국어 문서인데 요약이 영어로 나온다 ⚠️",
                       "node_id": "0334",
-                      "start_index": 113,
-                      "end_index": 116,
+                      "start_index": 116,
+                      "end_index": 119,
                       "summary": "요약 55개 중 54개(98%)가 사실상 영어입니다. NHN 백서는 한국어 문서인데도 그렇습니다. 한국어 스터디에서 쓰기엔 어색하고, 원문 용어와 대조가 어렵습니다."
                     }
                   ]
@@ -163,8 +163,8 @@
                 {
                   "title": "최종 결론",
                   "node_id": "0335",
-                  "start_index": 117,
-                  "end_index": 129,
+                  "start_index": 120,
+                  "end_index": 132,
                   "summary": ""
                 }
               ]
@@ -172,15 +172,15 @@
             {
               "title": "3. 생성된 인덱스",
               "node_id": "0336",
-              "start_index": 130,
-              "end_index": 140,
+              "start_index": 133,
+              "end_index": 143,
               "summary": "python3 tools/build_pageindex.py 로 생성 · 재생성합니다. (총 612 노드, 약 290 KB)",
               "nodes": [
                 {
                   "title": "진짜 PageIndex와 다른 점 (정직하게)",
                   "node_id": "0337",
-                  "start_index": 141,
-                  "end_index": 157,
+                  "start_index": 144,
+                  "end_index": 160,
                   "summary": "각 JSON의 meta.summary_method에 어느 방식인지 표기했습니다 — extractive-*(발췌) 또는 llm-claude-code-korean(C안 적용). Inference Engineering은 C안을 적용했습니다 (아래 §5-C). 나머지는 발췌 방식입니다. 발췌 방식의 요약 추출은 3단계 폴백입니다: ① 자기 구간의 산문 → ② 비면 하위 트리까지 확장 → ③ 그래도 비면 표 셀 내용까지 긁음(이 저장소는 표 비중이 큼). 그 결과 빈 요약이 71개(14.1%) → 19개(3.1%) 로 줄었습니다. …"
                 }
               ]
@@ -188,22 +188,22 @@
             {
               "title": "4. 사용법",
               "node_id": "0338",
-              "start_index": 158,
-              "end_index": 159,
+              "start_index": 161,
+              "end_index": 162,
               "summary": "필요 패키지: pymupdf (PDF 처리용, 이미 설치되어 있음) 실행 예: → \"KV cache 어디에 저장하나\"가 궁금하면 Inference Engineering 141쪽임을 바로 알 수 있습니다. 벡터 DB도, API 키도 없이.",
               "nodes": [
                 {
                   "title": "인덱스 재생성",
                   "node_id": "0339",
-                  "start_index": 160,
-                  "end_index": 169,
+                  "start_index": 163,
+                  "end_index": 172,
                   "summary": "필요 패키지: pymupdf (PDF 처리용, 이미 설치되어 있음)"
                 },
                 {
                   "title": "탐색",
                   "node_id": "0340",
-                  "start_index": 170,
-                  "end_index": 196,
+                  "start_index": 173,
+                  "end_index": 199,
                   "summary": "실행 예: → \"KV cache 어디에 저장하나\"가 궁금하면 Inference Engineering 141쪽임을 바로 알 수 있습니다. 벡터 DB도, API 키도 없이."
                 }
               ]
@@ -211,43 +211,43 @@
             {
               "title": "5. 진짜 PageIndex로 업그레이드하려면",
               "node_id": "0341",
-              "start_index": 197,
-              "end_index": 200,
+              "start_index": 200,
+              "end_index": 203,
               "summary": "LLM 요약 품질이나 추론 기반 검색이 필요해지면: 동작 원리: litellm.completion / acompletion / token_counter를 가로채 claude -p(헤드리스)로 돌립니다. litellm 실물이 없어도 sys.modules에 스텁을 꽂아 import를 만족시킵니다. ⚠️ 비용이 사라지는 게 아니라 옮겨갑니다 — API 크레딧 대신 Claude Code 구독 사용량을 씁니다. 66페이지 PDF 하나에 호출 121회였으니, 259페이지 PDF는 수백 회가 됩니다. …",
               "nodes": [
                 {
                   "title": "A-0. Claude Code 백엔드 ★ 키 불필요 · 검증 완료",
                   "node_id": "0342",
-                  "start_index": 201,
-                  "end_index": 216,
+                  "start_index": 204,
+                  "end_index": 219,
                   "summary": "동작 원리: litellm.completion / acompletion / token_counter를 가로채 claude -p(헤드리스)로 돌립니다. litellm 실물이 없어도 sys.modules에 스텁을 꽂아 import를 만족시킵니다. ⚠️ 비용이 사라지는 게 아니라 옮겨갑니다 — API 크레딧 대신 Claude Code 구독 사용량을 씁니다. 66페이지 PDF 하나에 호출 121회였으니, 259페이지 PDF는 수백 회가 됩니다. --dry-run으로 먼저 규모를 가늠하세요."
                 },
                 {
                   "title": "A. 셀프호스팅 (OpenAI / Anthropic API 키)",
                   "node_id": "0343",
-                  "start_index": 217,
-                  "end_index": 234,
+                  "start_index": 220,
+                  "end_index": 237,
                   "summary": "생성된 파일을 이 폴더에 덮어쓰면 tools/search_index.py가 그대로 동작합니다 (스키마 동일)."
                 },
                 {
                   "title": "B. 클라우드 API / MCP",
                   "node_id": "0344",
-                  "start_index": 235,
-                  "end_index": 246,
+                  "start_index": 238,
+                  "end_index": 249,
                   "summary": "OCR 강화판과 MCP 연동이 제공됩니다. 다만 문서 업로드가 전제입니다. <a id=\"c-plan\"></a>"
                 },
                 {
                   "title": "C. 트리는 로컬, 요약만 LLM ★ 채택",
                   "node_id": "0345",
-                  "start_index": 247,
-                  "end_index": 270,
+                  "start_index": 250,
+                  "end_index": 273,
                   "summary": "실측 끝에 고른 방식입니다. tools/enrich_summaries.py가 기존 인덱스의 summary 필드만 LLM 요약으로 교체합니다. 트리는 결정론적 결과 그대로라 재현성이 유지되고, 프롬프트로 언어를 지정해 한국어 요약을 얻습니다 — PageIndex 통째 실행에서 나온 두 문제를 동시에 피합니다. 문서별 대상 노드 수 (--max-depth 0 기준): Inference Engineering 145 · GPU on K8s 81 · NHN 백서 54 · 마크다운 전체 171",
                   "nodes": [
                     {
                       "title": "적용 결과 — Inference Engineering (145노드)",
                       "node_id": "0346",
-                      "start_index": 271,
-                      "end_index": 305,
+                      "start_index": 274,
+                      "end_index": 308,
                       "summary": "가장 큰 이득은 한국어 검색이 생긴 것입니다. 이 PDF는 영문이라 이전에는 한국어 질의로 아무것도 찾을 수 없었습니다. 실행 예:"
                     }
                   ]
@@ -257,9 +257,186 @@
             {
               "title": "6. 앞으로",
               "node_id": "0347",
-              "start_index": 306,
-              "end_index": 310,
+              "start_index": 309,
+              "end_index": 313,
               "summary": "주차별 정리 문서가 추가되면 --only md로 재생성 새 PDF를 받으면 knowledge/references/pdf/에 넣고 재생성 (내장 TOC 없으면 tools/toc/<이름>.json 추가) index/*.json은 생성물이지만 커밋해 두는 것을 권장 — 재생성 없이 바로 탐색 가능하고, 문서 구조 변화가 diff로 보임"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "doc_name": "index/USAGE.md",
+      "doc_description": "사용 가이드",
+      "meta": {
+        "type": "markdown",
+        "lines": 281,
+        "index_unit": "line",
+        "summary_method": "extractive-first-paragraph",
+        "generator": "tools/build_pageindex.py"
+      },
+      "structure": [
+        {
+          "title": "사용 가이드",
+          "node_id": "0348",
+          "start_index": 1,
+          "end_index": 12,
+          "summary": "인덱스와 도구를 실제로 어떻게 쓰는지만 다룹니다. 왜 이렇게 만들었는지(PageIndex 검토·실측)는 README.md를 보세요. 모든 명령은 저장소 루트에서 실행합니다.",
+          "nodes": [
+            {
+              "title": "30초 요약",
+              "node_id": "0349",
+              "start_index": 13,
+              "end_index": 30,
+              "summary": "일상적으로 쓰는 건 사실상 하나뿐입니다. 나머지 둘은 가끔 씁니다. 언제 · 명령 개념이 어느 자료 몇 쪽인지 찾을 때 (거의 매번) · search_index.py \"키워드\" 문서를 고치거나 새 PDF를 넣었을 때 · build_pageindex.py 요약을 한국어 LLM 요약으로 바꾸고 싶을 때 · enrich_summaries.py --doc <문서>"
+            },
+            {
+              "title": "1. 검색 — `search_index.py`",
+              "node_id": "0350",
+              "start_index": 31,
+              "end_index": 32,
+              "summary": "읽는 법: Inference Engineering은 영문 원서지만 요약을 한국어로 만들어 두어서 한국어 질의가 통합니다. --doc에 쓸 수 있는 이름(부분 일치): --depth 3으로 올리면 절 단위까지 나옵니다.",
+              "nodes": [
+                {
+                  "title": "기본",
+                  "node_id": "0351",
+                  "start_index": 33,
+                  "end_index": 58,
+                  "summary": "읽는 법: 부분 · 의미 [116.0] · 매칭 점수 (제목 일치에 가중치 10, 요약 3) p.133-133 · PDF 133쪽을 펴면 된다 (마크다운이면 L133 = 줄 번호) Table of Contents › Chapter 5 › 5.2 · 문서 안에서의 위치 (부모 경로) ▸ 5.2.1 … · 해당 노드 제목 그 아래 · 요약 발췌 (검색어 주변을 잘라 보여줌)"
+                },
+                {
+                  "title": "한국어로도 찾을 수 있습니다",
+                  "node_id": "0352",
+                  "start_index": 59,
+                  "end_index": 70,
+                  "summary": "Inference Engineering은 영문 원서지만 요약을 한국어로 만들어 두어서 한국어 질의가 통합니다."
+                },
+                {
+                  "title": "옵션",
+                  "node_id": "0353",
+                  "start_index": 71,
+                  "end_index": 93,
+                  "summary": "--doc에 쓸 수 있는 이름(부분 일치): 축약 · 대상 inference · Inference Engineering (259p) gpu-enabled · GPU-Enabled Platforms on Kubernetes (202p) nhn · NHN Cloud GPU 백서 (66p) knowledge · knowledge/ 정리 문서"
+                },
+                {
+                  "title": "목차 보기",
+                  "node_id": "0354",
+                  "start_index": 94,
+                  "end_index": 113,
+                  "summary": "--depth 3으로 올리면 절 단위까지 나옵니다."
+                }
+              ]
+            },
+            {
+              "title": "2. 인덱스 재생성 — `build_pageindex.py`",
+              "node_id": "0355",
+              "start_index": 114,
+              "end_index": 125,
+              "summary": "문서를 고치거나 새 자료를 넣은 뒤에 돌립니다. LLM을 쓰지 않아 1초 안에 끝납니다.",
+              "nodes": [
+                {
+                  "title": "새 PDF를 추가할 때",
+                  "node_id": "0356",
+                  "start_index": 126,
+                  "end_index": 149,
+                  "summary": "knowledge/references/pdf/ 에 넣는다 python3 tools/build_pageindex.py --only pdf 내장 목차가 없으면 이런 메시지가 나옵니다: 이때는 목차를 직접 만들어 tools/toc/<파일명>.json에 넣습니다. 형식은 [레벨, 제목, 시작쪽]: 기존 예시: tools/toc/gpu-enabled-platforms-on-kubernetes-v2-2026.json"
+                }
+              ]
+            },
+            {
+              "title": "3. 요약 보강 — `enrich_summaries.py`",
+              "node_id": "0357",
+              "start_index": 150,
+              "end_index": 166,
+              "summary": "발췌 요약을 LLM 한국어 요약으로 교체합니다. 트리(제목·쪽수)는 건드리지 않습니다. claude -p를 쓰므로 API 키는 필요 없지만 Claude Code 사용량을 소모합니다. 반드시 규모부터 보세요.",
+              "nodes": [
+                {
+                  "title": "옵션",
+                  "node_id": "0358",
+                  "start_index": 167,
+                  "end_index": 175,
+                  "summary": "옵션 · 의미 --doc <이름> · 대상 문서 (부분 일치). 생략하면 전부 — 권장하지 않음 --max-depth N · 깊이 N 미만만. 기본 2(상위 2단계). 0이면 전체 깊이 --limit N · 문서당 최대 N건 (시험용) --dry-run · 대상 개수·예상 시간만 출력"
+                },
+                {
+                  "title": "문서별 규모 (`--max-depth 0` 기준)",
+                  "node_id": "0359",
+                  "start_index": 176,
+                  "end_index": 184,
+                  "summary": "문서 · 노드 · 대략 소요 Inference Engineering · 145 · ~12분 ✅ 적용 완료 GPU on K8s · 81 · ~7분 NHN 백서 · 54 · ~5분 마크다운 전체 · 171 · ~14분"
+                },
+                {
+                  "title": "캐시",
+                  "node_id": "0360",
+                  "start_index": 185,
+                  "end_index": 191,
+                  "summary": "노드 원문 해시로 캐시하므로 중단 후 다시 돌려도 만든 건 건너뜁니다. 재생성 후 다시 돌릴 때도 거의 공짜입니다. 위치: index/.summary_cache.json (용량 때문에 커밋 제외) 지우고 싶으면 그냥 삭제하면 됩니다"
+                },
+                {
+                  "title": "적용 여부 확인",
+                  "node_id": "0361",
+                  "start_index": 192,
+                  "end_index": 206,
+                  "summary": "llm-claude-code-korean = 보강됨, extractive-* = 발췌 상태."
+                }
+              ]
+            },
+            {
+              "title": "4. (참고) 진짜 PageIndex 실행 — `pageindex_claude.py`",
+              "node_id": "0362",
+              "start_index": 207,
+              "end_index": 224,
+              "summary": "평소엔 쓸 일이 없습니다. PageIndex 본체를 Claude Code 백엔드로 돌려보는 검증용 스크립트입니다. 실측 결과와 왜 채택하지 않았는지는 README.md §2에 있습니다. 요약하면 트리가 실행마다 바뀌고(제목 98개 중 12개만 일치) 한국어 문서를 영어로 요약해서, 트리는 로컬로 두고 요약만 LLM에 맡기는 지금 방식을 택했습니다."
+            },
+            {
+              "title": "시나리오별",
+              "node_id": "0363",
+              "start_index": 225,
+              "end_index": 226,
+              "summary": "→ 나온 p.NNN을 PDF에서 펴면 됩니다. → knowledge/references/priority-guide.md의 주차별 매핑과 대조해서 읽을 쪽수를 정합니다.",
+              "nodes": [
+                {
+                  "title": "스터디 중 \"이거 어느 자료에 있더라?\"",
+                  "node_id": "0364",
+                  "start_index": 227,
+                  "end_index": 234,
+                  "summary": "→ 나온 p.NNN을 PDF에서 펴면 됩니다."
+                },
+                {
+                  "title": "과제 쓸 때 근거 찾기",
+                  "node_id": "0365",
+                  "start_index": 235,
+                  "end_index": 244,
+                  "summary": ""
+                },
+                {
+                  "title": "다음 주 예습 범위 잡기",
+                  "node_id": "0366",
+                  "start_index": 245,
+                  "end_index": 252,
+                  "summary": "→ knowledge/references/priority-guide.md의 주차별 매핑과 대조해서 읽을 쪽수를 정합니다."
+                },
+                {
+                  "title": "정리 문서를 고친 뒤",
+                  "node_id": "0367",
+                  "start_index": 253,
+                  "end_index": 260,
+                  "summary": ""
+                }
+              ]
+            },
+            {
+              "title": "트러블슈팅",
+              "node_id": "0368",
+              "start_index": 261,
+              "end_index": 273,
+              "summary": "증상 · 원인 / 해결 index/ 가 없습니다 · python3 tools/build_pageindex.py 를 먼저 실행 PyMuPDF(fitz)가 필요합니다 · pip install pymupdf 검색 결과 0개 · 다른 표현으로 재시도. 영문 PDF는 한국어 요약이 없으면 한국어 질의가 안 걸림 → 3번 한국어 요약이 사라짐 · build_pageindex.py를 PDF 포함해 재생성한 것. enrich_summaries.py를 다시 실행(캐시로 빠름) enrich_summaries.py가 느림 · 정상입니다. …"
+            },
+            {
+              "title": "정리",
+              "node_id": "0369",
+              "start_index": 274,
+              "end_index": 281,
+              "summary": ""
             }
           ]
         }
@@ -278,14 +455,14 @@
       "structure": [
         {
           "title": "PageIndex 실측 산출물",
-          "node_id": "0348",
+          "node_id": "0370",
           "start_index": 1,
           "end_index": 11,
           "summary": "../README.md §2의 검증 근거 자료입니다. 대상은 NHN 백서 66p 하나이며, LLM 백엔드는 tools/pageindex_claude.py를 통한 Claude Code(claude -p) 입니다.",
           "nodes": [
             {
               "title": "이 파일들로 확인할 수 있는 것",
-              "node_id": "0349",
+              "node_id": "0371",
               "start_index": 12,
               "end_index": 33,
               "summary": "요약 품질: 2차 파일의 summary 필드는 평균 1,934자로 증상·원인·진단까지 서술 (로컬 발췌본은 265자) 재현성 문제: 1차와 2차의 title을 비교하면 98개 중 12개만 일치. 같은 PDF인데 절 번호 유지 여부가 갈림 언어 문제: 2차 요약 55개 중 54개가 영어 (원문은 한국어)"

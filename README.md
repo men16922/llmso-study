@@ -28,6 +28,8 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소�
 │       └── pdf/                  다운로드된 PDF 3종 (41.6 MB · 527p)
 │
 ├── index/               PageIndex 호환 트리 인덱스 (612 노드)
+│   ├── USAGE.md         ★ 도구 사용 가이드
+│   └── README.md        검토 과정 · 실측 결과
 └── tools/               인덱스 생성 · 탐색 스크립트
 ```
 
@@ -43,6 +45,7 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소�
 | **PDF에서 개념 찾기** | `python3 tools/search_index.py "KV cache"` |
 | 문서 목차 보기 | `python3 tools/search_index.py --outline inference-engineering` |
 | 인덱스 재생성 | `python3 tools/build_pageindex.py` |
+| **도구 사용법 전체** | [`index/USAGE.md`](./index/USAGE.md) |
 
 ### 검색 예시
 
