@@ -7,7 +7,7 @@ LLMSO 스터디 관련 **모든 외부 자료의 단일 인덱스**입니다. �
 | 파일 | 내용 |
 |---|---|
 | ★ [priority-guide.md](./priority-guide.md) | **중요 / 선택 등급 분류** — 180여 개 중 뭘 먼저 볼지 |
-| ★ [deep-dives.md](./deep-dives.md) | 핵심 자료 8종을 실제로 읽고 정리한 심층 분석 |
+| ★ [deep-dives.md](./deep-dives.md) | 핵심 자료 **14종**을 실제로 읽고 정리한 심층 분석 |
 | [books.md](./books.md) | 주교재 + 참고 도서 (챕터 목차 포함) |
 | [pdfs.md](./pdfs.md) | 로컬에 받아둔 PDF 3종 — 목차 · 활용 가이드 |
 | [videos.md](./videos.md) | 영상 80여 편 — 사전 시청 권장 22편 + 추천 Youtube 전체 |

@@ -12,6 +12,12 @@
 | 6 | [InfiniBand vs RoCE (fergusfinn)](#infiniband-vs-roce) | ⚪ | 7주차 배경 |
 | 7 | [llm-d](#llm-d) | 🔴 | 7주차 |
 | 8 | [GPU 용어집 (Modal)](#gpu-glossary) | ⚪ | 상시 참조 |
+| 9 | [Netflix 사내 LLM 서빙](#netflix-llm-serving) | 🟡 | 2주차 CH3·4 |
+| 10 | [Productive GPU Hours (jimmysong)](#productive-gpu-hours) | 🟡 | 6주차 |
+| 11 | [InferenceX 벤치마크](#inferencex) | 🟡 | 5주차 CH9 |
+| 12 | [SGLang 콜드스타트 70배 (fergusfinn)](#sglang-cold-start) | ⚪ | 4주차 CH8 |
+| 13 | [Collective Communication (aleksagordic)](#collective-communication) | ⚪ | 7주차 |
+| 14 | [고성능 matmul 커널 (aleksagordic)](#matmul-kernels) | ⚪ | 3주차 CH6 |
 
 ---
 
@@ -102,8 +108,9 @@ Self-Attention에서 **이전 토큰들의 Key/Value 벡터를 GPU 메모리에 
 
 ---
 
-## GPU에서 Attention은 실제로 어떻게 실행되는가 {#attention-kernel-chooblog}
+<a id="attention-kernel-chooblog"></a>
 
+## GPU에서 Attention은 실제로 어떻게 실행되는가
 원문: [chooblog.xyz/blog/kernel-tensor_core](https://www.chooblog.xyz/blog/kernel-tensor_core) · 🟡 **3주차 CH6** · 한국어
 
 커널 launch부터 Tensor Core까지 3단계로 추적합니다.
@@ -132,8 +139,9 @@ Self-Attention에서 **이전 토큰들의 Key/Value 벡터를 GPU 메모리에 
 
 ---
 
-## GPU에서 토큰까지 — 8계층 관측 스택 {#8-layer-observability}
+<a id="8-layer-observability"></a>
 
+## GPU에서 토큰까지 — 8계층 관측 스택
 원문: [jimmysong.io/blog/gpu-to-token-observability](https://jimmysong.io/blog/gpu-to-token-observability/) · 🟡 **6주차**
 
 ### 8개 계층
@@ -159,8 +167,9 @@ Self-Attention에서 **이전 토큰들의 Key/Value 벡터를 GPU 메모리에 
 
 ---
 
-## toss 고성능 GPU 클러스터 도입기 {#toss-gpu-cluster}
+<a id="toss-gpu-cluster"></a>
 
+## toss 고성능 GPU 클러스터 도입기
 원문: [toss.tech/article/securities_llm_1](https://toss.tech/article/securities_llm_1) · 🟡 **과제 소재 추천** · 한국어
 
 ### 왜 자체 구축했나
@@ -189,8 +198,9 @@ Self-Attention에서 **이전 토큰들의 Key/Value 벡터를 GPU 메모리에 
 
 ---
 
-## InfiniBand vs RoCE {#infiniband-vs-roce}
+<a id="infiniband-vs-roce"></a>
 
+## InfiniBand vs RoCE
 원문: [fergusfinn.com/blog/infiniband-roce-rdma](https://fergusfinn.com/blog/infiniband-roce-rdma/) · ⚪ **7주차 배경**
 
 ### RDMA란
@@ -251,8 +261,9 @@ Red Hat, Google Cloud, IBM Research, CoreWeave, NVIDIA가 참여하는 **CNCF Sa
 
 ---
 
-## GPU 용어집 (Modal) {#gpu-glossary}
+<a id="gpu-glossary"></a>
 
+## GPU 용어집 (Modal)
 원문: [modal.com/gpu-glossary](https://modal.com/gpu-glossary/readme) · ⚪ **상시 참조용**
 
 GPU 문서가 파편화된 문제를 풀려고 Modal이 만든 **하이퍼텍스트 레퍼런스**. 4개 범주:
@@ -272,15 +283,214 @@ GPU 문서가 파편화된 문제를 풀려고 Modal이 만든 **하이퍼텍스
 
 ---
 
+<a id="netflix-llm-serving"></a>
+
+## Netflix 사내 LLM 서빙
+원문: [netflixtechblog.com](https://netflixtechblog.com/in-house-llm-serving-at-netflix-a5a8e799ea2c) · 🟡 **2주차 CH3·4** — 교재의 "엔터프라이즈 아키텍처"의 실물
+
+### 왜 자체 구축
+
+호스팅 API에만 의존하지 않고 **"모델 배포부터 추론까지 전체 스택을 기존 프로덕션 환경 안에서"** 직접 운영. 목적은 지연시간 제어, 커스터마이징, 데이터 프라이버시, 기존 인프라 통합.
+
+### 아키텍처
+
+```
+JVM 통합 서빙 (라우팅 · 피처 페칭 · 추론)
+   ├─ 작은 CPU 모델 → in-process 실행
+   └─ 큰 모델 → MSS (Model Scoring Service)
+                 = NVIDIA Triton 위의 공용 추론 백엔드
+                   (XGBoost / TensorFlow / PyTorch / LLM 동시 지원)
+Java 컨트롤 플레인 → 배포 · 버저닝 · 멀티리전 롤아웃
+```
+
+### 기술 선택 ★
+
+| 항목 | 선택 |
+|---|---|
+| **엔진** | 2025년 여름 **TensorRT-LLM → vLLM 이전**. 이유는 **순수 성능이 아니라 운영 적합성** — 커스텀 모델 반복 속도, 제약 디코딩용 확장 훅, 디버깅 용이성, ML 실무자에게 익숙함 |
+| **API** | gRPC(기존 인프라용) + **OpenAI 호환 API**(실험→프로덕션 전환용) 이중 노출 |
+| **배포** | Red-Black(저렴하나 I/O 스키마 안정 필요) / Versioned(호환성 깨지는 변경 대응) |
+
+> **"성능이 아니라 운영 적합성으로 엔진을 골랐다"** 는 대목이 교재 CH8(프레임워크 선택 기준)의 현실판입니다.
+
+### 배운 것 — 전부 디테일
+
+1. **버전 핀 고정**: Triton의 vLLM 백엔드는 버전 호환성이 맞아야 함. 어긋나면 **로드 자체가 실패**
+2. **조용한 API 누락**: OpenAI 프론트엔드가 `response_format`을 vLLM에 전달하기 전에 **소리 없이 버림** → 패치본 사용
+3. **제약 디코딩 스케일링**: 요청별(vLLM V0) → **배치 단위(V1)** 로 옮겨 CPU 병목 해소. **단일 요청 벤치마크에서는 안 보이던 문제가 실제 동시성에서 드러남**
+4. **운영 중 발견**: 동적 배치 preemption은 상태머신 리셋이 필요했고, chunked prefill은 세밀한 추적을 요구
+
+> Netflix의 결론: **"교훈은 대부분 근본 아키텍처가 아니라 디테일에 있었다."**
+
+---
+
+<a id="productive-gpu-hours"></a>
+
+## Productive GPU Hours
+원문: [jimmysong.io](https://jimmysong.io/blog/beyond-gpu-utilization-productive-gpu-hours/) · 🟡 **6주차** · [8계층 관측](#8-layer-observability)의 자매 글
+
+### GPU 사용률이 속이는 이유
+
+**84% 사용률로 보이는 GPU가 실제로는 데이터를 굶고 있을 수 있습니다** — 스토리지 I/O, CPU 처리, KV 캐시 가용성을 기다리며.
+
+> **"활성으로 보이는 GPU도 주변 시스템을 기다리는 데 상당한 시간을 쓸 수 있다."**
+
+### 단편화 문제
+
+클러스터 전체 자원은 충분한데도 **자원 단편화**로 새 작업이 못 들어갑니다. 혼합 워크로드를 돌리고 나면 남은 용량이 차원별로 흩어집니다 — 어떤 노드는 GPU는 남는데 스토리지 대역폭이 포화, 다른 노드는 메모리는 있는데 I/O CPU가 부족. **결과적으로 어느 노드도 새 작업을 못 받습니다.**
+
+### 3계층 효율 모델
+
+| 계층 | 현황 |
+|---|---|
+| 1. **GPU 할당** | HAMi 등이 다룸 |
+| 2. **작업 스케줄링** | Volcano, Kueue가 다룸 |
+| 3. **스토리지/I/O 인식** | **거의 미해결** |
+
+> [HAMi 서브페이지](../subpages/hami-gpu-virtualization.md)와 [AI Factory Ops Lab](../subpages/ai-factory-ops-lab.md)이 1·2계층 실습입니다. 3계층은 아직 도구가 없다는 게 이 글의 요지.
+
+---
+
+<a id="inferencex"></a>
+
+## InferenceX (SemiAnalysis)
+원문: [inferencex.semianalysis.com](https://inferencex.semianalysis.com/inference) · 🟡 **5주차 CH9** — 성능 측정
+
+### 무엇인가
+
+**오픈소스·벤더 중립 벤치마크**로 GPU와 소프트웨어 스택 전반의 AI 추론 성능을 **지속 측정**합니다. 기존 벤치마크가 **정적이라 금방 낡는 문제**를 겨냥했습니다.
+
+| 축 | 대상 |
+|---|---|
+| **GPU** | NVIDIA H100·H200·B200·B300·GB200·GB300·RTX6000PRO / AMD MI300X·MI325X·MI355X |
+| **모델** | DeepSeek-R1, Llama, Qwen, Kimi, MiniMax, GLM 등 |
+| **프레임워크** | vLLM, SGLang, TRT-LLM 등 |
+| **지표** | 토큰 처리량, TTFT, **백만 토큰당 비용**, 에너지 효율, interactivity |
+
+### 재현성 방법론 ★
+
+1. 레시피를 **공개 저장소에 커밋**
+2. **GitHub Actions로 실제 하드웨어에서 실행**
+3. 전체 telemetry와 함께 아티팩트 업로드
+4. 대시보드가 소스 실행으로 **직접 추적 가능**
+
+> 차별점: 정적 벤치마크에서는 **"참가자가 벤치마크 전용으로 만든 소프트웨어 이미지를 제출"** 하는 일이 흔합니다. InferenceX는 실제 하드웨어에서 계속 돌고, **차트의 모든 점을 클릭하면 그걸 만든 GitHub Actions 워크플로·로그·메트릭으로 갈 수 있습니다.**
+
+교재 CH9(실전 최적화)에서 "성능을 정확하게 측정"을 다룰 때, **내 측정이 믿을 만한가**를 판단하는 기준으로 쓰기 좋습니다.
+
+---
+
+<a id="sglang-cold-start"></a>
+
+## SGLang 콜드스타트 70배 개선
+원문: [fergusfinn.com](https://fergusfinn.com/blog/fast-sglang-starts/) · ⚪ **4주차 CH8** — 프레임워크 운영 이슈
+
+### 콜드스타트가 느린 이유
+
+| 원인 | 비용 |
+|---|---|
+| Python import | **21초** |
+| 컴파일·오토튜닝 (FlashInfer, DeepGEMM JIT) | 상당량 |
+| **가중치 로딩** (NVMe → GPU, 117GB) | **531초** |
+| 설정 파싱 + 서버 웜업 | 추가 |
+
+커널 캐시를 살린 **"웜 스타트"조차 88초** — 결과가 동일한데도 같은 초기화를 반복하기 때문.
+
+### 해법: CRIU 체크포인트/복원
+
+1. **프로세스 스냅샷** — 초기화 완료된 SGLang 프로세스를 체크포인트. **GPU 가중치와 KV 캐시는 제외**해 192GB → **6.6GB**로 축소
+2. **오케스트레이션 통합** — 체크포인트를 **OCI 이미지로 패키징**해 쿠버네티스와 호환
+3. **성능 최적화** — 메모리 매핑 기반 zero-copy 페이지 복원, hugepage로 가중치를 RAM에 스테이징하는 전용 데몬, GPU 등록과 DMA 전송 파이프라이닝으로 **실효 38GB/s**
+
+**결과: 695초(콜드) → 9.6초.** 가중치 전송의 이론적 하한 1.8초에 근접.
+
+> 오토스케일링하는 LLM 서빙에서 **콜드스타트는 곧 비용**입니다. 교재 CH8을 읽을 때 "프레임워크를 고른 다음 실제로 운영하면 뭐가 문제가 되나"의 좋은 예시.
+
+---
+
+<a id="collective-communication"></a>
+
+## Collective Communication (TPU vs GPU)
+원문: [aleksagordic.com](https://www.aleksagordic.com/blog/collective-operations) · ⚪ **7주차 배경** · [NCCL 서브페이지](../subpages/nccl-communication.md) 심화
+
+### 4가지 기본 연산
+
+| 연산 | 역할 |
+|---|---|
+| **All-Gather** | 데이터 사본을 모두에게 배포. 각 칩이 완전한 텐서 샤드를 필요로 할 때 |
+| **Reduce-Scatter** | All-Gather의 **수학적 쌍대** — 데이터가 비슷하게 이동하되 복제가 아니라 **결합** |
+| **All-Reduce** | Reduce-Scatter + All-Gather. 역전파 중 gradient 동기화 |
+| **All-to-All** | 분산 전치(transposition). **MoE에서 토큰이 서로 다른 expert로 라우팅**될 때 핵심 |
+
+### 토폴로지 차이 ★
+
+| | **TPU** | **GPU** |
+|---|---|---|
+| 연결 | **최근접 이웃** — 2D(4이웃)/3D(6이웃) 토러스 | **계층적 스위칭** |
+| 노드 내 | ICI 직결, 일정한 **~45 GB/s** | all-to-all NVLink/NVSwitch |
+| 노드 간 | — | **fat-tree InfiniBand** |
+| Ring | 물리 토폴로지에서 **자연 발생** | 물리적 all-to-all 위에 **논리 ring을 얹음** |
+| 계층 | HBM → ICI → PCIe → DCN | — |
+
+### 실무 인사이트
+
+- **메시지 크기가 갈림길**: 1μs 지연 기준 **~45KB 이하는 latency-bound**, 그 이상은 throughput-bound
+- **SHARP의 한계**: in-network reduction이 이론상 All-Reduce를 2배 빠르게 하지만 **실제로는 ~30% 개선**에 그침
+- **Ring vs Tree**: Ring은 큰 메시지에서 파이프라이닝이 좋고(스텝 수 적음), Tree는 라운드를 **N-1 → log₂(N)** 으로 줄임
+- **샤딩 인지**: 텐서가 토러스 wraparound 링크를 보존하는지, 아니면 메시로 격하되는지에 따라 집합통신 시간이 크게 달라짐
+
+---
+
+<a id="matmul-kernels"></a>
+
+## 고성능 matmul 커널
+원문: [aleksagordic.com](https://www.aleksagordic.com/blog/matmul) · ⚪ **3주차 CH6** — 커널 퓨전 심화
+
+### 메모리 계층이 전부
+
+레지스터(가장 빠름·private) → 공유 메모리(온칩·프로그래머 제어) → L1/L2(하드웨어 관리) → 글로벌 메모리(가장 느림·가장 큼).
+
+> 원칙: **"가장 자주 접근하는 데이터를 연산 유닛에 최대한 가깝게."**
+
+접근 패턴이 결정적입니다. DRAM 물리 구조상 **연속 접근이 stride 접근보다 훨씬 빠르며**, 사소해 보이는 코드 변경이 non-coalesced 접근을 유발해 **13배 느려질** 수 있습니다.
+
+### Warp-Tiling
+
+matmul을 **"부분 외적(partial outer product)의 합"** 으로 보아 중간 블록이 공유 메모리에 들어가게 만듭니다. 핵심 최적화: 청크를 공유 메모리에 전략적 로드, 스레드당 여러 출력 원소 계산, **정사각 타일로 arithmetic intensity 극대화**, 루프 언롤링으로 ILP 노출.
+
+### Hopper의 3가지
+
+| 기능 | 내용 |
+|---|---|
+| **Tensor Cores** | 작은 타일(64×16 @ 16×64) 행렬 연산 전용 하드웨어. 수동 워프 조율 복잡도를 추상화 |
+| **TMA** (Tensor Memory Accelerator) | 글로벌↔공유 메모리 **비동기 전송**. **XOR 마스크 기반 swizzling**을 자동 처리해 뱅크 충돌 제거 |
+| **Async Pipelines** | producer-consumer 워프그룹 — 한 그룹이 TMA로 타일을 스트리밍하는 동안 다른 그룹이 텐서 연산 |
+
+### 최적화 누적 효과 ★
+
+```
+warp-tiling 베이스라인      32 TFLOP/s
++ tensor cores + TMA       317
++ 큰 타일                   423
++ 파이프라인 로드            498
++ 다중 consumer 그룹         610
++ persistent kernel         660
++ 마이크로 최적화            764 TFLOP/s
+```
+
+> **roofline 모델이 말하는 것: 커널은 대개 compute-bound가 아니라 memory-bandwidth-bound**입니다. 성공의 열쇠는 **arithmetic intensity(로드한 바이트당 FLOPs) 극대화**. 이는 [Inference Engineering CH2.4](./pdfs.md)의 ops:byte ratio와 정확히 같은 이야기입니다.
+
+---
+
 ## 아직 분석하지 않은 자료
 
 시간 대비 효용을 고려해 **링크와 분류만** 해둔 것들입니다. 필요하면 같은 형식으로 추가할 수 있습니다.
 
-| 자료 | 위치 |
-|---|---|
-| Netflix 사내 LLM 서빙 (Medium 로그인 리다이렉트로 본문 미확보) | [articles-and-blogs.md](./articles-and-blogs.md) |
-| aleksagordic Collective Communication / matmul kernels | 〃 |
-| jimmysong 나머지 3편, fergusfinn 나머지 3편 | 〃 |
-| winterrykim 3편, inferencex, HAMi 블로그 | 〃 |
-| KServe/MLflow/Knative 시리즈 | 〃 |
-| 영상 60여 편 (제목·길이·분류만 정리됨) | [videos.md](./videos.md) |
+| 자료 | 왜 미뤘나 | 위치 |
+|---|---|---|
+| jimmysong 나머지 2편 (GPU 입문, 개인 AI 스택) | 위 2편과 논지가 겹침 | [articles-and-blogs.md](./articles-and-blogs.md) |
+| fergusfinn 나머지 2편 (CUDA 커널, CUDA 체크포인트) | [matmul](#matmul-kernels)·[콜드스타트](#sglang-cold-start)와 주제 중복 | 〃 |
+| winterrykim 3편 | **학습(training) 주제** — ⚪선택 | 〃 |
+| HAMi 블로그, KServe/MLflow/Knative 시리즈 | [HAMi 서브페이지](../subpages/hami-gpu-virtualization.md)가 이미 상세 / 대안 스택 | 〃 |
+| AI Engineering from Scratch, AI by Hand, Coursera | 별도 완주 코스 — 7주와 병행 부담 | 〃 |
+| 영상 60여 편 | 제목·길이·분류만 정리됨 | [videos.md](./videos.md) |

@@ -65,14 +65,14 @@
 
 ## 3. 생성된 인덱스
 
-`python3 tools/build_pageindex.py` 로 생성 · 재생성합니다. (총 **503 노드**, 243 KB)
+`python3 tools/build_pageindex.py` 로 생성 · 재생성합니다. (총 **612 노드**, 약 290 KB)
 
 | 파일 | 대상 | 노드 | 트리 출처 |
 |---|---|---|---|
 | [`inference-engineering-2026_structure.json`](./inference-engineering-2026_structure.json) | 259p PDF | 146 | PDF 내장 TOC |
 | [`gpu-enabled-platforms-on-kubernetes-v2-2026_structure.json`](./gpu-enabled-platforms-on-kubernetes-v2-2026_structure.json) | 202p PDF | 86 | 사이드카 (`tools/toc/`) |
 | [`nhn-cloud-factoryx-gpu-whitepaper-2026_structure.json`](./nhn-cloud-factoryx-gpu-whitepaper-2026_structure.json) | 66p PDF | 54 | PDF 내장 TOC |
-| [`knowledge_structure.json`](./knowledge_structure.json) | `knowledge/` md 20개 | 217 | 마크다운 헤딩 |
+| [`knowledge_structure.json`](./knowledge_structure.json) | repo 내 md **25개** (루트 README 포함) | 326 | 마크다운 헤딩 |
 
 ### 진짜 PageIndex와 다른 점 (정직하게)
 
@@ -83,7 +83,9 @@
 | 검색 | LLM이 트리를 추론하며 순회 | 키워드 스코어링 (`tools/search_index.py`) |
 | 비용 / 재현성 | API 비용 발생, 비결정론적 | **0원, 결정론적** |
 
-각 JSON의 `meta.summary_method`에 이 사실을 표기했습니다. 요약이 비어 있는 노드가 **71개(14.1%)** 있는데, 대부분 본문 없이 하위 제목만 있는 중간 노드나 표만 있는 섹션입니다.
+각 JSON의 `meta.summary_method`에 이 사실을 표기했습니다.
+
+요약 추출은 3단계 폴백입니다: ① 자기 구간의 산문 → ② 비면 하위 트리까지 확장 → ③ 그래도 비면 **표 셀 내용까지** 긁음(이 저장소는 표 비중이 큼). 그 결과 빈 요약이 **71개(14.1%) → 19개(3.1%)** 로 줄었습니다. 남은 19개는 구분선·이미지만 있는 섹션입니다.
 
 ---
 

@@ -27,9 +27,12 @@ import sys
 
 REPO = os.path.dirname(os.path.abspath(os.path.join(__file__, "..")))
 PDF_DIR = os.path.join(REPO, "knowledge", "references", "pdf")
-KNOWLEDGE_DIR = os.path.join(REPO, "knowledge")
+KNOWLEDGE_DIR = os.path.join(REPO, "knowledge")  # (하위 호환용, 현재는 REPO 전체를 순회)
 TOC_DIR = os.path.join(REPO, "tools", "toc")
 OUT_DIR = os.path.join(REPO, "index")
+
+# 마크다운 인덱싱에서 제외할 디렉터리
+MD_SKIP_DIRS = {".git", ".claude", "node_modules", "__pycache__", ".venv", "venv"}
 
 SUMMARY_CHARS = 300
 
@@ -203,8 +206,17 @@ def build_md(path, idgen, rel_root):
     heads = parse_md_headings(lines)
     rel = os.path.relpath(path, rel_root)
 
-    def body_after(start_line, end_line):
-        """구간의 산문·목록을 발췌. 표/코드/헤딩/이미지는 요약에 노이즈라 건너뛴다."""
+    def strip_md(s):
+        s = re.sub(r"^[-*+]\s+|^\d+\.\s+", "", s)  # 목록 마커 제거
+        s = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", s)  # 링크는 텍스트만
+        return s.replace("**", "").replace("`", "").strip()
+
+    def body_after(start_line, end_line, allow_tables=False):
+        """구간의 산문·목록을 발췌. 표/코드/헤딩은 기본적으로 건너뛴다.
+
+        allow_tables=True 면 표 셀도 긁는다. 내용이 표뿐인 섹션(이 저장소에 많다)에서
+        요약이 통째로 비는 걸 막기 위한 2차 시도.
+        """
         chunk, in_fence = [], False
         for line in lines[start_line: min(end_line, len(lines))]:
             s = line.strip()
@@ -213,11 +225,17 @@ def build_md(path, idgen, rel_root):
                 continue
             if in_fence or not s:
                 continue
-            if s.startswith(("#", "|", ">", "!", "---", ":--")):
+            if s.startswith("|"):
+                if not allow_tables:
+                    continue
+                cells = [c.strip() for c in s.strip("|").split("|")]
+                if all(set(c) <= set("-: ") for c in cells):  # 구분선 행
+                    continue
+                s = " · ".join(strip_md(c) for c in cells if c.strip())
+            elif s.startswith(("#", ">", "!", "---", ":--")):
                 continue
-            s = re.sub(r"^[-*+]\s+|^\d+\.\s+", "", s)  # 목록 마커 제거
-            s = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", s)  # 링크는 텍스트만
-            s = s.replace("**", "").replace("`", "").strip()
+            else:
+                s = strip_md(s)
             if not s:
                 continue
             chunk.append(s)
@@ -250,10 +268,15 @@ def build_md(path, idgen, rel_root):
         return subtree_last(node["children"][-1]) if node["children"] else node
 
     def build(node):
-        # 제목 바로 아래에 하위 제목만 오는 경우 본문이 없다 → 하위 트리 범위로 넓혀 발췌
+        # ① 자기 구간의 산문
         text = body_after(node["line"], node["end"])
+        # ② 제목 아래 하위 제목만 있으면 하위 트리까지 넓힘
         if len(clean(text)) < 40 and node["children"]:
             text = body_after(node["line"], subtree_last(node)["end"])
+        # ③ 그래도 비면 표 내용까지 긁는다 (표만 있는 섹션 대응)
+        if len(clean(text)) < 40:
+            end = subtree_last(node)["end"] if node["children"] else node["end"]
+            text = body_after(node["line"], end, allow_tables=True)
         out = {
             "title": node["title"],
             "node_id": idgen.next(),
@@ -312,13 +335,14 @@ def main():
     if args.only != "pdf":
         idgen = NodeIdGen()
         docs = []
-        for dirpath, _, files in os.walk(KNOWLEDGE_DIR):
+        for dirpath, dirs, files in os.walk(REPO):
+            dirs[:] = [d for d in dirs if d not in MD_SKIP_DIRS]
             for fn in sorted(files):
                 if fn.endswith(".md"):
                     docs.append(build_md(os.path.join(dirpath, fn), idgen, REPO))
         docs.sort(key=lambda d: d["doc_name"])
         bundle = {
-            "doc_name": "knowledge/",
+            "doc_name": "(repo markdown)",
             "doc_description": "LLMSO 스터디 정리 문서 모음",
             "meta": {
                 "type": "markdown-collection",
@@ -334,7 +358,7 @@ def main():
             json.dump(bundle, f, ensure_ascii=False, indent=2)
         n = sum(count_nodes(d["structure"]) for d in docs)
         written.append((os.path.relpath(out, REPO), n, f"{len(docs)} docs"))
-        print(f"  ✓ knowledge/*.md → {n} nodes ({len(docs)} docs)")
+        print(f"  ✓ repo *.md → {n} nodes ({len(docs)} docs)")
 
     print("\n생성 완료:")
     for path, n, src in written:
