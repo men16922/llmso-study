@@ -3,12 +3,76 @@
   "doc_description": "LLMSO 스터디 정리 문서 모음",
   "meta": {
     "type": "markdown-collection",
-    "documents": 28,
+    "documents": 30,
     "index_unit": "line",
     "summary_method": "extractive-first-paragraph",
     "generator": "tools/build_pageindex.py"
   },
   "documents": [
+    {
+      "doc_name": "CLAUDE.md",
+      "doc_description": "CLAUDE.md",
+      "meta": {
+        "type": "markdown",
+        "lines": 74,
+        "index_unit": "line",
+        "summary_method": "extractive-first-paragraph",
+        "generator": "tools/build_pageindex.py"
+      },
+      "structure": [
+        {
+          "title": "CLAUDE.md",
+          "node_id": "0000",
+          "start_index": 1,
+          "end_index": 4,
+          "summary": "This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.",
+          "nodes": [
+            {
+              "title": "이 저장소의 성격",
+              "node_id": "0001",
+              "start_index": 5,
+              "end_index": 10,
+              "summary": "CloudNet@ LLMSO 스터디(2026-08-02 ~ 09-13) 자료 정리 저장소입니다. 애플리케이션이 아니라 한국어 학습 문서 모음 + 그 문서·PDF를 탐색하기 위한 로컬 인덱싱 도구입니다. 빌드·린트·테스트 파이프라인이 없고, tools/의 독립 실행 Python 스크립트 4개가 전부입니다. 모든 문서는 한국어로 작성합니다. 새 문서를 만들거나 기존 문서를 고칠 때 이 관례를 따르세요."
+            },
+            {
+              "title": "명령",
+              "node_id": "0002",
+              "start_index": 11,
+              "end_index": 33,
+              "summary": "모든 명령은 저장소 루트에서 실행합니다. 유일한 외부 의존성은 pymupdf(PDF 파싱)이며, 인덱싱·탐색에 LLM API 키는 필요 없습니다. --doc은 부분 일치입니다: inference / gpu-enabled / nhn / knowledge. 상세 사용법과 시나리오·트러블슈팅은 index/USAGE.md에 있습니다."
+            },
+            {
+              "title": "인덱스 파이프라인 구조",
+              "node_id": "0003",
+              "start_index": 34,
+              "end_index": 53,
+              "summary": "세 스크립트가 하나의 파이프라인을 이루며, 역할 분리가 이 저장소 설계의 핵심입니다 (근거는 index/README.md §2 실측 기록). build_pageindex.py — PageIndex와 동일한 JSON 스키마(title / node_id / start_index / end_index / summary / nodes[])를 LLM 없이 생성합니다. 트리 출처는 PDF 내장 TOC → 없으면 tools/toc/<파일명>.json 사이드카, 마크다운은 헤딩입니다. summary는 해당 구간에서 잘라낸 발췌입니다. …"
+            },
+            {
+              "title": "깨지기 쉬운 지점",
+              "node_id": "0004",
+              "start_index": 54,
+              "end_index": 62,
+              "summary": "build_pageindex.py를 PDF 포함해 재생성하면 LLM 한국어 요약이 발췌로 되돌아갑니다. 마크다운만 고쳤다면 반드시 --only md를 쓰세요. 이미 되돌렸다면 enrich_summaries.py를 다시 돌리면 됩니다(해시 캐시가 있어 거의 공짜). --only md는 knowledge/가 아니라 저장소 전체를 순회합니다 (.git, .claude, node_modules, __pycache__, .venv 제외). …"
+            },
+            {
+              "title": "콘텐츠 정책 (중요)",
+              "node_id": "0005",
+              "start_index": 63,
+              "end_index": 68,
+              "summary": "이 저장소는 비공개로 유지합니다. 원본 노션은 멤버 전용이고 스터디 규칙상 외부 공개·전파가 금지되어 있습니다 (knowledge/03-study-rules.md). knowledge/references/pdf/에 제3자 배포 PDF 3종(527p, 41.6MB)이, index/*.json에 그 PDF들의 짧은 발췌가 들어 있습니다. 공개 원격 저장소에 푸시하거나 문서를 외부 서비스에 업로드하는 작업은 먼저 확인을 받으세요. 원문 그대로의 전재는 금지, 소화해서 자기 언어로 가공하는 것(블로그 등)은 권장입니다."
+            },
+            {
+              "title": "문서 구조",
+              "node_id": "0006",
+              "start_index": 69,
+              "end_index": 74,
+              "summary": "knowledge/ — 스터디 정리 문서. 00~05 번호 문서(개요·환경·과제·규칙·체크리스트·예습) + subpages/(노션 서브페이지 8종 실습 정리) + references/(외부 자료 단일 인덱스, priority-guide.md가 진입점) index/ — 생성된 트리 인덱스. USAGE.md(사용법) / README.md(설계 근거·실측) / _verify/(실측 산출물) tools/ — 위 스크립트 + toc/ 사이드카 목차 logs/ — pageindex_claude.py 실행 부산물, gitignore 대상"
+            }
+          ]
+        }
+      ]
+    },
     {
       "doc_name": "README.md",
       "doc_description": "Hands-On LLM Serving and Optimization Study (LLMSO)",
@@ -22,28 +86,28 @@
       "structure": [
         {
           "title": "Hands-On LLM Serving and Optimization Study (LLMSO)",
-          "node_id": "0000",
+          "node_id": "0007",
           "start_index": 1,
           "end_index": 12,
           "summary": "CloudNet@ LLMSO 스터디(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소입니다.",
           "nodes": [
             {
               "title": "구조",
-              "node_id": "0001",
+              "node_id": "0008",
               "start_index": 13,
               "end_index": 35,
               "summary": ""
             },
             {
               "title": "빠른 시작",
-              "node_id": "0002",
+              "node_id": "0009",
               "start_index": 36,
               "end_index": 49,
               "summary": "하고 싶은 것 · 명령 / 문서 시작 전 준비 · knowledge/04-kickoff-checklist.md 1주차 예습 · knowledge/05-week1-prep.md 스터디 전반 파악 · knowledge/README.md 뭘 먼저 봐야 하나 · knowledge/references/priority-guide.md 자료 내용이 궁금 · knowledge/references/deep-dives.md PDF에서 개념 찾기 · python3 tools/search_index.py \"KV cache\" 문서 목차 보기 · pytho …",
               "nodes": [
                 {
                   "title": "검색 예시",
-                  "node_id": "0003",
+                  "node_id": "0010",
                   "start_index": 50,
                   "end_index": 61,
                   "summary": ""
@@ -52,14 +116,14 @@
             },
             {
               "title": "스터디 개요",
-              "node_id": "0004",
+              "node_id": "0011",
               "start_index": 62,
               "end_index": 68,
               "summary": "일정: 2026-08-02 ~ 09-13, 매주 일요일 20:30~22:30 (ZOOM) 교재: *Hands-On LLM Serving and Optimization* (Chi Wang, Peiheng Hu / O'Reilly 2026.4) 커리큘럼: 1~5주차 CH1~10 → 6주차 AWS EKS 워크숍 → 7주차 llm-d 과제: 매주 학습 내용을 공개 링크로 정리·공유 (다음 주 일요일 09:00까지)"
             },
             {
               "title": "필요 패키지",
-              "node_id": "0005",
+              "node_id": "0012",
               "start_index": 69,
               "end_index": 75,
               "summary": "인덱싱·탐색은 LLM API 키가 필요 없습니다. 배경은 index/README.md 참조."
@@ -81,21 +145,21 @@
       "structure": [
         {
           "title": "PageIndex 적용 검토 및 로컬 인덱스",
-          "node_id": "0324",
+          "node_id": "0379",
           "start_index": 1,
           "end_index": 9,
           "summary": "이 폴더는 PageIndex를 이 저장소에 적용할 수 있는지 검토하고, PageIndex와 동일한 스키마의 트리 인덱스를 로컬에서 생성한 결과입니다.",
           "nodes": [
             {
               "title": "1. PageIndex란",
-              "node_id": "0325",
+              "node_id": "0380",
               "start_index": 10,
               "end_index": 22,
               "summary": "벡터 없는(vectorless), 추론 기반 RAG입니다. 임베딩 유사도 대신 사람이 목차를 훑듯 문서를 탐색합니다. 입력: PDF, Markdown 출력: ./results/{filename}_structure.json 벤치마크: 금융 문서에서 98.7% 정확도 (자사 주장)",
               "nodes": [
                 {
                   "title": "노드 스키마",
-                  "node_id": "0326",
+                  "node_id": "0381",
                   "start_index": 23,
                   "end_index": 37,
                   "summary": ""
@@ -104,56 +168,56 @@
             },
             {
               "title": "2. 이 저장소에 적합한가 — 판단",
-              "node_id": "0327",
+              "node_id": "0382",
               "start_index": 38,
               "end_index": 39,
               "summary": "처음엔 \"OpenAI 키가 필요하다\"고 판단했지만 틀렸습니다. PageIndex는 requirements.txt에 litellm==1.84.0을 쓰고, pageindex/config.yaml에는 아래 줄이 주석으로 이미 들어 있습니다: 즉 프로바이더 중립입니다. 나아가 LLM 호출 지점이 llm_completion / llm_acompletion 두 개뿐이라, 그 아래의 litellm.completion을 가로채면 어떤 LLM이든 붙일 수 있습니다. …",
               "nodes": [
                 {
                   "title": "적합하다고 본 이유",
-                  "node_id": "0328",
+                  "node_id": "0383",
                   "start_index": 40,
                   "end_index": 48,
                   "summary": "근거 · 설명 자료가 \"긴 문서\" 중심 · PDF 3종 527페이지. 청크 기반 벡터 RAG는 \"5.3.2 Where to Store the KV Cache\" 같은 섹션 경계를 뭉갠다 이미 목차가 훌륭함 · 3종 중 2종이 PDF 내장 TOC 보유(146 · 54 항목). 트리를 새로 추론할 필요가 거의 없다 탐색 질의가 \"어디에 있나\" 형태 · 스터디 중 질문은 \"KV cache 사이징은 어느 자료 몇 페이지?\"에 가깝다. …"
                 },
                 {
                   "title": "진입 장벽",
-                  "node_id": "0329",
+                  "node_id": "0384",
                   "start_index": 49,
                   "end_index": 57,
                   "summary": "장벽 · 실제 확인 결과 PyPI 패키지는 클라우드 SDK · pip install pageindex(v0.2.8, 6KB)를 받아 열어보니 PageIndexClient 하나뿐 — api.pageindex.ai로 업로드하는 래퍼. PageIndex 클라우드 API 키 필요 셀프호스팅도 LLM 필요 · run_pageindex.py는 TOC 탐지·트리 생성·요약 전 과정에서 LLM 호출. …"
                 },
                 {
                   "title": "⚠️ 정정 — API 키는 필수가 아니었다",
-                  "node_id": "0330",
+                  "node_id": "0385",
                   "start_index": 58,
                   "end_index": 70,
                   "summary": "처음엔 \"OpenAI 키가 필요하다\"고 판단했지만 틀렸습니다. PageIndex는 requirements.txt에 litellm==1.84.0을 쓰고, pageindex/config.yaml에는 아래 줄이 주석으로 이미 들어 있습니다: 즉 프로바이더 중립입니다. 나아가 LLM 호출 지점이 llm_completion / llm_acompletion 두 개뿐이라, 그 아래의 litellm.completion을 가로채면 어떤 LLM이든 붙일 수 있습니다. …"
                 },
                 {
                   "title": "실측 검증 결과 (NHN 백서 66p, `--no-summary`)",
-                  "node_id": "0331",
+                  "node_id": "0386",
                   "start_index": 71,
                   "end_index": 88,
                   "summary": "항목 · 값 LLM 호출 · 121회 (실패 0회) 벽시계 시간 · 278초 (동시 3) 입출력 · 입력 33.9만 자 / 출력 5.1만 자 TOC 정확도 · PageIndex 자체 리포트 100% 산출 노드 · 55개 로컬 결정론 버전(LLM 0회, 1초 미만)과 비교: 비교 항목 · 결과 노드 제목 · 54/54 완전 일치 (PageIndex에 Preface 1개 추가) 페이지 범위 · 10개 노드가 다름 — PageIndex는 다음 섹션 시작까지 겹치게 잡고, 로컬은 겹치지 않게 자름 범위 오류(end < start) · Pa …"
                 },
                 {
                   "title": "2차 실측 — 요약을 켜고 다시 (같은 PDF)",
-                  "node_id": "0332",
+                  "node_id": "0387",
                   "start_index": 89,
                   "end_index": 103,
                   "summary": "--no-summary를 빼고 한 번 더 돌렸습니다. 요약 품질은 확실히 좋습니다. 평균 1,934자로, 제 발췌본(265자)과는 성격이 다릅니다. 예를 들어 4.2.1 네트워크 병목 노드는 증상(SM Activity 저하, NIC 버스트 패턴, All-Reduce가 스텝 시간의 30% 초과)·원인(oversubscribed 토폴로지, rail 정렬 실패, NCCL 미튜닝)·진단법까지 서술합니다. 발췌 방식으로는 절대 나올 수 없는 내용입니다. 그런데 두 가지 문제가 드러났습니다.",
                   "nodes": [
                     {
                       "title": "① 실행 간 재현성이 낮다 ⚠️",
-                      "node_id": "0333",
+                      "node_id": "0388",
                       "start_index": 104,
                       "end_index": 115,
                       "summary": "두 실행은 --no-summary 여부만 달랐는데 트리 제목이 달라졌습니다. 같은 PDF·같은 목차인데 LLM이 매번 다르게 정규화합니다. 인덱스를 다시 만들 때마다 노드 제목이 바뀌면 북마크·인용·diff가 전부 깨집니다."
                     },
                     {
                       "title": "② 한국어 문서인데 요약이 영어로 나온다 ⚠️",
-                      "node_id": "0334",
+                      "node_id": "0389",
                       "start_index": 116,
                       "end_index": 119,
                       "summary": "요약 55개 중 54개(98%)가 사실상 영어입니다. NHN 백서는 한국어 문서인데도 그렇습니다. 한국어 스터디에서 쓰기엔 어색하고, 원문 용어와 대조가 어렵습니다."
@@ -162,7 +226,7 @@
                 },
                 {
                   "title": "최종 결론",
-                  "node_id": "0335",
+                  "node_id": "0390",
                   "start_index": 120,
                   "end_index": 132,
                   "summary": ""
@@ -171,14 +235,14 @@
             },
             {
               "title": "3. 생성된 인덱스",
-              "node_id": "0336",
+              "node_id": "0391",
               "start_index": 133,
               "end_index": 143,
               "summary": "python3 tools/build_pageindex.py 로 생성 · 재생성합니다. (총 612 노드, 약 290 KB)",
               "nodes": [
                 {
                   "title": "진짜 PageIndex와 다른 점 (정직하게)",
-                  "node_id": "0337",
+                  "node_id": "0392",
                   "start_index": 144,
                   "end_index": 160,
                   "summary": "각 JSON의 meta.summary_method에 어느 방식인지 표기했습니다 — extractive-*(발췌) 또는 llm-claude-code-korean(C안 적용). Inference Engineering은 C안을 적용했습니다 (아래 §5-C). 나머지는 발췌 방식입니다. 발췌 방식의 요약 추출은 3단계 폴백입니다: ① 자기 구간의 산문 → ② 비면 하위 트리까지 확장 → ③ 그래도 비면 표 셀 내용까지 긁음(이 저장소는 표 비중이 큼). 그 결과 빈 요약이 71개(14.1%) → 19개(3.1%) 로 줄었습니다. …"
@@ -187,21 +251,21 @@
             },
             {
               "title": "4. 사용법",
-              "node_id": "0338",
+              "node_id": "0393",
               "start_index": 161,
               "end_index": 162,
               "summary": "필요 패키지: pymupdf (PDF 처리용, 이미 설치되어 있음) 실행 예: → \"KV cache 어디에 저장하나\"가 궁금하면 Inference Engineering 141쪽임을 바로 알 수 있습니다. 벡터 DB도, API 키도 없이.",
               "nodes": [
                 {
                   "title": "인덱스 재생성",
-                  "node_id": "0339",
+                  "node_id": "0394",
                   "start_index": 163,
                   "end_index": 172,
                   "summary": "필요 패키지: pymupdf (PDF 처리용, 이미 설치되어 있음)"
                 },
                 {
                   "title": "탐색",
-                  "node_id": "0340",
+                  "node_id": "0395",
                   "start_index": 173,
                   "end_index": 199,
                   "summary": "실행 예: → \"KV cache 어디에 저장하나\"가 궁금하면 Inference Engineering 141쪽임을 바로 알 수 있습니다. 벡터 DB도, API 키도 없이."
@@ -210,42 +274,42 @@
             },
             {
               "title": "5. 진짜 PageIndex로 업그레이드하려면",
-              "node_id": "0341",
+              "node_id": "0396",
               "start_index": 200,
               "end_index": 203,
               "summary": "LLM 요약 품질이나 추론 기반 검색이 필요해지면: 동작 원리: litellm.completion / acompletion / token_counter를 가로채 claude -p(헤드리스)로 돌립니다. litellm 실물이 없어도 sys.modules에 스텁을 꽂아 import를 만족시킵니다. ⚠️ 비용이 사라지는 게 아니라 옮겨갑니다 — API 크레딧 대신 Claude Code 구독 사용량을 씁니다. 66페이지 PDF 하나에 호출 121회였으니, 259페이지 PDF는 수백 회가 됩니다. …",
               "nodes": [
                 {
                   "title": "A-0. Claude Code 백엔드 ★ 키 불필요 · 검증 완료",
-                  "node_id": "0342",
+                  "node_id": "0397",
                   "start_index": 204,
                   "end_index": 219,
                   "summary": "동작 원리: litellm.completion / acompletion / token_counter를 가로채 claude -p(헤드리스)로 돌립니다. litellm 실물이 없어도 sys.modules에 스텁을 꽂아 import를 만족시킵니다. ⚠️ 비용이 사라지는 게 아니라 옮겨갑니다 — API 크레딧 대신 Claude Code 구독 사용량을 씁니다. 66페이지 PDF 하나에 호출 121회였으니, 259페이지 PDF는 수백 회가 됩니다. --dry-run으로 먼저 규모를 가늠하세요."
                 },
                 {
                   "title": "A. 셀프호스팅 (OpenAI / Anthropic API 키)",
-                  "node_id": "0343",
+                  "node_id": "0398",
                   "start_index": 220,
                   "end_index": 237,
                   "summary": "생성된 파일을 이 폴더에 덮어쓰면 tools/search_index.py가 그대로 동작합니다 (스키마 동일)."
                 },
                 {
                   "title": "B. 클라우드 API / MCP",
-                  "node_id": "0344",
+                  "node_id": "0399",
                   "start_index": 238,
                   "end_index": 249,
                   "summary": "OCR 강화판과 MCP 연동이 제공됩니다. 다만 문서 업로드가 전제입니다. <a id=\"c-plan\"></a>"
                 },
                 {
                   "title": "C. 트리는 로컬, 요약만 LLM ★ 채택",
-                  "node_id": "0345",
+                  "node_id": "0400",
                   "start_index": 250,
                   "end_index": 273,
                   "summary": "실측 끝에 고른 방식입니다. tools/enrich_summaries.py가 기존 인덱스의 summary 필드만 LLM 요약으로 교체합니다. 트리는 결정론적 결과 그대로라 재현성이 유지되고, 프롬프트로 언어를 지정해 한국어 요약을 얻습니다 — PageIndex 통째 실행에서 나온 두 문제를 동시에 피합니다. 문서별 대상 노드 수 (--max-depth 0 기준): Inference Engineering 145 · GPU on K8s 81 · NHN 백서 54 · 마크다운 전체 171",
                   "nodes": [
                     {
                       "title": "적용 결과 — Inference Engineering (145노드)",
-                      "node_id": "0346",
+                      "node_id": "0401",
                       "start_index": 274,
                       "end_index": 308,
                       "summary": "가장 큰 이득은 한국어 검색이 생긴 것입니다. 이 PDF는 영문이라 이전에는 한국어 질의로 아무것도 찾을 수 없었습니다. 실행 예:"
@@ -256,7 +320,7 @@
             },
             {
               "title": "6. 앞으로",
-              "node_id": "0347",
+              "node_id": "0402",
               "start_index": 309,
               "end_index": 313,
               "summary": "주차별 정리 문서가 추가되면 --only md로 재생성 새 PDF를 받으면 knowledge/references/pdf/에 넣고 재생성 (내장 TOC 없으면 tools/toc/<이름>.json 추가) index/*.json은 생성물이지만 커밋해 두는 것을 권장 — 재생성 없이 바로 탐색 가능하고, 문서 구조 변화가 diff로 보임"
@@ -278,49 +342,49 @@
       "structure": [
         {
           "title": "사용 가이드",
-          "node_id": "0348",
+          "node_id": "0403",
           "start_index": 1,
           "end_index": 12,
           "summary": "인덱스와 도구를 실제로 어떻게 쓰는지만 다룹니다. 왜 이렇게 만들었는지(PageIndex 검토·실측)는 README.md를 보세요. 모든 명령은 저장소 루트에서 실행합니다.",
           "nodes": [
             {
               "title": "30초 요약",
-              "node_id": "0349",
+              "node_id": "0404",
               "start_index": 13,
               "end_index": 30,
               "summary": "일상적으로 쓰는 건 사실상 하나뿐입니다. 나머지 둘은 가끔 씁니다. 언제 · 명령 개념이 어느 자료 몇 쪽인지 찾을 때 (거의 매번) · search_index.py \"키워드\" 문서를 고치거나 새 PDF를 넣었을 때 · build_pageindex.py 요약을 한국어 LLM 요약으로 바꾸고 싶을 때 · enrich_summaries.py --doc <문서>"
             },
             {
               "title": "1. 검색 — `search_index.py`",
-              "node_id": "0350",
+              "node_id": "0405",
               "start_index": 31,
               "end_index": 32,
               "summary": "읽는 법: Inference Engineering은 영문 원서지만 요약을 한국어로 만들어 두어서 한국어 질의가 통합니다. --doc에 쓸 수 있는 이름(부분 일치): --depth 3으로 올리면 절 단위까지 나옵니다.",
               "nodes": [
                 {
                   "title": "기본",
-                  "node_id": "0351",
+                  "node_id": "0406",
                   "start_index": 33,
                   "end_index": 58,
                   "summary": "읽는 법: 부분 · 의미 [116.0] · 매칭 점수 (제목 일치에 가중치 10, 요약 3) p.133-133 · PDF 133쪽을 펴면 된다 (마크다운이면 L133 = 줄 번호) Table of Contents › Chapter 5 › 5.2 · 문서 안에서의 위치 (부모 경로) ▸ 5.2.1 … · 해당 노드 제목 그 아래 · 요약 발췌 (검색어 주변을 잘라 보여줌)"
                 },
                 {
                   "title": "한국어로도 찾을 수 있습니다",
-                  "node_id": "0352",
+                  "node_id": "0407",
                   "start_index": 59,
                   "end_index": 70,
                   "summary": "Inference Engineering은 영문 원서지만 요약을 한국어로 만들어 두어서 한국어 질의가 통합니다."
                 },
                 {
                   "title": "옵션",
-                  "node_id": "0353",
+                  "node_id": "0408",
                   "start_index": 71,
                   "end_index": 93,
                   "summary": "--doc에 쓸 수 있는 이름(부분 일치): 축약 · 대상 inference · Inference Engineering (259p) gpu-enabled · GPU-Enabled Platforms on Kubernetes (202p) nhn · NHN Cloud GPU 백서 (66p) knowledge · knowledge/ 정리 문서"
                 },
                 {
                   "title": "목차 보기",
-                  "node_id": "0354",
+                  "node_id": "0409",
                   "start_index": 94,
                   "end_index": 113,
                   "summary": "--depth 3으로 올리면 절 단위까지 나옵니다."
@@ -329,14 +393,14 @@
             },
             {
               "title": "2. 인덱스 재생성 — `build_pageindex.py`",
-              "node_id": "0355",
+              "node_id": "0410",
               "start_index": 114,
               "end_index": 125,
               "summary": "문서를 고치거나 새 자료를 넣은 뒤에 돌립니다. LLM을 쓰지 않아 1초 안에 끝납니다.",
               "nodes": [
                 {
                   "title": "새 PDF를 추가할 때",
-                  "node_id": "0356",
+                  "node_id": "0411",
                   "start_index": 126,
                   "end_index": 149,
                   "summary": "knowledge/references/pdf/ 에 넣는다 python3 tools/build_pageindex.py --only pdf 내장 목차가 없으면 이런 메시지가 나옵니다: 이때는 목차를 직접 만들어 tools/toc/<파일명>.json에 넣습니다. 형식은 [레벨, 제목, 시작쪽]: 기존 예시: tools/toc/gpu-enabled-platforms-on-kubernetes-v2-2026.json"
@@ -345,35 +409,35 @@
             },
             {
               "title": "3. 요약 보강 — `enrich_summaries.py`",
-              "node_id": "0357",
+              "node_id": "0412",
               "start_index": 150,
               "end_index": 166,
               "summary": "발췌 요약을 LLM 한국어 요약으로 교체합니다. 트리(제목·쪽수)는 건드리지 않습니다. claude -p를 쓰므로 API 키는 필요 없지만 Claude Code 사용량을 소모합니다. 반드시 규모부터 보세요.",
               "nodes": [
                 {
                   "title": "옵션",
-                  "node_id": "0358",
+                  "node_id": "0413",
                   "start_index": 167,
                   "end_index": 175,
                   "summary": "옵션 · 의미 --doc <이름> · 대상 문서 (부분 일치). 생략하면 전부 — 권장하지 않음 --max-depth N · 깊이 N 미만만. 기본 2(상위 2단계). 0이면 전체 깊이 --limit N · 문서당 최대 N건 (시험용) --dry-run · 대상 개수·예상 시간만 출력"
                 },
                 {
                   "title": "문서별 규모 (`--max-depth 0` 기준)",
-                  "node_id": "0359",
+                  "node_id": "0414",
                   "start_index": 176,
                   "end_index": 184,
                   "summary": "문서 · 노드 · 대략 소요 Inference Engineering · 145 · ~12분 ✅ 적용 완료 GPU on K8s · 81 · ~7분 NHN 백서 · 54 · ~5분 마크다운 전체 · 171 · ~14분"
                 },
                 {
                   "title": "캐시",
-                  "node_id": "0360",
+                  "node_id": "0415",
                   "start_index": 185,
                   "end_index": 191,
                   "summary": "노드 원문 해시로 캐시하므로 중단 후 다시 돌려도 만든 건 건너뜁니다. 재생성 후 다시 돌릴 때도 거의 공짜입니다. 위치: index/.summary_cache.json (용량 때문에 커밋 제외) 지우고 싶으면 그냥 삭제하면 됩니다"
                 },
                 {
                   "title": "적용 여부 확인",
-                  "node_id": "0361",
+                  "node_id": "0416",
                   "start_index": 192,
                   "end_index": 206,
                   "summary": "llm-claude-code-korean = 보강됨, extractive-* = 발췌 상태."
@@ -382,42 +446,42 @@
             },
             {
               "title": "4. (참고) 진짜 PageIndex 실행 — `pageindex_claude.py`",
-              "node_id": "0362",
+              "node_id": "0417",
               "start_index": 207,
               "end_index": 224,
               "summary": "평소엔 쓸 일이 없습니다. PageIndex 본체를 Claude Code 백엔드로 돌려보는 검증용 스크립트입니다. 실측 결과와 왜 채택하지 않았는지는 README.md §2에 있습니다. 요약하면 트리가 실행마다 바뀌고(제목 98개 중 12개만 일치) 한국어 문서를 영어로 요약해서, 트리는 로컬로 두고 요약만 LLM에 맡기는 지금 방식을 택했습니다."
             },
             {
               "title": "시나리오별",
-              "node_id": "0363",
+              "node_id": "0418",
               "start_index": 225,
               "end_index": 226,
               "summary": "→ 나온 p.NNN을 PDF에서 펴면 됩니다. → knowledge/references/priority-guide.md의 주차별 매핑과 대조해서 읽을 쪽수를 정합니다.",
               "nodes": [
                 {
                   "title": "스터디 중 \"이거 어느 자료에 있더라?\"",
-                  "node_id": "0364",
+                  "node_id": "0419",
                   "start_index": 227,
                   "end_index": 234,
                   "summary": "→ 나온 p.NNN을 PDF에서 펴면 됩니다."
                 },
                 {
                   "title": "과제 쓸 때 근거 찾기",
-                  "node_id": "0365",
+                  "node_id": "0420",
                   "start_index": 235,
                   "end_index": 244,
                   "summary": ""
                 },
                 {
                   "title": "다음 주 예습 범위 잡기",
-                  "node_id": "0366",
+                  "node_id": "0421",
                   "start_index": 245,
                   "end_index": 252,
                   "summary": "→ knowledge/references/priority-guide.md의 주차별 매핑과 대조해서 읽을 쪽수를 정합니다."
                 },
                 {
                   "title": "정리 문서를 고친 뒤",
-                  "node_id": "0367",
+                  "node_id": "0422",
                   "start_index": 253,
                   "end_index": 260,
                   "summary": ""
@@ -426,14 +490,14 @@
             },
             {
               "title": "트러블슈팅",
-              "node_id": "0368",
+              "node_id": "0423",
               "start_index": 261,
               "end_index": 273,
               "summary": "증상 · 원인 / 해결 index/ 가 없습니다 · python3 tools/build_pageindex.py 를 먼저 실행 PyMuPDF(fitz)가 필요합니다 · pip install pymupdf 검색 결과 0개 · 다른 표현으로 재시도. 영문 PDF는 한국어 요약이 없으면 한국어 질의가 안 걸림 → 3번 한국어 요약이 사라짐 · build_pageindex.py를 PDF 포함해 재생성한 것. enrich_summaries.py를 다시 실행(캐시로 빠름) enrich_summaries.py가 느림 · 정상입니다. …"
             },
             {
               "title": "정리",
-              "node_id": "0369",
+              "node_id": "0424",
               "start_index": 274,
               "end_index": 281,
               "summary": ""
@@ -455,14 +519,14 @@
       "structure": [
         {
           "title": "PageIndex 실측 산출물",
-          "node_id": "0370",
+          "node_id": "0425",
           "start_index": 1,
           "end_index": 11,
           "summary": "../README.md §2의 검증 근거 자료입니다. 대상은 NHN 백서 66p 하나이며, LLM 백엔드는 tools/pageindex_claude.py를 통한 Claude Code(claude -p) 입니다.",
           "nodes": [
             {
               "title": "이 파일들로 확인할 수 있는 것",
-              "node_id": "0371",
+              "node_id": "0426",
               "start_index": 12,
               "end_index": 33,
               "summary": "요약 품질: 2차 파일의 summary 필드는 평균 1,934자로 증상·원인·진단까지 서술 (로컬 발췌본은 265자) 재현성 문제: 1차와 2차의 title을 비교하면 98개 중 12개만 일치. 같은 PDF인데 절 번호 유지 여부가 갈림 언어 문제: 2차 요약 55개 중 54개가 영어 (원문은 한국어)"
@@ -484,35 +548,35 @@
       "structure": [
         {
           "title": "00. 스터디 개요 및 커리큘럼",
-          "node_id": "0006",
+          "node_id": "0013",
           "start_index": 1,
           "end_index": 2,
           "summary": "LLM 서비스 제공(서빙) 및 최적화에 대한 지식 학습 + 실습 따라해보기. 노션의 주차 표기(CH 번호)에 교재 실제 챕터 제목을 매핑한 표입니다. 챕터별 상세 목차는 references/books.md 참조. 실습 환경 준비 → 01-environment-setup.md 과제 규정 → 02-assignments.md 저작권 정책 · 슬랙/ZOOM 준비 · 질문하는 법 → 03-study-rules.md 서브페이지 실습 가이드 정리 → subpages/ 모든 자료·링크·PDF → references/",
           "nodes": [
             {
               "title": "목적",
-              "node_id": "0007",
+              "node_id": "0014",
               "start_index": 3,
               "end_index": 6,
               "summary": "LLM 서비스 제공(서빙) 및 최적화에 대한 지식 학습 + 실습 따라해보기."
             },
             {
               "title": "운영 방식",
-              "node_id": "0008",
+              "node_id": "0015",
               "start_index": 7,
               "end_index": 19,
               "summary": "항목 · 내용 모임장 · 서종호 (gasida) — Cisco CCIEx3 + 조력자들 · LinkedIn 형태 · 온라인 강의 형태, 2시간 진행 (분량에 따라 30분 추가 가능) 일시 · 매주 일요일 저녁 20:30 ~ 22:30 (+α) 기간 · 2026-08-02 ~ 2026-09-13, 총 7주 결석 시 · 불가피한 사정으로 참석 못할 경우 녹화 영상으로 대체 시청 주최 · CloudNet@"
             },
             {
               "title": "주차별 커리큘럼",
-              "node_id": "0009",
+              "node_id": "0016",
               "start_index": 20,
               "end_index": 35,
               "summary": "노션의 주차 표기(CH 번호)에 교재 실제 챕터 제목을 매핑한 표입니다. 챕터별 상세 목차는 references/books.md 참조.",
               "nodes": [
                 {
                   "title": "챕터 흐름 한눈에 보기",
-                  "node_id": "0010",
+                  "node_id": "0017",
                   "start_index": 36,
                   "end_index": 48,
                   "summary": ""
@@ -521,7 +585,7 @@
             },
             {
               "title": "관련 문서",
-              "node_id": "0011",
+              "node_id": "0018",
               "start_index": 49,
               "end_index": 55,
               "summary": "실습 환경 준비 → 01-environment-setup.md 과제 규정 → 02-assignments.md 저작권 정책 · 슬랙/ZOOM 준비 · 질문하는 법 → 03-study-rules.md 서브페이지 실습 가이드 정리 → subpages/ 모든 자료·링크·PDF → references/"
@@ -543,35 +607,35 @@
       "structure": [
         {
           "title": "01. 실습 환경 준비",
-          "node_id": "0012",
+          "node_id": "0019",
           "start_index": 1,
           "end_index": 2,
           "summary": "클라우드 GPU 인스턴스 사용 준비 — AWS / GCP / Azure 중 택일 계정, 결제 수단, GPU 인스턴스 쿼터(quota) 사전 신청 필요 (신규 계정은 GPU 쿼터 승인에 시간이 걸릴 수 있음) 6주차(09-06)는 AWS EKS 환경에서 진행 워크숍 권장 인스턴스: g6e.2xlarge (NVIDIA L40S 48GB, 8 vCPU, 64GB RAM) GPU 카드가 최소 1장 장착된 로컬 PC 또는 Google Colab (무료 티어 가능) [ ] 클라우드 계정 생성 및 결제 수단 등록 [ ] GPU 인스턴스 쿼터 신 …",
           "nodes": [
             {
               "title": "필수",
-              "node_id": "0013",
+              "node_id": "0020",
               "start_index": 3,
               "end_index": 9,
               "summary": "클라우드 GPU 인스턴스 사용 준비 — AWS / GCP / Azure 중 택일 계정, 결제 수단, GPU 인스턴스 쿼터(quota) 사전 신청 필요 (신규 계정은 GPU 쿼터 승인에 시간이 걸릴 수 있음) 6주차(09-06)는 AWS EKS 환경에서 진행 워크숍 권장 인스턴스: g6e.2xlarge (NVIDIA L40S 48GB, 8 vCPU, 64GB RAM)"
             },
             {
               "title": "옵션",
-              "node_id": "0014",
+              "node_id": "0021",
               "start_index": 10,
               "end_index": 14,
               "summary": "GPU 카드가 최소 1장 장착된 로컬 PC 또는 Google Colab (무료 티어 가능)"
             },
             {
               "title": "체크리스트",
-              "node_id": "0015",
+              "node_id": "0022",
               "start_index": 15,
               "end_index": 22,
               "summary": "[ ] 클라우드 계정 생성 및 결제 수단 등록 [ ] GPU 인스턴스 쿼터 신청 (예: AWS G and VT instances vCPU 한도 상향) [ ] AWS CLI / kubectl / eksctl / helm 설치 (6주차 대비) [ ] 로컬 GPU 환경이라면 NVIDIA Driver + CUDA + Docker(nvidia-container-toolkit) 설치 [ ] 비용 주의 — GPU 인스턴스는 시간당 과금. 실습 후 반드시 종료/삭제"
             },
             {
               "title": "비용 참고",
-              "node_id": "0016",
+              "node_id": "0023",
               "start_index": 23,
               "end_index": 27,
               "summary": "g6e.2xlarge 기준 온디맨드 요금은 리전에 따라 시간당 약 $2 내외 수준입니다. 하루 실습(3~4시간) 후 인스턴스와 EKS 클러스터, EBS 볼륨, NAT Gateway, LoadBalancer까지 정리하지 않으면 비용이 누적되니 실습 종료 시 eksctl delete cluster 등으로 전체 정리 권장."
@@ -593,28 +657,28 @@
       "structure": [
         {
           "title": "04. 과제 제출 방법 및 규칙",
-          "node_id": "0017",
+          "node_id": "0024",
           "start_index": 1,
           "end_index": 2,
           "summary": "스터디에서 학습한 내용을 간략히 정리하여 공개된 링크에 글 작성 후 해당 링크를 공유합니다. 블로그 GitHub 개인 홈페이지 개인 Youtube 페이스북 / 링크드인 공개 게시 글 해당 주차 스터디에서 학습한 내용 요약 정리 해당 주차에서 다룬 주제 기술 1개를 별도 조사·학습해서 정리 LLM 서빙 관련 운영 경험 중 기술 내용 위주로 정리 최근 LLM 서빙 관련 새로운 기술에 대한 분석 정리 과제 제출표 클릭 → 세부 페이지 진입 자신의 이름 클릭 → 작성한 URL 내용 추가 세부 페이지에서 과제 스크린샷(이미지) 파일 업로드 …",
           "nodes": [
             {
               "title": "과제 내용",
-              "node_id": "0018",
+              "node_id": "0025",
               "start_index": 3,
               "end_index": 6,
               "summary": "스터디에서 학습한 내용을 간략히 정리하여 공개된 링크에 글 작성 후 해당 링크를 공유합니다.",
               "nodes": [
                 {
                   "title": "작성 도구 (택일)",
-                  "node_id": "0019",
+                  "node_id": "0026",
                   "start_index": 7,
                   "end_index": 14,
                   "summary": "블로그 GitHub 개인 홈페이지 개인 Youtube 페이스북 / 링크드인 공개 게시 글"
                 },
                 {
                   "title": "정리 내용 예시 (하나 이상 선택)",
-                  "node_id": "0020",
+                  "node_id": "0027",
                   "start_index": 15,
                   "end_index": 21,
                   "summary": "해당 주차 스터디에서 학습한 내용 요약 정리 해당 주차에서 다룬 주제 기술 1개를 별도 조사·학습해서 정리 LLM 서빙 관련 운영 경험 중 기술 내용 위주로 정리 최근 LLM 서빙 관련 새로운 기술에 대한 분석 정리"
@@ -623,28 +687,28 @@
             },
             {
               "title": "제출 기한",
-              "node_id": "0021",
+              "node_id": "0028",
               "start_index": 22,
               "end_index": 35,
               "summary": "주차 · 스터디일 · 과제 마감 1주차 · 08-02 · 08-09 (일) 09:00 2주차 · 08-09 · 08-16 (일) 09:00 3주차 · 08-16 · 08-23 (일) 09:00 4주차 · 08-23 · 08-30 (일) 09:00 5주차 · 08-30 · 09-06 (일) 09:00 6주차 · 09-06 · 09-13 (일) 09:00 7주차 · 09-13 · (스터디 종료)"
             },
             {
               "title": "⚠️ 제명 규칙",
-              "node_id": "0022",
+              "node_id": "0029",
               "start_index": 36,
               "end_index": 39,
               "summary": ""
             },
             {
               "title": "제출 절차",
-              "node_id": "0023",
+              "node_id": "0030",
               "start_index": 40,
               "end_index": 45,
               "summary": "과제 제출표 클릭 → 세부 페이지 진입 자신의 이름 클릭 → 작성한 URL 내용 추가 세부 페이지에서 과제 스크린샷(이미지) 파일 업로드",
               "nodes": [
                 {
                   "title": "주의 사항",
-                  "node_id": "0024",
+                  "node_id": "0031",
                   "start_index": 46,
                   "end_index": 55,
                   "summary": "해당 페이지는 모든 멤버가 편집 권한을 가짐 → 다른 멤버의 내용을 삭제/편집할 수 있음 자신의 이름을 정확히 확인 후 업로드할 것 (사고 발생 시 모임장이 페이지 편집 히스토리로 복원 가능)"
@@ -653,21 +717,21 @@
             },
             {
               "title": "(옵션) 멤버 기술 경험 발표",
-              "node_id": "0025",
+              "node_id": "0032",
               "start_index": 56,
               "end_index": 59,
               "summary": "발표 희망 시 모임장에게 슬랙 DM 문의. 설계 및 운영(자사/고객사)하고 있는 LLM 서빙 관련 기술 위주로 준비 회사 정보나 고객사 정보가 노출되지 않도록 제외 필수 소재 예시: 운영 중 발생한 트러블슈팅 사례와 대응 사례 도입 검토 중인 아키텍처나 기술 분석 내용 발표 시간: 10분 ~ 30분 (예약제) 멤버 경험 발표 시간은 녹화하지 않음 🎁 스터디 시간에 경험 발표 시 모든 스터디 과제 면제",
               "nodes": [
                 {
                   "title": "준비 가이드",
-                  "node_id": "0026",
+                  "node_id": "0033",
                   "start_index": 60,
                   "end_index": 67,
                   "summary": "설계 및 운영(자사/고객사)하고 있는 LLM 서빙 관련 기술 위주로 준비 회사 정보나 고객사 정보가 노출되지 않도록 제외 필수 소재 예시: 운영 중 발생한 트러블슈팅 사례와 대응 사례 도입 검토 중인 아키텍처나 기술 분석 내용"
                 },
                 {
                   "title": "혜택 / 조건",
-                  "node_id": "0027",
+                  "node_id": "0034",
                   "start_index": 68,
                   "end_index": 72,
                   "summary": "발표 시간: 10분 ~ 30분 (예약제) 멤버 경험 발표 시간은 녹화하지 않음 🎁 스터디 시간에 경험 발표 시 모든 스터디 과제 면제"
@@ -691,42 +755,42 @@
       "structure": [
         {
           "title": "03. 사전 준비 사항 및 스터디 규칙",
-          "node_id": "0028",
+          "node_id": "0035",
           "start_index": 1,
           "end_index": 6,
           "summary": "원문: Hands-On LLM Serving and Optimization Study 사전 공지 🧑🏻‍💻",
           "nodes": [
             {
               "title": "⚠️ 저작권 / 공유 정책 (가장 중요)",
-              "node_id": "0029",
+              "node_id": "0036",
               "start_index": 7,
               "end_index": 20,
               "summary": "즉, 원문 그대로의 전재는 금지, 소화해서 자기 언어로 쓰는 것은 권장입니다. 과제 자체가 \"정리해서 공개 링크에 올리기\"인 것과 일관됩니다. 🎉 스터디 완주 시, 스터디 노션을 복제할 수 있게 가이드를 제공해 줍니다."
             },
             {
               "title": "사전 준비 사항",
-              "node_id": "0030",
+              "node_id": "0037",
               "start_index": 21,
               "end_index": 22,
               "summary": "용도: (외부 공유 금지) 스터디 관련 내용, 멤버 전용 공유 Notion 유료 서비스 가입 불필요 — Guest 권한으로 사용 초대 이메일이 개인 이메일로 발송됨 로그인 절차 초대 이메일의 링크 선택 자신의 이메일 입력 후 Continue with email 클릭 이메일로 전달된 '임시암호키' 확인 임시암호키 입력하여 로그인 계정 정보(이름 혹은 닉네임) 입력",
               "nodes": [
                 {
                   "title": "1. 슬랙 채널 💬",
-                  "node_id": "0031",
+                  "node_id": "0038",
                   "start_index": 23,
                   "end_index": 33,
                   "summary": "항목 · 내용 워크스페이스 · CloudNetaStudy — https://cloudnetastudy.slack.com 채널 · 비공개 채널 llmso 초대 · 스터디 지원서의 개인 이메일로 join 정보 전달 용도 · 스터디 공지, 질문과 답, 자료 공유 규칙 · 정치/종교/상호비방(욕)/음담패설 금지 프로필 · 멤버 관리 편의를 위해 이름-닉네임 권장 (예: 홍길동-gasida)"
                 },
                 {
                   "title": "2. 노션 페이지 🗒️",
-                  "node_id": "0032",
+                  "node_id": "0039",
                   "start_index": 34,
                   "end_index": 49,
                   "summary": "용도: (외부 공유 금지) 스터디 관련 내용, 멤버 전용 공유 Notion 유료 서비스 가입 불필요 — Guest 권한으로 사용 초대 이메일이 개인 이메일로 발송됨 로그인 절차 초대 이메일의 링크 선택 자신의 이메일 입력 후 Continue with email 클릭 이메일로 전달된 '임시암호키' 확인 임시암호키 입력하여 로그인 계정 정보(이름 혹은 닉네임) 입력"
                 },
                 {
                   "title": "3. ZOOM 📹",
-                  "node_id": "0033",
+                  "node_id": "0040",
                   "start_index": 50,
                   "end_index": 62,
                   "summary": "항목 · 내용 가입 · 무료 Plan으로 가입 (프로그램 설치 또는 웹에서 직접 사용) 프로필 · 자신의 이름, 사진 설정 기본 상태 · 멤버의 영상·음성은 OFF 발언 시 · 발표·토론 시 음성 ON, 필요 시 컴퓨터 화면 공유 ON 질문 · 슬랙/줌 채널 모두 사용 녹화 · 진행 내용은 녹화되어 멤버에게 제공 (단, 멤버 경험 발표는 녹화 안 함)"
@@ -735,28 +799,28 @@
             },
             {
               "title": "스터디 규칙",
-              "node_id": "0034",
+              "node_id": "0041",
               "start_index": 63,
               "end_index": 64,
               "summary": "2시간 온라인 강의 형태, 분량에 따라 30분 추가 가능 일요일 저녁 8시반 참석 불가 시 녹화 영상 시청으로 대체 질문·답변은 줌/슬랙 채널 모두 사용 발표 중에도 멤버 모두에게 도움이 되는 중요 질문은 즉시 답변 중요 질문이 아니면 각자 실습 및 자유 토론 시간에 답변·토론 질문에 답을 알고 있으면 멤버가 직접 채팅방에 답변하는 것 권장 → 02-assignments.md에 상세 정리 범위 최대한 스터디 범위 내에서 질문한다 — 다양한 멤버가 있어 효율적인 Q&A를 위함 아직 배우지 않은 범위의 질문은 최대한 자제 — 실제 배우 …",
               "nodes": [
                 {
                   "title": "1. 온라인 진행 방안 ⏲️",
-                  "node_id": "0035",
+                  "node_id": "0042",
                   "start_index": 65,
                   "end_index": 73,
                   "summary": "2시간 온라인 강의 형태, 분량에 따라 30분 추가 가능 일요일 저녁 8시반 참석 불가 시 녹화 영상 시청으로 대체 질문·답변은 줌/슬랙 채널 모두 사용 발표 중에도 멤버 모두에게 도움이 되는 중요 질문은 즉시 답변 중요 질문이 아니면 각자 실습 및 자유 토론 시간에 답변·토론 질문에 답을 알고 있으면 멤버가 직접 채팅방에 답변하는 것 권장"
                 },
                 {
                   "title": "2. 과제 규칙 🚨",
-                  "node_id": "0036",
+                  "node_id": "0043",
                   "start_index": 74,
                   "end_index": 77,
                   "summary": "→ 02-assignments.md에 상세 정리"
                 },
                 {
                   "title": "3. 질문 하는 방법 ★",
-                  "node_id": "0037",
+                  "node_id": "0044",
                   "start_index": 78,
                   "end_index": 103,
                   "summary": "범위 최대한 스터디 범위 내에서 질문한다 — 다양한 멤버가 있어 효율적인 Q&A를 위함 아직 배우지 않은 범위의 질문은 최대한 자제 — 실제 배우고 나면 대부분 해소되기 때문 (스터디 범위에 포함되고, 이미 배운 범위인 경우) 질문 전에 스터디 영상을 한 번 더 본다 구글링으로 검색해본다 (영문이면 번역 후 이해 시도) (그래도 이해가 안 될 경우) 문제의 배경 상황을 정리하고, 무엇을 시도했고 어떻게 안 되는지 구체적으로 설명하며 질문한다 예: 실습의 경우 어떤 설정을 어디에 했고, 어떤 에러가 나오면서 안 되는지 정중히 질문을 …"
@@ -765,14 +829,14 @@
             },
             {
               "title": "참여 권장 대상 (모집 공고 발췌)",
-              "node_id": "0038",
+              "node_id": "0045",
               "start_index": 104,
               "end_index": 111,
               "summary": "LLM/K8S 기본 이해를 가진 분. 교재에서 발췌한 대상: LLM 모델을 학습·미세 조정한 후, 실제 사용자에게 효율적으로 제공해야 하는 ML/AI 엔지니어 및 연구원 온프레미스·클라우드·하이브리드 관계없이 갑자기 'LLM 서비스 담당'이 된 백엔드 및 플랫폼 엔지니어 LLM, 에이전트 및 RAG 워크로드를 다루는 실무자",
               "nodes": [
                 {
                   "title": "책에서 다루는 부분",
-                  "node_id": "0039",
+                  "node_id": "0046",
                   "start_index": 112,
                   "end_index": 119,
                   "summary": "모델 서빙이 실제로 무엇이며 LLM이 서빙 문제를 근본적으로 어떻게 변화시키는지 이해 LLM 실행 방식(attention, prefill, decode)과 이 메커니즘이 지연 시간·처리량·비용에 미치는 영향 서빙 시스템을 처음부터 구축하여 아키텍처·캐싱·스케줄링 및 프레임워크 사용 시의 장단점 이해 성능을 정확하게 측정하고 최적화"
@@ -796,42 +860,42 @@
       "structure": [
         {
           "title": "04. 시작 전 체크리스트",
-          "node_id": "0040",
+          "node_id": "0047",
           "start_index": 1,
           "end_index": 6,
           "summary": "스터디 시작: 2026-08-02 (일) 20:30 [x] 슬랙 초대 메일 확인 → CloudNetaStudy 워크스페이스 llmso 채널 입장 [x] 슬랙 프로필을 이름-닉네임 형식으로 변경 (예: 홍길동-gasida) [x] 노션 초대 메일 확인 → 임시암호키로 로그인 (Guest 권한, 유료 가입 불필요) [x] ZOOM 무료 가입 + 프로필에 본명·사진 설정 priority-guide.md의 🔴필수 5편입니다. 시간이 없으면 1~3번 20분만이라도. …",
           "nodes": [
             {
               "title": "① 계정 준비 — 8/2 전까지",
-              "node_id": "0041",
+              "node_id": "0048",
               "start_index": 7,
               "end_index": 17,
               "summary": "[x] 슬랙 초대 메일 확인 → CloudNetaStudy 워크스페이스 llmso 채널 입장 [x] 슬랙 프로필을 이름-닉네임 형식으로 변경 (예: 홍길동-gasida) [x] 노션 초대 메일 확인 → 임시암호키로 로그인 (Guest 권한, 유료 가입 불필요) [x] ZOOM 무료 가입 + 프로필에 본명·사진 설정"
             },
             {
               "title": "② 필수 영상 (총 55분) — 8/1까지",
-              "node_id": "0042",
+              "node_id": "0049",
               "start_index": 18,
               "end_index": 33,
               "summary": "priority-guide.md의 🔴필수 5편입니다. 시간이 없으면 1~3번 20분만이라도. [x] ① LLM prefill 설명 — 5분 [x] ② KV cache — 8분 [x] ③ Flash attention의 원리 — 7분 [x] ④ 왜 컴퓨터는 한 가지 메모리만 쓰지 않을까 — 27분 [x] ⑤ LLM 설명 (요약버전) — 8분 *(트랜스포머를 이미 안다면 생략 가능)* 왜 이 3편이 먼저인가: 1주차 CH2가 트랜스포머 → 자기회귀 생성 → KV cache → prefill/decode → vLLM 순으로 나갑니다. …"
             },
             {
               "title": "③ 1주차 예습 — 8/1 (토) 권장",
-              "node_id": "0043",
+              "node_id": "0050",
               "start_index": 34,
               "end_index": 52,
               "summary": "1주차 범위: CH1 (Introduction to Model Serving) + CH2 (Large Language Model Serving) [ ] 05-week1-prep.md 읽기 — CH1~2 핵심을 미리 정리해둔 노트 [ ] 00-study-overview.md 주차별 커리큘럼 표 훑기 [ ] 교재가 있다면 CH1~2, 없다면 아래 대체 자료 [ ] Inference Engineering PDF CH0 Inference (p.17) + CH2 Models (p.41) 찾기: python3 tools/search_index …"
             },
             {
               "title": "④ 8/2 (일) 스터디 당일",
-              "node_id": "0044",
+              "node_id": "0051",
               "start_index": 53,
               "end_index": 58,
               "summary": "[ ] 20:20까지 ZOOM 입장 (영상·음성 OFF 기본) [ ] 질문은 슬랙/줌 채팅 모두 사용 가능 [ ] 녹화본이 제공되므로 놓친 부분은 다시 볼 수 있음",
               "nodes": [
                 {
                   "title": "끝나고 바로",
-                  "node_id": "0045",
+                  "node_id": "0052",
                   "start_index": 59,
                   "end_index": 67,
                   "summary": "[ ] 과제 시작 — 마감은 8/9 (일) 09:00 정리 글을 올릴 곳 정하기 (블로그 / GitHub / 링크드인 공개 글 등) 과제 유형 4가지 중 선택 → 02-assignments.md ⚠️ 특별한 이유 없이 1회 미공유 시 제명"
@@ -840,28 +904,28 @@
             },
             {
               "title": "⑤ (옵션) 로컬 GPU가 있다면",
-              "node_id": "0046",
+              "node_id": "0053",
               "start_index": 68,
               "end_index": 82,
               "summary": "없어도 스터디 참여에 지장은 없습니다. 있다면 미리 해두면 실습이 수월합니다. [ ] Ubuntu 24.04 Server (26.04 아님 — K8s 생태계 툴이 24.04까지 지원) [ ] Secure Boot 끄기 (안 끄면 NVIDIA 커널 모듈 로드 실패) [ ] NVIDIA Driver → Docker → NVIDIA Container Toolkit [ ] 확인: docker run --gpus all ubuntu nvidia-smi 상세 절차 → subpages/gpu-setup-docker-k8s.md"
             },
             {
               "title": "⑥ AWS GPU 쿼터 — 8월 하순까지",
-              "node_id": "0047",
+              "node_id": "0054",
               "start_index": 83,
               "end_index": 111,
               "summary": "6주차(9/6) EKS 실습용입니다. 표준 증설은 보통 몇 시간~며칠이면 승인되므로 지금 급하게 할 필요는 없습니다. 8월 셋째 주쯤(~8/23) 신청해두면 거절 후 재신청할 여유까지 확보됩니다. [ ] AWS 계정 준비 (없다면) [ ] 쿼터 증설 신청 (아래 표) [ ] 승인 확인 리전을 확인하세요. 쿼터는 리전별입니다. 워크숍을 돌릴 리전에 신청해야 합니다. 신청 사유에는 \"머신러닝 추론 워크숍 실습\" 정도로 구체적으로 적으면 승인이 빠릅니다. 거절되면 사유를 보고 재신청하거나 리전을 바꿔보세요."
             },
             {
               "title": "미리 알아둘 함정",
-              "node_id": "0048",
+              "node_id": "0055",
               "start_index": 112,
               "end_index": 123,
               "summary": "함정 · 대응 GPU 쿼터 승인 지연 · 8월 하순까지는 신청. 리전별로 따로 신청해야 함 GPU 인스턴스 요금 누적 · 실습 후 terraform destroy / 인스턴스 종료 필수. NAT Gateway·LoadBalancer·EBS도 과금 6주차 ODCR · 용량 예약은 예약 시점부터 과금. 실습 직전에 만들고 끝나면 해제 과제 제출표 이름 혼동 · 모든 멤버가 편집 권한 보유. 본인 이름 확인 후 업로드 자료 외부 유출 · 노션 내용은 외부 공개 금지. 가공한 글은 권장 → 03-study-rules.md"
             },
             {
               "title": "진행 상황 한눈에",
-              "node_id": "0049",
+              "node_id": "0056",
               "start_index": 124,
               "end_index": 134,
               "summary": "날짜 · 할 일 · 비고 ~8/1 · 슬랙·노션·ZOOM 가입 · ✅ 완료 ~8/1 · 필수 영상 20분 (prefill → KV cache → Flash) · ✅ 완료 8/1 (토) · 1주차 CH1~2 예습 · → 1주차 예습 노트 8/2 (일) 20:30 · 스터디 1주차 · ZOOM 8/9 (일) 09:00 · 1주차 과제 마감 · 미공유 1회 = 제명 ~8/23 · AWS GPU 쿼터 신청 · 남은 준비물은 이것뿐 9/6 (일) · 6주차 EKS 실습 · 쿼터가 여기서 필요"
@@ -883,28 +947,28 @@
       "structure": [
         {
           "title": "05. 1주차 예습 노트 — CH1·CH2",
-          "node_id": "0050",
+          "node_id": "0057",
           "start_index": 1,
           "end_index": 13,
           "summary": "스터디 1주차: 2026-08-02 (일) 20:30 · 범위 CH1 모델 서빙 소개 + CH2 LLM 서빙 교재가 없어도 따라갈 수 있도록, 대응하는 Inference Engineering PDF를 직접 읽고 1주차에 나올 개념만 추려 정리했습니다. 괄호 안 쪽수는 그 PDF 기준이며, 더 깊게 보고 싶을 때 펼치면 됩니다.",
           "nodes": [
             {
               "title": "1. 추론(Inference)이란 어디에 있는 단계인가",
-              "node_id": "0051",
+              "node_id": "0058",
               "start_index": 14,
               "end_index": 26,
               "summary": "생성형 AI 모델의 생애주기는 두 단계입니다. 지난 10년 ML 붐에서 수많은 엔지니어가 두 단계를 모두 익혔지만, 고전 ML의 추론은 상대적으로 단순했습니다. XGBoost 모델을 가벼운 CPU와 단순한 소프트웨어 스택으로 돌리면 됐습니다."
             },
             {
               "title": "2. 추론 스택의 3계층 ★ CH1의 뼈대",
-              "node_id": "0052",
+              "node_id": "0059",
               "start_index": 27,
               "end_index": 38,
               "summary": "세 계층이 함께 맞물려야 미션 크리티컬한 대규모 추론이 가능합니다. Runtime 계층이 의존하는 소프트웨어 스택: CUDA → PyTorch → 추론 엔진(vLLM, SGLang, TensorRT-LLM). 여기에 FlashAttention 같은 저수준 커널이 상당한 성능 이득을 줍니다.",
               "nodes": [
                 {
                   "title": "Runtime의 5가지 성능 기법 ★ 스터디 전체의 지도",
-                  "node_id": "0053",
+                  "node_id": "0060",
                   "start_index": 39,
                   "end_index": 50,
                   "summary": "이 5개가 사실상 CH5~8의 목차입니다. 1주차에 이름만 익혀두면 이후가 편합니다."
@@ -913,28 +977,28 @@
             },
             {
               "title": "3. LLM이 토큰을 만드는 방식 ★ CH2의 핵심",
-              "node_id": "0054",
+              "node_id": "0061",
               "start_index": 51,
               "end_index": 54,
               "summary": "토큰 = 텍스트 덩어리를 나타내는 숫자. 현대 LLM은 서브워드 토큰화를 써서 토큰 하나가 단어이거나 단어의 일부 토크나이저에는 신경망이 없습니다. 문자열 ↔ 숫자의 단순 매핑일 뿐 Vocabulary = 토큰과 문자열의 전체 매핑. 대부분 모델이 10만 개 이상 최신 모델일수록 효율적인 토큰화를 씁니다 — 출력에 필요한 토큰이 적을수록 종단간 추론이 빠름 셋을 합친 길이가 컨텍스트 윈도우로 제한되고, 요청은 max_tokens로 출력을 더 제한할 수 있습니다. …",
               "nodes": [
                 {
                   "title": "토큰과 토크나이저",
-                  "node_id": "0055",
+                  "node_id": "0062",
                   "start_index": 55,
                   "end_index": 61,
                   "summary": "토큰 = 텍스트 덩어리를 나타내는 숫자. 현대 LLM은 서브워드 토큰화를 써서 토큰 하나가 단어이거나 단어의 일부 토크나이저에는 신경망이 없습니다. 문자열 ↔ 숫자의 단순 매핑일 뿐 Vocabulary = 토큰과 문자열의 전체 매핑. 대부분 모델이 10만 개 이상 최신 모델일수록 효율적인 토큰화를 씁니다 — 출력에 필요한 토큰이 적을수록 종단간 추론이 빠름"
                 },
                 {
                   "title": "세 개의 시퀀스",
-                  "node_id": "0056",
+                  "node_id": "0063",
                   "start_index": 62,
                   "end_index": 71,
                   "summary": "셋을 합친 길이가 컨텍스트 윈도우로 제한되고, 요청은 max_tokens로 출력을 더 제한할 수 있습니다."
                 },
                 {
                   "title": "Chat Template — 실무에서 자주 깨지는 지점",
-                  "node_id": "0057",
+                  "node_id": "0064",
                   "start_index": 72,
                   "end_index": 79,
                   "summary": "입력은 하나의 문자열이지만, LLM은 역할이 있는 멀티턴 대화 / 툴 콜용 함수 시그니처 / 멀티모달 입력을 받도록 학습됩니다. 이것들을 단일 시퀀스로 합치는 게 chat template인데: 체크리스트에 넣어두세요 — 모델을 바꿨는데 품질이 이상하면 chat template을 먼저 의심합니다."
@@ -943,28 +1007,28 @@
             },
             {
               "title": "4. Prefill과 Decode ★ 1주차에서 가장 중요",
-              "node_id": "0058",
+              "node_id": "0065",
               "start_index": 80,
               "end_index": 90,
               "summary": "토큰화 이후, 추론은 두 단계로 나뉩니다. 이 구분이 왜 중요한지는 다음 장에서 드러납니다."
             },
             {
               "title": "5. 병목 — 왜 최적화 방법이 갈리는가 ★★",
-              "node_id": "0059",
+              "node_id": "0066",
               "start_index": 91,
               "end_index": 103,
               "summary": "GPU에는 두 가지 자원이 있습니다. 완벽히 최적화된 시스템이라면 연산이 메모리를 기다리며 놀지 않고, 메모리 대역폭도 연산을 기다리며 놀지 않습니다. 현실에는 한쪽이 포화인데 다른 쪽은 놀고 있는 불균형 = 병목이 있습니다.",
               "nodes": [
                 {
                   "title": "추론 시스템의 전형적 병목",
-                  "node_id": "0060",
+                  "node_id": "0067",
                   "start_index": 104,
                   "end_index": 113,
                   "summary": "그래서 배칭이 통합니다: 여러 요청을 묶으면 같은 메모리 트래픽으로 더 많은 연산을 하므로, decode의 memory bound 성격이 완화됩니다."
                 },
                 {
                   "title": "ops:byte ratio — 숫자로 판단하기",
-                  "node_id": "0061",
+                  "node_id": "0068",
                   "start_index": 114,
                   "end_index": 126,
                   "summary": "GPU마다 연산 속도와 메모리 대역폭이 정해져 있고, 둘의 비가 ops:byte ratio입니다. 이 수치보다 연산량이 적으면 memory bound, 많으면 compute bound입니다. 3주차 CH5(핵심 과제)의 계산이 전부 여기서 출발합니다."
@@ -973,21 +1037,21 @@
             },
             {
               "title": "스터디 중 확인할 질문",
-              "node_id": "0062",
+              "node_id": "0069",
               "start_index": 127,
               "end_index": 135,
               "summary": "강의를 들으며 아래가 채워지는지 보세요. 안 채워지면 그게 곧 질문거리입니다. [ ] 배칭이 decode의 memory bound를 완화한다면, 배치를 무한정 키우면 왜 안 되나? (힌트: TTFT) [ ] KV cache는 요청마다 쌓이는데, 동시 요청 수의 상한은 무엇이 정하나? [ ] prefill이 compute bound라면 긴 프롬프트 요청이 다른 요청을 얼마나 방해하나? [ ] 내가 쓸 GPU의 ops:byte ratio는 얼마이고, 내 워크로드는 어느 쪽인가?"
             },
             {
               "title": "용어 체크 — 1주차 끝나고 설명할 수 있어야",
-              "node_id": "0063",
+              "node_id": "0070",
               "start_index": 136,
               "end_index": 139,
               "summary": "Training/Inference · Runtime/Infrastructure/Tooling · 토큰 · 서브워드 토큰화 · vocabulary · 컨텍스트 윈도우 · chat template · 자기회귀 생성 · prefill · decode · KV cache · compute bound · memory bound · ops:byte ratio · 배칭 · 양자화 · speculative decoding · 병렬화"
             },
             {
               "title": "더 볼 것",
-              "node_id": "0064",
+              "node_id": "0071",
               "start_index": 140,
               "end_index": 155,
               "summary": "목적 · 자료 영상으로 먼저 (20분) · prefill 5분 → KV cache 8분 → Flash attention 7분 손으로 만져보기 · Transformer Explainer KV cache 수식·메모리 계산 · deep-dives.md → KV Cache (chooblog) 원문 더 읽기 · python3 tools/search_index.py --outline inference-engineering --depth 3"
@@ -1001,7 +1065,7 @@
       "doc_description": "knowledge — LLMSO 스터디 자료 정리",
       "meta": {
         "type": "markdown",
-        "lines": 73,
+        "lines": 74,
         "index_unit": "line",
         "summary_method": "extractive-first-paragraph",
         "generator": "tools/build_pageindex.py"
@@ -1009,30 +1073,30 @@
       "structure": [
         {
           "title": "knowledge — LLMSO 스터디 자료 정리",
-          "node_id": "0065",
+          "node_id": "0072",
           "start_index": 1,
           "end_index": 9,
           "summary": "CloudNet@ Hands-On LLM Serving and Optimization Study (LLMSO) 멤버 페이지 전체(메인 + 서브페이지 8개 + 접힌 토글 포함)를 정리한 폴더입니다. 원본: Notion — Hands-On LLM Serving and Optimization Study (멤버 전용) 정리 기준일: 2026-07-29",
           "nodes": [
             {
               "title": "구조",
-              "node_id": "0066",
+              "node_id": "0073",
               "start_index": 10,
-              "end_index": 46,
+              "end_index": 47,
               "summary": ""
             },
             {
               "title": "핵심 요약",
-              "node_id": "0067",
-              "start_index": 47,
-              "end_index": 56,
+              "node_id": "0074",
+              "start_index": 48,
+              "end_index": 57,
               "summary": "기간: 2026년 8월 2일 ~ 9월 13일 (총 7주) 시간: 매주 일요일 20:30 ~ 22:30 (+α) / ZOOM, 결석 시 녹화 시청 모임장: 서종호(gasida) — Cisco CCIEx3, LinkedIn 주교재: *Hands-On LLM Serving and Optimization* (Chi Wang, Peiheng Hu / O'Reilly 2026.4, 374p) — 구매 필수 아님 소통: 슬랙 CloudNetaStudy 워크스페이스의 비공개 채널 llmso 필수 준비물: AWS/GCP/Azure GPU 인스턴스 …"
             },
             {
               "title": "어디부터 볼까",
-              "node_id": "0068",
-              "start_index": 57,
-              "end_index": 73,
+              "node_id": "0075",
+              "start_index": 58,
+              "end_index": 74,
               "summary": "상황 · 문서 스터디가 뭘 하는지 알고 싶다 · 00-study-overview.md 지금 뭘 해야 하나 · 04-kickoff-checklist.md — 체크하며 실행 시작 전 준비물 상세 · 03-study-rules.md → 01-environment-setup.md 1주차 예습 · 05-week1-prep.md — CH1~2 핵심 미리보기 자료가 너무 많다, 뭘 봐야 하나 · references/priority-guide.md — 필수 12개만 추림 그 자료가 무슨 내용인지 먼저 알고 싶다 · references/deep-d …"
             }
           ]
@@ -1052,63 +1116,63 @@
       "structure": [
         {
           "title": "레퍼런스 라이브러리",
-          "node_id": "0069",
+          "node_id": "0076",
           "start_index": 1,
           "end_index": 4,
           "summary": "LLMSO 스터디 관련 모든 외부 자료의 단일 인덱스입니다. 노션 페이지에 \"Site\", \"Youtube\", \"Link\" 같은 짧은 텍스트로만 걸려 있던 링크를 전부 실제 URL로 복원했고, 배포 가능한 PDF는 pdf/에 내려받아 두었습니다.",
           "nodes": [
             {
               "title": "문서",
-              "node_id": "0070",
+              "node_id": "0077",
               "start_index": 5,
               "end_index": 21,
               "summary": "서브페이지(실습 가이드) 정리는 ../subpages/ 자료 본문 검색은 python3 tools/search_index.py \"키워드\" → ../../index/"
             },
             {
               "title": "로컬 자산",
-              "node_id": "0071",
+              "node_id": "0078",
               "start_index": 22,
               "end_index": 33,
               "summary": "파일 · 크기 · 페이지 · 출처 pdf/inference-engineering-2026.pdf · 23.0 MB · 259p · Baseten (Philip Kiely) pdf/gpu-enabled-platforms-on-kubernetes-v2-2026.pdf · 15.4 MB · 202p · LearnKube × vCluster pdf/nhn-cloud-factoryx-gpu-whitepaper-2026.pdf · 3.2 MB · 66p · NHN Cloud"
             },
             {
               "title": "전체 링크 표",
-              "node_id": "0072",
+              "node_id": "0079",
               "start_index": 34,
               "end_index": 35,
               "summary": "자료 · 종류 · 링크 Hands-On LLM Serving and Optimization · 주교재 (O'Reilly, 2026.4, 374p) · Site · Code Generative AI on Amazon EKS · AWS 워크숍 (6주차) · Workshop · Github llm-d · 공식 문서 (7주차) · Docs g6e.2xlarge · 워크숍 권장 인스턴스 · 사양/요금 자료 · 링크 Inference Engineering · Baseten 다운로드 · 100 Days of Inference GPU-Enable …",
               "nodes": [
                 {
                   "title": "스터디 핵심",
-                  "node_id": "0073",
+                  "node_id": "0080",
                   "start_index": 36,
                   "end_index": 44,
                   "summary": "자료 · 종류 · 링크 Hands-On LLM Serving and Optimization · 주교재 (O'Reilly, 2026.4, 374p) · Site · Code Generative AI on Amazon EKS · AWS 워크숍 (6주차) · Workshop · Github llm-d · 공식 문서 (7주차) · Docs g6e.2xlarge · 워크숍 권장 인스턴스 · 사양/요금"
                 },
                 {
                   "title": "PDF 원 배포처",
-                  "node_id": "0074",
+                  "node_id": "0081",
                   "start_index": 45,
                   "end_index": 52,
                   "summary": "자료 · 링크 Inference Engineering · Baseten 다운로드 · 100 Days of Inference GPU-Enabled Platforms on Kubernetes · vCluster · 웨비나 영상 NHN Cloud GPU 클러스터 기술 백서 · NHN FactoryX"
                 },
                 {
                   "title": "참고 도서",
-                  "node_id": "0075",
+                  "node_id": "0082",
                   "start_index": 53,
                   "end_index": 60,
                   "summary": "도서 · 링크 밑바닥부터 만들면서 배우는 LLM · 교보문고 · Youtube · 원서 AI Systems Performance Engineering · Amazon · Github CUDA for Deep Learning (MEAP) · Manning"
                 },
                 {
                   "title": "도구 · 논문",
-                  "node_id": "0076",
+                  "node_id": "0083",
                   "start_index": 61,
                   "end_index": 69,
                   "summary": "자료 · 링크 Transformer Explainer (GPT-2 인터랙티브) · Site · 한국어 해설 Attention Is All You Need · arXiv:1706.03762 Google Colab · Site 모임장 (서종호 / gasida) · LinkedIn"
                 },
                 {
                   "title": "영상",
-                  "node_id": "0077",
+                  "node_id": "0084",
                   "start_index": 70,
                   "end_index": 81,
                   "summary": "22편 전체 목록은 videos.md 참조. 최우선 3편만 추리면: 영상 · 길이 · 링크 LLM prefill 설명 · 5분 · Youtube KV cache · 8분 · Youtube Flash Attention의 원리 · 7분 · Youtube"
@@ -1117,14 +1181,14 @@
             },
             {
               "title": "주차별 자료 매핑",
-              "node_id": "0078",
+              "node_id": "0085",
               "start_index": 82,
               "end_index": 93,
               "summary": "주차 · 주제 · 1순위 자료 · 보조 자료 1 (08-02) · CH1,2 서빙/최적화 소개 · 교재 CH1–2 · Inference Engineering CH0–2 · videos.md §2 2 (08-09) · CH3,4 시스템 설계/모범 사례 · 교재 CH3–4 · Inference Engineering CH7 (Production) 3 (08-16) · CH5,6 핵심 과제/필수 최적화 · 교재 CH5–6 · Inference Engineering CH2.4, CH3, CH5.3 4 (08-23) · CH7,8 고급 최적화 …"
             },
             {
               "title": "서브페이지 실습 가이드 (별도 폴더)",
-              "node_id": "0079",
+              "node_id": "0086",
               "start_index": 94,
               "end_index": 104,
               "summary": "문서 · 언제 보나 gpu-setup-docker-k8s · GPU 환경을 직접 만들 때 (1주차 전후) gpu-interconnect-bandwidth · 3주차 CH5(핵심 과제) 배경 ai-factory-ops-lab · Lesson 4가 3주차 TTFT/goodput 실측에 유용 hami-gpu-virtualization · GPU 공유·가상화 주제 nccl-communication · aws-interconnect · 분산 통신 주제 (7주차 llm-d 배경) genai-on-eks-workshop-notes · 6주차 예 …"
@@ -1146,35 +1210,35 @@
       "structure": [
         {
           "title": "블로그 · 아티클 · 온라인 자료",
-          "node_id": "0080",
+          "node_id": "0087",
           "start_index": 1,
           "end_index": 6,
           "summary": "노션의 \"추천 정보\" 토글 전체입니다. 스터디 커리큘럼 바깥이지만 과제(\"주제 기술 1개를 별도 조사\")와 실무 이해에 바로 쓸 수 있는 자료가 모여 있습니다.",
           "nodes": [
             {
               "title": "1. 학습 커리큘럼 · 코스",
-              "node_id": "0081",
+              "node_id": "0088",
               "start_index": 7,
               "end_index": 18,
               "summary": "자료 · 설명 · 링크 AI Engineering from Scratch · 직접 빌드하면서 이해하는 AI 엔지니어링 풀코스. 역전파를 NumPy로 짜고 나서 PyTorch를 쓰고, 토크나이저를 밑바닥부터 만든 뒤 HuggingFace를 쓰는 식의 구성 · Site · Github AI by Hand · 손으로 직접 계산하며 이해하기 · Site · Youtube [Coursera] 대규모 언어 모델을 통한 생성형 AI · Generative AI with LLMs · Link [KodeKloud] vLLM을 직접 체험하며 이해하기 …"
             },
             {
               "title": "2. AWS 고성능 네트워크 · 인터커넥트 (한국어)",
-              "node_id": "0082",
+              "node_id": "0089",
               "start_index": 19,
               "end_index": 22,
               "summary": "노션 서브페이지 subpages/aws-interconnect.md에 정리된 시리즈의 원문입니다.",
               "nodes": [
                 {
                   "title": "AWS 고성능 컴퓨팅 네트워크 (2부작)",
-                  "node_id": "0083",
+                  "node_id": "0090",
                   "start_index": 23,
                   "end_index": 29,
                   "summary": "편 · 제목 · 링크 1부 · AWS가 제공하는 고속 네트워크 인터페이스, EFA(Elastic Fabric Adapter) · Blog 2부 · AWS가 제공하는 고성능 네트워크 프로토콜, SRD(Scalable Reliable Datagram) · Blog"
                 },
                 {
                   "title": "분산 트레이닝 관점에서의 AWS 인터커넥트 기술 (4부작)",
-                  "node_id": "0084",
+                  "node_id": "0091",
                   "start_index": 30,
                   "end_index": 38,
                   "summary": "편 · 제목 · 링크 1편 · AWS는 왜 인터커넥트 기술로 EFA를 사용하는가? · Blog 2편 · AWS의 인터커넥트 기반 기술, ENI 소개 · Blog 3편 · AWS 환경에서 NCCL을 이용한 GPU 간 통신 · Blog 4편 · 분산 트레이닝을 위해 알아야 할 GPU 간 고속 통신 기술 · Blog"
@@ -1183,49 +1247,49 @@
             },
             {
               "title": "3. 국내 기업 사례 (한국어) ★ 과제 소재로 추천",
-              "node_id": "0085",
+              "node_id": "0092",
               "start_index": 39,
               "end_index": 47,
               "summary": "자료 · 링크 [toss] 고성능 GPU 클러스터 도입기 #1 · Blog [toss] 고성능 GPU 클러스터 도입기 #2 · Blog [toss] GPU를 밀도 있게 쓰는 방법 — 토스증권의 GPU 가상화(MIG) 도입기 · Blog Netflix의 사내 LLM 서빙 플랫폼 · Netflix Tech Blog · GeekNews"
             },
             {
               "title": "4. LLM 추론 내부 구조 심층 분석 (영어)",
-              "node_id": "0086",
+              "node_id": "0093",
               "start_index": 48,
               "end_index": 49,
               "summary": "깊이 있는 내부 구조 해부 글. 교재 CH8(vLLM 내부)과 직접 대응합니다.",
               "nodes": [
                 {
                   "title": "aleksagordic — \"Anatomy of\" 시리즈 ★★",
-                  "node_id": "0087",
+                  "node_id": "0094",
                   "start_index": 50,
                   "end_index": 60,
                   "summary": "깊이 있는 내부 구조 해부 글. 교재 CH8(vLLM 내부)과 직접 대응합니다."
                 },
                 {
                   "title": "fergusfinn — CUDA / 네트워크 내부",
-                  "node_id": "0088",
+                  "node_id": "0095",
                   "start_index": 61,
                   "end_index": 70,
                   "summary": "글 · 링크 CUDA 커널을 실행하면 어떤 일이 발생할까요? · Blog 인피니밴드, RoCE, 그리고 그 외 모든 것들 · Blog 클라우드버스트: SGLang의 콜드 스타트 속도가 70배 빨라졌습니다 · Blog NVIDIA의 CUDA 체크포인트를 역설계하여 콜드 스타트 속도 향상 · Blog (블로그 홈) · Blog"
                 },
                 {
                   "title": "jimmysong — K8s 엔지니어를 위한 GPU/AI 인프라",
-                  "node_id": "0089",
+                  "node_id": "0096",
                   "start_index": 71,
                   "end_index": 80,
                   "summary": "글 · 링크 GPU가 AI의 기반이 된 이유: Kubernetes 베테랑을 위한 GPU 입문 가이드 · Blog GPU 활용률에 문제가 발생하고 있다: AI 인프라에 새로운 효율성 정의가 필요 · Blog GPU에서 토큰까지: AI 인프라를 위한 8계층 관측 가능성 스택 · Blog 나만의 AI 스택: 월 약 100달러로 개인 AI 인프라 구축하기 · Blog (블로그 홈) · Blog"
                 },
                 {
                   "title": "winterrykim — 밑바닥부터 언어 모델 학습",
-                  "node_id": "0090",
+                  "node_id": "0097",
                   "start_index": 81,
                   "end_index": 88,
                   "summary": "글 · 링크 언어 모델을 처음부터 학습시키기 (1부: 구성 요소) · Blog 언어 모델을 처음부터 학습시키기 (2부: FlashAttention 및 장치 메모리) · Blog 메모리에서 포토닉스까지: AI 확장의 차세대 병목 현상 해결 · Blog"
                 },
                 {
                   "title": "기타",
-                  "node_id": "0091",
+                  "node_id": "0098",
                   "start_index": 89,
                   "end_index": 97,
                   "summary": "자료 · 링크 CUDA 커널을 실행하면 내부에서 벌어지는 일 · GeekNews [HAMi] Are You Making Good Use of Your Compute? Three Stages of vLLM Inference Cluster Optimization · Blog inferencex (SemiAnalysis) — 벤더 중립·재현 가능한 AI 가속기 추론 벤치마크 · Site · About doubleword · Blog"
@@ -1234,21 +1298,21 @@
             },
             {
               "title": "5. 서빙 프레임워크 · 플랫폼 실습 (한국어)",
-              "node_id": "0092",
+              "node_id": "0099",
               "start_index": 98,
               "end_index": 104,
               "summary": "자료 · 링크 vLLM + LMCache: A Starter Guide, No GPU Required · Docs 분산 학습 K8S 에 Cilium — SR-IOV + Multus · Blog 글 · 링크 ML 모델을 쉽게 배포할 수 있는 KServe 알아보기 · Blog 로컬 Kind 클러스터에 KServe 배포하기 · Blog KServe의 InferenceService 직접 배포하고 테스트해보기 · Blog 오픈소스 MLOps 플랫폼 MLflow를 minikube 클러스터에 배포하기 · Blog 글 · 링크 Knative Se …",
               "nodes": [
                 {
                   "title": "KServe / MLflow 시리즈",
-                  "node_id": "0093",
+                  "node_id": "0100",
                   "start_index": 105,
                   "end_index": 113,
                   "summary": "글 · 링크 ML 모델을 쉽게 배포할 수 있는 KServe 알아보기 · Blog 로컬 Kind 클러스터에 KServe 배포하기 · Blog KServe의 InferenceService 직접 배포하고 테스트해보기 · Blog 오픈소스 MLOps 플랫폼 MLflow를 minikube 클러스터에 배포하기 · Blog"
                 },
                 {
                   "title": "chooblog ★ 서빙 최적화 한국어 해설",
-                  "node_id": "0094",
+                  "node_id": "0101",
                   "start_index": 114,
                   "end_index": 122,
                   "summary": "글 · 링크 Knative Serving/Eventing: 쿠버네티스 기반 서버리스 (feat. 실습) · Blog LLM 서빙 프레임워크 SGLang 설치 및 실습 (WSL2) · Blog KV Cache에 대해 알아보자 (Feat. Attention) · Blog GPU에서 Attention은 실제로 어떻게 실행되는가 — 커널 Launch부터 Tensor Core까지 (FlashAttention-2) · Blog"
@@ -1257,14 +1321,14 @@
             },
             {
               "title": "6. 인터랙티브 도구 · 논문",
-              "node_id": "0095",
+              "node_id": "0102",
               "start_index": 123,
               "end_index": 130,
               "summary": "자료 · 링크 Transformer Explainer (GPT-2 인터랙티브) · Site · 한국어 해설 · arXiv"
             },
             {
               "title": "주제별 빠른 찾기",
-              "node_id": "0096",
+              "node_id": "0103",
               "start_index": 131,
               "end_index": 141,
               "summary": "알고 싶은 것 · 먼저 볼 자료 vLLM은 내부에서 어떻게 도는가 · Inside vLLM → 교재 CH8 KV cache / Attention 커널 · chooblog KV Cache → chooblog 커널/Tensor Core GPU 인터커넥트 (IB/RoCE/EFA) · fergusfinn IB·RoCE → AWS 4부작 K8s에서 GPU 다루기 · jimmysong GPU 입문 → GPU on K8s PDF GPU 모니터링·활용률 · jimmysong 8계층 관측 국내 실제 도입 사례 · toss 3부작 · Netflix …"
@@ -1286,28 +1350,28 @@
       "structure": [
         {
           "title": "도서 레퍼런스",
-          "node_id": "0097",
+          "node_id": "0104",
           "start_index": 1,
           "end_index": 2,
           "summary": "항목 · 내용 저자 · Chi Wang, Peiheng Hu 출판 · O'Reilly Media, 2026.4 분량 · 374p 공식 사이트 · https://orca3.github.io/llm-model-inference/ 예제 코드 · https://github.com/orca3/llm-model-inference 스터디 범위 · 1~5주차 (CH1 ~ CH10) 주차 · CH · 제목 · 다루는 내용 1주 · 1 · Introduction to Model Serving and Optimization · 모델 해부·라이프사이클, …",
           "nodes": [
             {
               "title": "주교재 — Hands-On LLM Serving and Optimization",
-              "node_id": "0098",
+              "node_id": "0105",
               "start_index": 3,
               "end_index": 15,
               "summary": "항목 · 내용 저자 · Chi Wang, Peiheng Hu 출판 · O'Reilly Media, 2026.4 분량 · 374p 공식 사이트 · https://orca3.github.io/llm-model-inference/ 예제 코드 · https://github.com/orca3/llm-model-inference 스터디 범위 · 1~5주차 (CH1 ~ CH10) 주차 · CH · 제목 · 다루는 내용 1주 · 1 · Introduction to Model Serving and Optimization · 모델 해부·라이프사이클, …",
               "nodes": [
                 {
                   "title": "목차 (스터디 주차 매핑)",
-                  "node_id": "0099",
+                  "node_id": "0106",
                   "start_index": 16,
                   "end_index": 30,
                   "summary": "주차 · CH · 제목 · 다루는 내용 1주 · 1 · Introduction to Model Serving and Optimization · 모델 해부·라이프사이클, 서빙 개념, 서빙 패러다임(엣지/단일 모델/멀티 모델), 플랫폼 1주 · 2 · Large Language Model Serving · 트랜스포머 구조, 자기회귀 생성, 디코더 온리, 어텐션, KV cache, prefill/decode, vLLM 사용법 2주 · 3 · Model-Serving System Design: A Deep Dive · 단일/멀티 모델 서비 …"
                 },
                 {
                   "title": "흐름",
-                  "node_id": "0100",
+                  "node_id": "0107",
                   "start_index": 31,
                   "end_index": 42,
                   "summary": ""
@@ -1316,28 +1380,28 @@
             },
             {
               "title": "추가 참고 도서",
-              "node_id": "0101",
+              "node_id": "0108",
               "start_index": 43,
               "end_index": 44,
               "summary": "항목 · 내용 출간 · 2025.9 (한국어판) 원서 · *Build a Large Language Model (From Scratch)* — Sebastian Raschka, Manning 링크 · 교보문고 · Youtube · 원서 언제 유용한가 · 트랜스포머 내부를 코드로 직접 만들어 보고 싶을 때. 교재 CH2(LLM 서빙)의 배경 지식을 바닥부터 채워줌 항목 · 내용 출간 · 2025.12 링크 · Amazon · Github 언제 유용한가 · 3~4주차(CH5~8) 성능 최적화 심화. …",
               "nodes": [
                 {
                   "title": "밑바닥부터 만들면서 배우는 LLM",
-                  "node_id": "0102",
+                  "node_id": "0109",
                   "start_index": 45,
                   "end_index": 53,
                   "summary": "항목 · 내용 출간 · 2025.9 (한국어판) 원서 · *Build a Large Language Model (From Scratch)* — Sebastian Raschka, Manning 링크 · 교보문고 · Youtube · 원서 언제 유용한가 · 트랜스포머 내부를 코드로 직접 만들어 보고 싶을 때. 교재 CH2(LLM 서빙)의 배경 지식을 바닥부터 채워줌"
                 },
                 {
                   "title": "AI Systems Performance Engineering",
-                  "node_id": "0103",
+                  "node_id": "0110",
                   "start_index": 54,
                   "end_index": 61,
                   "summary": "항목 · 내용 출간 · 2025.12 링크 · Amazon · Github 언제 유용한가 · 3~4주차(CH5~8) 성능 최적화 심화. 프로파일링·병목 분석 관점"
                 },
                 {
                   "title": "CUDA for Deep Learning",
-                  "node_id": "0104",
+                  "node_id": "0111",
                   "start_index": 62,
                   "end_index": 68,
                   "summary": "항목 · 내용 상태 · MEAP (2026.10 출간 예정) 링크 · Manning 언제 유용한가 · 커널 퓨전·CUDA 레벨 최적화(CH6)를 더 파고들 때"
@@ -1361,49 +1425,49 @@
       "structure": [
         {
           "title": "자료 심층 분석",
-          "node_id": "0105",
+          "node_id": "0112",
           "start_index": 1,
           "end_index": 23,
           "summary": "priority-guide.md에서 🔴필수 · 🟡권장으로 분류한 자료 중 실제로 읽고 핵심만 뽑아낸 정리입니다. 링크 목록과 달리 여기 있는 건 \"그래서 뭐라고 쓰여 있는가\"를 담았습니다.",
           "nodes": [
             {
               "title": "Inside vLLM",
-              "node_id": "0106",
+              "node_id": "0113",
               "start_index": 24,
               "end_index": 24,
               "summary": "원문: aleksagordic.com/blog/vllm · 🔴 4주차 CH8의 최고 보조자료 교재 CH8이 \"vLLM 내부 구조\"를 다루는데, 이 글은 같은 주제를 5개 섹션으로 더 깊게 해부합니다. UniProcExecutor → MultiProcExecutor: 단일 GPU에서 텐서 병렬 분산으로. …",
               "nodes": [
                 {
                   "title": "Anatomy of a High-Throughput LLM Inference System",
-                  "node_id": "0107",
+                  "node_id": "0114",
                   "start_index": 25,
                   "end_index": 30,
                   "summary": "원문: aleksagordic.com/blog/vllm · 🔴 4주차 CH8의 최고 보조자료 교재 CH8이 \"vLLM 내부 구조\"를 다루는데, 이 글은 같은 주제를 5개 섹션으로 더 깊게 해부합니다."
                 },
                 {
                   "title": "1. Engine Core — 3단계 루프",
-                  "node_id": "0108",
+                  "node_id": "0115",
                   "start_index": 31,
                   "end_index": 44,
                   "summary": "구성요소 · 역할 Scheduler · FCFS 또는 priority 정책으로 요청 큐 관리. 매 step마다 무엇을 실행할지 결정 Paged Attention · KV-cache 매니저가 free_block_queue(가용 블록 풀)를 유지. 블록 단위 인덱싱으로 메모리 관리 Continuous Batching · 여러 시퀀스를 하나의 \"super sequence\"로 평탄화. 패딩 없이 prefill/decode 혼합 실행"
                 },
                 {
                   "title": "2. 주요 기능",
-                  "node_id": "0109",
+                  "node_id": "0116",
                   "start_index": 45,
                   "end_index": 54,
                   "summary": "기능 · 내용 Chunked Prefill · 긴 프롬프트를 잘게 나눠 한 요청이 자원을 독점하지 못하게 함 Prefix Caching · 토큰을 해싱해 공유 프리픽스의 KV 블록을 재사용 → 재계산 회피 Guided Decoding · 문법 기반 FSM으로 logits를 제약해 출력 형식 보장 Speculative Decoding · 작은 draft 모델(n-gram, EAGLE, Medusa)이 여러 토큰을 제안 → 본 모델이 검증. …"
                 },
                 {
                   "title": "3~4. 확장",
-                  "node_id": "0110",
+                  "node_id": "0117",
                   "start_index": 55,
                   "end_index": 59,
                   "summary": "UniProcExecutor → MultiProcExecutor: 단일 GPU에서 텐서 병렬 분산으로. 메시지 큐로 워커 프로세스 오케스트레이션, 복잡성은 통합 인터페이스 뒤로 숨김 분산 서빙: headless 노드가 engine core 실행 + ZMQ 소켓으로 조율, API 서버 노드가 DP coordinator로 로드밸런싱, FastAPI가 OpenAI 호환 엔드포인트 제공"
                 },
                 {
                   "title": "5. 성능 지표",
-                  "node_id": "0111",
+                  "node_id": "0118",
                   "start_index": 60,
                   "end_index": 73,
                   "summary": "함께 볼 것: 교재 CH8 · Inference Engineering CH5.5 Disaggregation · llm-d"
@@ -1412,42 +1476,42 @@
             },
             {
               "title": "KV Cache (chooblog)",
-              "node_id": "0112",
+              "node_id": "0119",
               "start_index": 74,
               "end_index": 77,
               "summary": "원문: chooblog.xyz/blog/kvcache · 🟡 1·3주차 · 한국어",
               "nodes": [
                 {
                   "title": "무엇인가",
-                  "node_id": "0113",
+                  "node_id": "0120",
                   "start_index": 78,
                   "end_index": 81,
                   "summary": "Self-Attention에서 이전 토큰들의 Key/Value 벡터를 GPU 메모리에 저장해 재사용하는 기법. 토큰을 순차 생성할 때 이전 토큰의 K·V가 계속 필요한데, 이 값들은 한 번 계산되면 변하지 않으므로 캐싱합니다."
                 },
                 {
                   "title": "왜 없으면 안 되는가",
-                  "node_id": "0114",
+                  "node_id": "0121",
                   "start_index": 82,
                   "end_index": 85,
                   "summary": "Attention(Q,K,V) = softmax(QKᵀ/√d_k)V 에서, KV Cache가 없으면 N개 토큰 생성 시 연산량이 O(N²·L·d) 에 비례 → 추론이 수백 배 느려집니다."
                 },
                 {
                   "title": "메모리 비용 ★",
-                  "node_id": "0115",
+                  "node_id": "0122",
                   "start_index": 86,
                   "end_index": 91,
                   "summary": "동시에 수십~수백 요청을 처리하려면 KV Cache만으로 GPU 메모리 수십 GB가 필요합니다. 이게 처리량을 직접 제한합니다. — 교재 CH5의 \"KV cache 사이징\"이 왜 중요한지가 여기 있습니다."
                 },
                 {
                   "title": "두 단계",
-                  "node_id": "0116",
+                  "node_id": "0123",
                   "start_index": 92,
                   "end_index": 98,
                   "summary": "단계 · 성격 Prefill · 입력 프롬프트 전체를 한 번에 처리하며 K,V 계산 → 연산 집약적 Decode · 토큰을 하나씩 생성하며 캐시된 K,V 활용 → 메모리 집약적"
                 },
                 {
                   "title": "한계 → 최적화가 나온 이유",
-                  "node_id": "0117",
+                  "node_id": "0124",
                   "start_index": 99,
                   "end_index": 112,
                   "summary": "함께 볼 것: 영상 KV cache 8분 · Inference Engineering CH5.3 (p.138~143) · 교재 CH5·CH6 <a id=\"attention-kernel-chooblog\"></a>"
@@ -1456,28 +1520,28 @@
             },
             {
               "title": "GPU에서 Attention은 실제로 어떻게 실행되는가",
-              "node_id": "0118",
+              "node_id": "0125",
               "start_index": 113,
               "end_index": 117,
               "summary": "원문: chooblog.xyz/blog/kernel-tensor_core · 🟡 3주차 CH6 · 한국어 커널 launch부터 Tensor Core까지 3단계로 추적합니다.",
               "nodes": [
                 {
                   "title": "실행 파이프라인",
-                  "node_id": "0119",
+                  "node_id": "0126",
                   "start_index": 118,
                   "end_index": 125,
                   "summary": "단계 · 내용 1. Kernel Launch · CPU가 launch 명령을 발행 (커널 코드 자체가 아니라 — 이미 SASS 바이너리로 GPU 메모리에 존재). GPU의 GigaThread Engine이 수신, Compute Work Distributor가 레지스터/공유메모리 여유를 보고 Thread Block을 SM에 배치 2. Thread Block & Warp 분배 · Query 타일은 서로 다른 SM에서 병렬 처리, Key-Value 타일은 블록 내에서 순차 처리 (online softmax 의존성 때문). …"
                 },
                 {
                   "title": "FlashAttention-2의 핵심",
-                  "node_id": "0120",
+                  "node_id": "0127",
                   "start_index": 126,
                   "end_index": 129,
                   "summary": "표준 어텐션은 중간 행렬(S, P)을 느린 HBM에 씁니다. FlashAttention-2는 이 연산들을 하나의 커널로 융합(fuse) 해 중간 결과를 빠른 SRAM에 유지하고 최종 출력만 씁니다. → 막대한 HBM 트래픽 제거 + online softmax를 점진적으로 수행."
                 },
                 {
                   "title": "기술 포인트",
-                  "node_id": "0121",
+                  "node_id": "0128",
                   "start_index": 130,
                   "end_index": 143,
                   "summary": "Systolic MAC grid: Tensor Core가 곱셈을 시간이 아닌 공간적으로 병렬화해 16× 속도 Online softmax: 블록을 넘나들며 통계치(m, l, o)를 갱신, 새 최댓값이 나오면 이전 결과를 보정 구체 예: 256×128 쿼리를 128×128 타일 2개로 나눠 2개 Thread Block에, 블록당 4 워프가 32행씩 담당 함께 볼 것: Flash attention 원리 7분 · Inference Engineering CH4.1 (CUDA 커널 퓨전) <a id=\"8-layer-observability\"> …"
@@ -1486,21 +1550,21 @@
             },
             {
               "title": "GPU에서 토큰까지 — 8계층 관측 스택",
-              "node_id": "0122",
+              "node_id": "0129",
               "start_index": 144,
               "end_index": 146,
               "summary": "원문: jimmysong.io/blog/gpu-to-token-observability · 🟡 6주차",
               "nodes": [
                 {
                   "title": "8개 계층",
-                  "node_id": "0123",
+                  "node_id": "0130",
                   "start_index": 147,
                   "end_index": 159,
                   "summary": "계층 · 무엇을 보나 L1 GPU 하드웨어 · GPU 사용률, SM occupancy, Tensor Core 활동, VRAM, 온도 L2 CUDA 런타임 · NCCL 통신 효율, 커널 실행 시간, rank skew 탐지 L3 호스트/OS · CPU, 메모리, 디스크 처리량, 네트워크, 프로세스 L4 K8s 스케줄링 · Pod/네임스페이스 소유권, GPU 공유 할당, 토폴로지 인식 L5 학습 런타임 · MFU(Model FLOPs Utilization), gradient 통계, loss, 체크포인트 시간 L6 추론 엔진 ★ · TTF …"
                 },
                 {
                   "title": "핵심 주장 ★",
-                  "node_id": "0124",
+                  "node_id": "0131",
                   "start_index": 160,
                   "end_index": 171,
                   "summary": "조직들이 GPU 사용률은 높은데 사용자 체감 성능은 나쁜 역설을 겪는 이유는 전체 스택을 관통하는 모니터링이 없기 때문입니다. 인프라 중심 GPU 스케줄링에서 하드웨어부터 비즈니스 가치까지 잇는 관측으로 옮겨가야 하며, 결국 GPU가 바쁘게 도는지가 아니라 의미 있는 산출을 내는지를 재야 합니다. <a id=\"toss-gpu-cluster\"></a>"
@@ -1509,28 +1573,28 @@
             },
             {
               "title": "toss 고성능 GPU 클러스터 도입기",
-              "node_id": "0125",
+              "node_id": "0132",
               "start_index": 172,
               "end_index": 174,
               "summary": "원문: toss.tech/article/securities_llm_1 · 🟡 과제 소재 추천 · 한국어",
               "nodes": [
                 {
                   "title": "왜 자체 구축했나",
-                  "node_id": "0126",
+                  "node_id": "0133",
                   "start_index": 175,
                   "end_index": 182,
                   "summary": "증권 데이터를 분석해 투자 인사이트를 뽑으려는데: 상용 LLM은 금융 전문 지식이 부족 \"증권 관련 데이터는 매우 방대하며, 개인정보를 포함하고 있어 수집과 사용이 제한\" → 데이터 주권 문제로 온프레미스 선택 외부 API 비용 구조(입출력 토큰 길이 과금)가 공격적인 기능 실험을 제약"
                 },
                 {
                   "title": "기술적 판단",
-                  "node_id": "0127",
+                  "node_id": "0134",
                   "start_index": 183,
                   "end_index": 190,
                   "summary": "항목 · 내용 온프레미스 · 민감 정보를 사내에 유지 + API 비용 제거 하드웨어 균일성 ★ · \"아웃라이어가 하나라도 존재할 경우 성능 병목이 생겨 전체 클러스터 성능이 저하\" — 부품 균일성이 클러스터 성능을 좌우 GPU 선택 · H100의 3TB/s 메모리 대역폭(CPU의 약 50배)이 딥러닝 행렬 연산에 적합"
                 },
                 {
                   "title": "배운 것",
-                  "node_id": "0128",
+                  "node_id": "0135",
                   "start_index": 191,
                   "end_index": 202,
                   "summary": "병렬 프로그래밍 복잡도: 분산 GPU 시스템 디버깅은 기존 CPU 개발보다 훨씬 어려움 데이터 이동 병목: CPU→GPU 데이터 이동에 상당한 시간 소모, 아키텍처 설계가 중요 기준선 검증: 성능 테스트와 하드웨어 검증이 대규모 클러스터의 연쇄 장애를 예방 <a id=\"infiniband-vs-roce\"></a>"
@@ -1539,28 +1603,28 @@
             },
             {
               "title": "InfiniBand vs RoCE",
-              "node_id": "0129",
+              "node_id": "0136",
               "start_index": 203,
               "end_index": 205,
               "summary": "원문: fergusfinn.com/blog/infiniband-roce-rdma · ⚪ 7주차 배경",
               "nodes": [
                 {
                   "title": "RDMA란",
-                  "node_id": "0130",
+                  "node_id": "0137",
                   "start_index": 206,
                   "end_index": 211,
                   "summary": "CPU를 거치지 않고, 커널 버퍼 복사 없이 머신 간 애플리케이션 버퍼끼리 직접 데이터를 옮깁니다. AI 워크로드에서 중요한 이유:"
                 },
                 {
                   "title": "비교",
-                  "node_id": "0131",
+                  "node_id": "0138",
                   "start_index": 212,
                   "end_index": 220,
                   "summary": "InfiniBand · RoCE 성격 · RDMA 전용으로 처음부터 설계된 완전한 네트워크 스택 · InfiniBand의 전송 계층을 표준 이더넷(UDP/IP) 위에서 실행 무손실 · credit 기반 흐름 제어로 패킷 드롭 없음 · 이더넷 기반 하드웨어 · 전용 케이블·스위치·NIC 필요, 기존 인프라와 분리 · 범용 스위치 활용, 기존 운영 지식 재사용 성능 · — · 동일 링크 속도에서 네이티브 IB와 성능 동등"
                 },
                 {
                   "title": "실무 판단 기준",
-                  "node_id": "0132",
+                  "node_id": "0139",
                   "start_index": 221,
                   "end_index": 231,
                   "summary": "규모가 커지면 경제성은 RoCE — 이더넷 스위치는 다수 벤더의 범용 제품, IB 스위치는 단일 벤더 특수 하드웨어 운영 레버리지 — 팀이 이미 이더넷 모니터링·툴링을 앎. 별도 IB 패브릭은 별도 전문성 필요 최상위에서도 둘 다 통함 — Meta가 가장 큰 Llama 3를 RoCE 인프라에서 학습시킴 제약에 따라 다름 — 전통 HPC와 NVIDIA 레퍼런스 아키텍처는 IB, 하이퍼스케일러는 RoCE로 수렴 중 함께 볼 것: NCCL 서브페이지 · AWS 인터커넥트 (AWS는 제3의 길인 EFA/SRD) · NHN 백서 §2.2"
@@ -1569,28 +1633,28 @@
             },
             {
               "title": "llm-d",
-              "node_id": "0133",
+              "node_id": "0140",
               "start_index": 232,
               "end_index": 235,
               "summary": "원문: llm-d.ai/docs · 🔴 7주차 실습 본체 쿠버네티스용 오픈소스 추론 서빙 스택. 단일 노드 엔진을 클러스터 규모 시스템으로 전환하는 것이 목표입니다. Getting Started — 퀵스타트, 가속기 지원 Well-Lit Paths — Foundations(최적화·라우팅·캐싱·스케일링) / Workloads(에이전틱·멀티모달·배치) Concepts & Architecture Operations & Monitoring Infrastructure & Environments API References Red Hat, Go …",
               "nodes": [
                 {
                   "title": "무엇인가",
-                  "node_id": "0134",
+                  "node_id": "0141",
                   "start_index": 236,
                   "end_index": 246,
                   "summary": "쿠버네티스용 오픈소스 추론 서빙 스택. 단일 노드 엔진을 클러스터 규모 시스템으로 전환하는 것이 목표입니다."
                 },
                 {
                   "title": "문서 구성",
-                  "node_id": "0135",
+                  "node_id": "0142",
                   "start_index": 247,
                   "end_index": 255,
                   "summary": "Getting Started — 퀵스타트, 가속기 지원 Well-Lit Paths — Foundations(최적화·라우팅·캐싱·스케일링) / Workloads(에이전틱·멀티모달·배치) Concepts & Architecture Operations & Monitoring Infrastructure & Environments API References"
                 },
                 {
                   "title": "배경",
-                  "node_id": "0136",
+                  "node_id": "0143",
                   "start_index": 256,
                   "end_index": 265,
                   "summary": "Red Hat, Google Cloud, IBM Research, CoreWeave, NVIDIA가 참여하는 CNCF Sandbox 프로젝트. <a id=\"gpu-glossary\"></a>"
@@ -1599,14 +1663,14 @@
             },
             {
               "title": "GPU 용어집 (Modal)",
-              "node_id": "0137",
+              "node_id": "0144",
               "start_index": 266,
               "end_index": 277,
               "summary": "원문: modal.com/gpu-glossary · ⚪ 상시 참조용 GPU 문서가 파편화된 문제를 풀려고 Modal이 만든 하이퍼텍스트 레퍼런스. 4개 범주:",
               "nodes": [
                 {
                   "title": "이 스터디에서의 유용도 — 제한적",
-                  "node_id": "0138",
+                  "node_id": "0145",
                   "start_index": 278,
                   "end_index": 287,
                   "summary": "저수준 GPU 메커니즘 설명은 훌륭하지만, LLM 서빙은 모델 분할·배치 스케줄링·양자화·추론 프레임워크 같은 상위 관심사가 중심입니다. <a id=\"netflix-llm-serving\"></a>"
@@ -1615,35 +1679,35 @@
             },
             {
               "title": "Netflix 사내 LLM 서빙",
-              "node_id": "0139",
+              "node_id": "0146",
               "start_index": 288,
               "end_index": 290,
               "summary": "원문: netflixtechblog.com · 🟡 2주차 CH3·4 — 교재의 \"엔터프라이즈 아키텍처\"의 실물",
               "nodes": [
                 {
                   "title": "왜 자체 구축",
-                  "node_id": "0140",
+                  "node_id": "0147",
                   "start_index": 291,
                   "end_index": 294,
                   "summary": "호스팅 API에만 의존하지 않고 \"모델 배포부터 추론까지 전체 스택을 기존 프로덕션 환경 안에서\" 직접 운영. 목적은 지연시간 제어, 커스터마이징, 데이터 프라이버시, 기존 인프라 통합."
                 },
                 {
                   "title": "아키텍처",
-                  "node_id": "0141",
+                  "node_id": "0148",
                   "start_index": 295,
                   "end_index": 305,
                   "summary": ""
                 },
                 {
                   "title": "기술 선택 ★",
-                  "node_id": "0142",
+                  "node_id": "0149",
                   "start_index": 306,
                   "end_index": 315,
                   "summary": "항목 · 선택 엔진 · 2025년 여름 TensorRT-LLM → vLLM 이전. 이유는 순수 성능이 아니라 운영 적합성 — 커스텀 모델 반복 속도, 제약 디코딩용 확장 훅, 디버깅 용이성, ML 실무자에게 익숙함 API · gRPC(기존 인프라용) + OpenAI 호환 API(실험→프로덕션 전환용) 이중 노출 배포 · Red-Black(저렴하나 I/O 스키마 안정 필요) / Versioned(호환성 깨지는 변경 대응)"
                 },
                 {
                   "title": "배운 것 — 전부 디테일",
-                  "node_id": "0143",
+                  "node_id": "0150",
                   "start_index": 316,
                   "end_index": 328,
                   "summary": "버전 핀 고정: Triton의 vLLM 백엔드는 버전 호환성이 맞아야 함. 어긋나면 로드 자체가 실패 조용한 API 누락: OpenAI 프론트엔드가 response_format을 vLLM에 전달하기 전에 소리 없이 버림 → 패치본 사용 제약 디코딩 스케일링: 요청별(vLLM V0) → 배치 단위(V1) 로 옮겨 CPU 병목 해소. …"
@@ -1652,28 +1716,28 @@
             },
             {
               "title": "Productive GPU Hours",
-              "node_id": "0144",
+              "node_id": "0151",
               "start_index": 329,
               "end_index": 331,
               "summary": "원문: jimmysong.io · 🟡 6주차 · 8계층 관측의 자매 글 84% 사용률로 보이는 GPU가 실제로는 데이터를 굶고 있을 수 있습니다 — 스토리지 I/O, CPU 처리, KV 캐시 가용성을 기다리며. 클러스터 전체 자원은 충분한데도 자원 단편화로 새 작업이 못 들어갑니다. 혼합 워크로드를 돌리고 나면 남은 용량이 차원별로 흩어집니다 — 어떤 노드는 GPU는 남는데 스토리지 대역폭이 포화, 다른 노드는 메모리는 있는데 I/O CPU가 부족. 결과적으로 어느 노드도 새 작업을 못 받습니다. …",
               "nodes": [
                 {
                   "title": "GPU 사용률이 속이는 이유",
-                  "node_id": "0145",
+                  "node_id": "0152",
                   "start_index": 332,
                   "end_index": 337,
                   "summary": "84% 사용률로 보이는 GPU가 실제로는 데이터를 굶고 있을 수 있습니다 — 스토리지 I/O, CPU 처리, KV 캐시 가용성을 기다리며."
                 },
                 {
                   "title": "단편화 문제",
-                  "node_id": "0146",
+                  "node_id": "0153",
                   "start_index": 338,
                   "end_index": 341,
                   "summary": "클러스터 전체 자원은 충분한데도 자원 단편화로 새 작업이 못 들어갑니다. 혼합 워크로드를 돌리고 나면 남은 용량이 차원별로 흩어집니다 — 어떤 노드는 GPU는 남는데 스토리지 대역폭이 포화, 다른 노드는 메모리는 있는데 I/O CPU가 부족. 결과적으로 어느 노드도 새 작업을 못 받습니다."
                 },
                 {
                   "title": "3계층 효율 모델",
-                  "node_id": "0147",
+                  "node_id": "0154",
                   "start_index": 342,
                   "end_index": 355,
                   "summary": "계층 · 현황 GPU 할당 · HAMi 등이 다룸 작업 스케줄링 · Volcano, Kueue가 다룸 스토리지/I/O 인식 · 거의 미해결 <a id=\"inferencex\"></a>"
@@ -1682,21 +1746,21 @@
             },
             {
               "title": "InferenceX (SemiAnalysis)",
-              "node_id": "0148",
+              "node_id": "0155",
               "start_index": 356,
               "end_index": 358,
               "summary": "원문: inferencex.semianalysis.com · 🟡 5주차 CH9 — 성능 측정",
               "nodes": [
                 {
                   "title": "무엇인가",
-                  "node_id": "0149",
+                  "node_id": "0156",
                   "start_index": 359,
                   "end_index": 369,
                   "summary": "오픈소스·벤더 중립 벤치마크로 GPU와 소프트웨어 스택 전반의 AI 추론 성능을 지속 측정합니다. 기존 벤치마크가 정적이라 금방 낡는 문제를 겨냥했습니다."
                 },
                 {
                   "title": "재현성 방법론 ★",
-                  "node_id": "0150",
+                  "node_id": "0157",
                   "start_index": 370,
                   "end_index": 384,
                   "summary": "레시피를 공개 저장소에 커밋 GitHub Actions로 실제 하드웨어에서 실행 전체 telemetry와 함께 아티팩트 업로드 대시보드가 소스 실행으로 직접 추적 가능 교재 CH9(실전 최적화)에서 \"성능을 정확하게 측정\"을 다룰 때, 내 측정이 믿을 만한가를 판단하는 기준으로 쓰기 좋습니다. <a id=\"sglang-cold-start\"></a>"
@@ -1705,21 +1769,21 @@
             },
             {
               "title": "SGLang 콜드스타트 70배 개선",
-              "node_id": "0151",
+              "node_id": "0158",
               "start_index": 385,
               "end_index": 387,
               "summary": "원문: fergusfinn.com · ⚪ 4주차 CH8 — 프레임워크 운영 이슈",
               "nodes": [
                 {
                   "title": "콜드스타트가 느린 이유",
-                  "node_id": "0152",
+                  "node_id": "0159",
                   "start_index": 388,
                   "end_index": 398,
                   "summary": "커널 캐시를 살린 \"웜 스타트\"조차 88초 — 결과가 동일한데도 같은 초기화를 반복하기 때문."
                 },
                 {
                   "title": "해법: CRIU 체크포인트/복원",
-                  "node_id": "0153",
+                  "node_id": "0160",
                   "start_index": 399,
                   "end_index": 412,
                   "summary": "프로세스 스냅샷 — 초기화 완료된 SGLang 프로세스를 체크포인트. GPU 가중치와 KV 캐시는 제외해 192GB → 6.6GB로 축소 오케스트레이션 통합 — 체크포인트를 OCI 이미지로 패키징해 쿠버네티스와 호환 성능 최적화 — 메모리 매핑 기반 zero-copy 페이지 복원, hugepage로 가중치를 RAM에 스테이징하는 전용 데몬, GPU 등록과 DMA 전송 파이프라이닝으로 실효 38GB/s 결과: 695초(콜드) → 9.6초. 가중치 전송의 이론적 하한 1.8초에 근접. …"
@@ -1728,28 +1792,28 @@
             },
             {
               "title": "Collective Communication (TPU vs GPU)",
-              "node_id": "0154",
+              "node_id": "0161",
               "start_index": 413,
               "end_index": 415,
               "summary": "원문: aleksagordic.com · ⚪ 7주차 배경 · NCCL 서브페이지 심화",
               "nodes": [
                 {
                   "title": "4가지 기본 연산",
-                  "node_id": "0155",
+                  "node_id": "0162",
                   "start_index": 416,
                   "end_index": 424,
                   "summary": "연산 · 역할 All-Gather · 데이터 사본을 모두에게 배포. 각 칩이 완전한 텐서 샤드를 필요로 할 때 Reduce-Scatter · All-Gather의 수학적 쌍대 — 데이터가 비슷하게 이동하되 복제가 아니라 결합 All-Reduce · Reduce-Scatter + All-Gather. 역전파 중 gradient 동기화 All-to-All · 분산 전치(transposition). MoE에서 토큰이 서로 다른 expert로 라우팅될 때 핵심"
                 },
                 {
                   "title": "토폴로지 차이 ★",
-                  "node_id": "0156",
+                  "node_id": "0163",
                   "start_index": 425,
                   "end_index": 434,
                   "summary": "TPU · GPU 연결 · 최근접 이웃 — 2D(4이웃)/3D(6이웃) 토러스 · 계층적 스위칭 노드 내 · ICI 직결, 일정한 ~45 GB/s · all-to-all NVLink/NVSwitch 노드 간 · — · fat-tree InfiniBand Ring · 물리 토폴로지에서 자연 발생 · 물리적 all-to-all 위에 논리 ring을 얹음 계층 · HBM → ICI → PCIe → DCN · —"
                 },
                 {
                   "title": "실무 인사이트",
-                  "node_id": "0157",
+                  "node_id": "0164",
                   "start_index": 435,
                   "end_index": 445,
                   "summary": "메시지 크기가 갈림길: 1μs 지연 기준 ~45KB 이하는 latency-bound, 그 이상은 throughput-bound SHARP의 한계: in-network reduction이 이론상 All-Reduce를 2배 빠르게 하지만 실제로는 ~30% 개선에 그침 Ring vs Tree: Ring은 큰 메시지에서 파이프라이닝이 좋고(스텝 수 적음), Tree는 라운드를 N-1 → log₂(N) 으로 줄임 샤딩 인지: 텐서가 토러스 wraparound 링크를 보존하는지, 아니면 메시로 격하되는지에 따라 집합통신 시간이 크게 달라짐 < …"
@@ -1758,35 +1822,35 @@
             },
             {
               "title": "고성능 matmul 커널",
-              "node_id": "0158",
+              "node_id": "0165",
               "start_index": 446,
               "end_index": 448,
               "summary": "원문: aleksagordic.com · ⚪ 3주차 CH6 — 커널 퓨전 심화",
               "nodes": [
                 {
                   "title": "메모리 계층이 전부",
-                  "node_id": "0159",
+                  "node_id": "0166",
                   "start_index": 449,
                   "end_index": 456,
                   "summary": "레지스터(가장 빠름·private) → 공유 메모리(온칩·프로그래머 제어) → L1/L2(하드웨어 관리) → 글로벌 메모리(가장 느림·가장 큼). 접근 패턴이 결정적입니다. DRAM 물리 구조상 연속 접근이 stride 접근보다 훨씬 빠르며, 사소해 보이는 코드 변경이 non-coalesced 접근을 유발해 13배 느려질 수 있습니다."
                 },
                 {
                   "title": "Warp-Tiling",
-                  "node_id": "0160",
+                  "node_id": "0167",
                   "start_index": 457,
                   "end_index": 460,
                   "summary": "matmul을 \"부분 외적(partial outer product)의 합\" 으로 보아 중간 블록이 공유 메모리에 들어가게 만듭니다. 핵심 최적화: 청크를 공유 메모리에 전략적 로드, 스레드당 여러 출력 원소 계산, 정사각 타일로 arithmetic intensity 극대화, 루프 언롤링으로 ILP 노출."
                 },
                 {
                   "title": "Hopper의 3가지",
-                  "node_id": "0161",
+                  "node_id": "0168",
                   "start_index": 461,
                   "end_index": 468,
                   "summary": "기능 · 내용 Tensor Cores · 작은 타일(64×16 @ 16×64) 행렬 연산 전용 하드웨어. 수동 워프 조율 복잡도를 추상화 TMA (Tensor Memory Accelerator) · 글로벌↔공유 메모리 비동기 전송. XOR 마스크 기반 swizzling을 자동 처리해 뱅크 충돌 제거 Async Pipelines · producer-consumer 워프그룹 — 한 그룹이 TMA로 타일을 스트리밍하는 동안 다른 그룹이 텐서 연산"
                 },
                 {
                   "title": "최적화 누적 효과 ★",
-                  "node_id": "0162",
+                  "node_id": "0169",
                   "start_index": 469,
                   "end_index": 484,
                   "summary": ""
@@ -1795,7 +1859,7 @@
             },
             {
               "title": "아직 분석하지 않은 자료",
-              "node_id": "0163",
+              "node_id": "0170",
               "start_index": 485,
               "end_index": 496,
               "summary": "시간 대비 효용을 고려해 링크와 분류만 해둔 것들입니다. 필요하면 같은 형식으로 추가할 수 있습니다."
@@ -1817,28 +1881,28 @@
       "structure": [
         {
           "title": "로컬 PDF 자료",
-          "node_id": "0164",
+          "node_id": "0171",
           "start_index": 1,
           "end_index": 14,
           "summary": "노션 페이지에 첨부되어 있던 무료/공개 배포 PDF 3종을 pdf/에 내려받아 두었습니다. 아래 목차는 각 PDF에서 직접 추출한 것입니다.",
           "nodes": [
             {
               "title": "1. Inference Engineering (Baseten, 259p)",
-              "node_id": "0165",
+              "node_id": "0172",
               "start_index": 15,
               "end_index": 20,
               "summary": "한 줄 요약: LLM 추론을 \"엔지니어링 문제\"로 다루는 실무 가이드. 교재의 CH5~8과 가장 많이 겹치며, 서술이 더 구체적입니다. 원 배포처: baseten.co · 실습 부록: 100 Days of Inference",
               "nodes": [
                 {
                   "title": "목차",
-                  "node_id": "0166",
+                  "node_id": "0173",
                   "start_index": 21,
                   "end_index": 65,
                   "summary": ""
                 },
                 {
                   "title": "스터디 활용 포인트",
-                  "node_id": "0167",
+                  "node_id": "0174",
                   "start_index": 66,
                   "end_index": 74,
                   "summary": "CH2.4 (Calculating Inference Bottlenecks) — ops:byte ratio와 arithmetic intensity로 \"내 워크로드가 memory-bound인가 compute-bound인가\"를 계산하는 법. 교재 CH5(핵심 과제)를 읽기 전에 보면 이해도가 크게 올라갑니다. CH5 전체 — 교재 CH6~7(필수/고급 최적화)과 정확히 대응. 양자화·speculative decoding·캐싱·병렬화·disaggregation이 한 챕터에 정리되어 있습니다. …"
@@ -1847,21 +1911,21 @@
             },
             {
               "title": "2. GPU-Enabled Platforms on Kubernetes V2 (LearnKube × vCluster, 202p)",
-              "node_id": "0168",
+              "node_id": "0175",
               "start_index": 75,
               "end_index": 80,
               "summary": "한 줄 요약: \"GPU는 왜 쿠버네티스의 컨테이너 모델에 맞지 않는가\"를 커널 수준부터 풀어낸 eBook. 6주차 AWS EKS 실습의 배경 지식으로 가장 잘 맞습니다. 원 배포처: vcluster.com · 웨비나 영상",
               "nodes": [
                 {
                   "title": "목차",
-                  "node_id": "0169",
+                  "node_id": "0176",
                   "start_index": 81,
                   "end_index": 132,
                   "summary": ""
                 },
                 {
                   "title": "스터디 활용 포인트",
-                  "node_id": "0170",
+                  "node_id": "0177",
                   "start_index": 133,
                   "end_index": 140,
                   "summary": "노션 서브페이지 \"GPU 가상화: HAMi 설치 및 사용\" 과 CH4(HAMi)가 직접 연결됩니다. 6주차 EKS 실습 전에 CH1(GPU Pod가 실제로 뜨는 과정)과 CH5(모니터링)를 읽으면 실습 중 무슨 일이 벌어지는지 이해하기 쉽습니다. CH5의 \"할당 vs 실사용 격차\", \"좀비 프로세스가 GPU 메모리를 잡는 이유\"는 운영 트러블슈팅 사례 과제 소재로 좋습니다."
@@ -1870,21 +1934,21 @@
             },
             {
               "title": "3. NHN Cloud GPU 클러스터 기술 백서 (NHN FactoryX, 66p, 한국어)",
-              "node_id": "0171",
+              "node_id": "0178",
               "start_index": 141,
               "end_index": 146,
               "summary": "한 줄 요약: 엑사스케일 GPU 클러스터를 실제로 설계·운영한 사업자의 기술 백서. 네트워크·전력·냉각 등 인프라 물리 계층까지 다루는 국내 자료. 원 배포처: nhnfactoryx.com",
               "nodes": [
                 {
                   "title": "목차",
-                  "node_id": "0172",
+                  "node_id": "0179",
                   "start_index": 147,
                   "end_index": 179,
                   "summary": ""
                 },
                 {
                   "title": "스터디 활용 포인트",
-                  "node_id": "0173",
+                  "node_id": "0180",
                   "start_index": 180,
                   "end_index": 187,
                   "summary": "노션 서브페이지 \"[기초부터 이해하는 GPU Network] GPU Interconnect Bandwidth\", \"NCCL: GPU Cluster Communication Model\" 과 §2.2(인터커넥트)가 직접 이어집니다. §4.2 성능 저하 패턴 분석 + §4.3 체크리스트는 그 자체로 운영 관점 과제 소재입니다. 서빙(추론)보다 학습/클러스터 인프라 쪽 비중이 크므로, 교재와는 보완재로 보는 것이 맞습니다."
@@ -1893,7 +1957,7 @@
             },
             {
               "title": "PDF에서 목차/텍스트를 다시 뽑고 싶다면",
-              "node_id": "0174",
+              "node_id": "0181",
               "start_index": 188,
               "end_index": 197,
               "summary": "이 저장소의 PDF는 pypdf / PyMuPDF(fitz)로 목차를 추출했습니다."
@@ -1915,14 +1979,14 @@
       "structure": [
         {
           "title": "자료 우선순위 가이드 — 중요 / 선택 분류",
-          "node_id": "0175",
+          "node_id": "0182",
           "start_index": 1,
           "end_index": 4,
           "summary": "노션에 모인 자료는 180여 개입니다. 전부 보는 건 불가능하고 필요하지도 않습니다. 이 문서는 스터디 목적(LLM 서빙과 최적화) 기준으로 등급을 나눈 것입니다.",
           "nodes": [
             {
               "title": "등급 기준",
-              "node_id": "0176",
+              "node_id": "0183",
               "start_index": 5,
               "end_index": 16,
               "summary": "등급 · 의미 · 총량 🔴 필수 · 이걸 안 보면 스터디 진행이 막힘. 교재 진도와 직접 겹침 · 12개 · 약 6시간 🟡 권장 · 해당 주차를 깊게 이해하려면 필요. 과제 소재로도 좋음 · 20여 개 ⚪ 선택 · 관심 있을 때. 배경지식·인접 주제·다른 관점 · 나머지 전부"
@@ -1931,21 +1995,21 @@
         },
         {
           "title": "🔴 필수 (12개)",
-          "node_id": "0177",
+          "node_id": "0184",
           "start_index": 17,
           "end_index": 18,
           "summary": "노션에서 👍🏻로 표시된 것 중에서도 서빙에 직결되는 것만 추렸습니다. # · 자료 · 길이 · 왜 필수인가 1 · LLM prefill 설명 · 5분 · prefill/decode 구분은 교재 CH2부터 끝까지 전제로 쓰임 2 · KV cache · 8분 · KV cache를 모르면 CH5(사이징), CH6(prefix caching), CH7(long-context) 전부 막힘 3 · Flash attention의 원리 · 7분 · HBM/SRAM 개념 포함. …",
           "nodes": [
             {
               "title": "스터디 시작 전 — 총 55분",
-              "node_id": "0178",
+              "node_id": "0185",
               "start_index": 19,
               "end_index": 32,
               "summary": "노션에서 👍🏻로 표시된 것 중에서도 서빙에 직결되는 것만 추렸습니다. # · 자료 · 길이 · 왜 필수인가 1 · LLM prefill 설명 · 5분 · prefill/decode 구분은 교재 CH2부터 끝까지 전제로 쓰임 2 · KV cache · 8분 · KV cache를 모르면 CH5(사이징), CH6(prefix caching), CH7(long-context) 전부 막힘 3 · Flash attention의 원리 · 7분 · HBM/SRAM 개념 포함. …"
             },
             {
               "title": "교재 병행 — 주차별",
-              "node_id": "0179",
+              "node_id": "0186",
               "start_index": 33,
               "end_index": 46,
               "summary": "# · 자료 · 언제 · 왜 필수인가 6 · [교재] Hands-On LLM Serving and Optimization · 1~5주차 · 스터디의 뼈대. → books.md 7 · Inference Engineering PDF CH2.4 (p.63) · 1~3주차 · ops:byte ratio / arithmetic intensity — \"내 워크로드가 memory-bound인가\"를 계산하는 법. …"
@@ -1954,63 +2018,63 @@
         },
         {
           "title": "🟡 권장 (주차별)",
-          "node_id": "0180",
+          "node_id": "0187",
           "start_index": 47,
           "end_index": 48,
           "summary": "과제는 \"학습 내용 요약\" 또는 \"주제 1개 별도 조사\" 또는 \"운영 경험/신기술 분석\" 입니다. 마지막 유형에는 국내 사례가 최고의 소재입니다.",
           "nodes": [
             {
               "title": "1주차 — CH1,2 모델 서빙 / LLM 서빙 소개",
-              "node_id": "0181",
+              "node_id": "0188",
               "start_index": 49,
               "end_index": 57,
               "summary": "자료 · 성격 · 비고 Transformer Explainer · 인터랙티브 · 5분만 만져도 어텐션이 잡힘. 한국어 해설 chooblog: KV Cache에 대해 알아보자 · 한국어 블로그 · 수식·메모리 계산까지. → deep-dives Attention/Transformer 시각화 · 영상 30분 · 임커밋 [0]편 Inference Engineering CH0~2 · PDF · 추론 전반 개괄"
             },
             {
               "title": "2주차 — CH3,4 시스템 설계 / 모범 사례",
-              "node_id": "0182",
+              "node_id": "0189",
               "start_index": 58,
               "end_index": 65,
               "summary": "자료 · 성격 · 비고 Netflix 사내 LLM 서빙 플랫폼 · 사례 · 대규모 조직의 실제 아키텍처 테크톡톡: LLM 서빙, 띄우는 것과 잘 띄우는 것 사이 · 영상 (한국어) · 제목 그대로 CH4의 주제 Inference Engineering CH7 Production · PDF · 컨테이너화·오토스케일링·배포"
             },
             {
               "title": "3주차 — CH5,6 핵심 과제 / 필수 최적화",
-              "node_id": "0183",
+              "node_id": "0190",
               "start_index": 66,
               "end_index": 74,
               "summary": "자료 · 성격 · 비고 AI Factory Ops Lab Lesson 4 · 실습 · TTFT/goodput 붕괴점을 직접 측정. Docker만 있으면 됨 — 강력 추천 GPU Interconnect Bandwidth · 정리 · 메모리 장벽 4.7배 — CH5의 배경 chooblog: GPU에서 Attention은 실제로 어떻게 실행되는가 · 한국어 블로그 · 커널 launch → Tensor Core → FlashAttention-2. …"
             },
             {
               "title": "4주차 — CH7,8 고급 최적화 / 프레임워크",
-              "node_id": "0184",
+              "node_id": "0191",
               "start_index": 75,
               "end_index": 84,
               "summary": "자료 · 성격 · 비고 Speculative decoding 설명 · 영상 · 임커밋 [5]편 GQA vs MQA in 10 minutes · 영상 · KV cache 75% 절감 원리 LLM 추론의 엔지니어링: 양자화 · 영상 chooblog: SGLang 설치 및 실습 · 실습 · vLLM 외 프레임워크 비교용 시각화로 이해하는 터보퀀트 · 영상 · 양자화 시각 해설"
             },
             {
               "title": "5주차 — CH9,10 실제 적용 / 새 방향",
-              "node_id": "0185",
+              "node_id": "0192",
               "start_index": 85,
               "end_index": 92,
               "summary": "자료 · 성격 · 비고 inferencex (SemiAnalysis) · 벤치마크 · 벤더 중립 추론 벤치마크 — CH9 성능 측정 vLLM + LMCache Starter Guide · 실습 · No GPU Required — 캐싱 계층 실습 Inference Engineering CH6 Modalities · PDF · 멀티모달 서빙"
             },
             {
               "title": "6주차 — AWS EKS",
-              "node_id": "0186",
+              "node_id": "0193",
               "start_index": 93,
               "end_index": 101,
               "summary": "자료 · 성격 · 비고 [[Old] GenAI on EKS 실습 정리](../subpages/genai-on-eks-workshop-notes.md) · 예습 · 이전 회차 전체 흐름 PC에 GPU 설정 by Docker/K8S · 실습 · Device Plugin 내부 동작 GPU-Enabled Platforms on K8s CH5 Monitoring · PDF · 할당 vs 실사용 격차, 좀비 프로세스 jimmysong: GPU에서 토큰까지 8계층 관측 · 블로그 · → deep-dives"
             },
             {
               "title": "7주차 — llm-d",
-              "node_id": "0187",
+              "node_id": "0194",
               "start_index": 102,
               "end_index": 109,
               "summary": "자료 · 성격 · 비고 Inference Engineering CH5.5 Disaggregation (p.150) · PDF · llm-d 설계 의도의 근거 NCCL: GPU Cluster Communication · 정리 · 분산 집합통신 Inside TPU and GPU Clusters: Collective Communication · 블로그 · 위 주제 영어 심화"
             },
             {
               "title": "과제용 (주차 무관) ★",
-              "node_id": "0188",
+              "node_id": "0195",
               "start_index": 110,
               "end_index": 124,
               "summary": "과제는 \"학습 내용 요약\" 또는 \"주제 1개 별도 조사\" 또는 \"운영 경험/신기술 분석\" 입니다. 마지막 유형에는 국내 사례가 최고의 소재입니다."
@@ -2019,21 +2083,21 @@
         },
         {
           "title": "⚪ 선택",
-          "node_id": "0189",
+          "node_id": "0196",
           "start_index": 125,
           "end_index": 144,
           "summary": "아래는 좋은 자료지만 서빙 커리큘럼과 거리가 있거나, 위 자료와 내용이 겹치는 것들입니다. 관심 생길 때 보세요.",
           "nodes": [
             {
               "title": "한 장 요약",
-              "node_id": "0190",
+              "node_id": "0197",
               "start_index": 145,
               "end_index": 155,
               "summary": ""
             },
             {
               "title": "관련 문서",
-              "node_id": "0191",
+              "node_id": "0198",
               "start_index": 156,
               "end_index": 160,
               "summary": "자료별 상세 분석 → deep-dives.md 전체 링크 목록 → README.md · videos.md · articles-and-blogs.md PDF 목차 → pdfs.md · 검색 → python3 tools/search_index.py \"키워드\""
@@ -2055,49 +2119,49 @@
       "structure": [
         {
           "title": "영상 레퍼런스",
-          "node_id": "0192",
+          "node_id": "0199",
           "start_index": 1,
           "end_index": 10,
           "summary": "노션의 \"스터디 전 시청 권장 영상\"(필수)과 \"추천 Youtube\" 토글(선택) 전체를 정리했습니다. 👍🏻 = 노션 원문에서 꼭 미리 보라고 표시된 영상, * = 원문의 강조 표시. Part 1. 사전 시청 권장 (필수) — 22편 Part 2. 추천 Youtube (선택) — 채널 6개 + 영상 60여 편"
         },
         {
           "title": "Part 1. 사전 시청 권장 (필수)",
-          "node_id": "0193",
+          "node_id": "0200",
           "start_index": 11,
           "end_index": 12,
           "summary": "왜 보나: LLM 추론 성능은 결국 *메모리 대역폭*과 *연산 유닛*의 싸움입니다. 메모리 계층(SRAM/HBM/DRAM) 개념이 뒤에 나올 KV cache, Flash Attention, 메모리 벽(memory wall) 이해의 전제입니다. 왜 보나: prefill / decode 구분과 KV cache는 LLM 서빙 시스템(연속 배칭, PagedAttention, prefill-decode 분리 등)을 이해하는 최소 전제입니다. 3편은 짧으니 반드시 보는 것을 권장. …",
           "nodes": [
             {
               "title": "1. 하드웨어 기초 — CPU / GPU / 메모리",
-              "node_id": "0194",
+              "node_id": "0201",
               "start_index": 13,
               "end_index": 23,
               "summary": "왜 보나: LLM 추론 성능은 결국 *메모리 대역폭*과 *연산 유닛*의 싸움입니다. 메모리 계층(SRAM/HBM/DRAM) 개념이 뒤에 나올 KV cache, Flash Attention, 메모리 벽(memory wall) 이해의 전제입니다."
             },
             {
               "title": "2. 트랜스포머 / 어텐션 원리",
-              "node_id": "0195",
+              "node_id": "0202",
               "start_index": 24,
               "end_index": 34,
               "summary": "영상 · 채널 · 길이 · 링크 👍🏻 LLM 설명 (요약버전) · 3Blue1Brown 한국어 · 8분 · Youtube · arXiv 👍🏻 트랜스포머, ChatGPT가 트랜스포머로 만들어졌죠 — DL5 · 3Blue1Brown 한국어 · 27분 · Youtube 👍🏻 그 이름도 유명한 어텐션, 이 영상만 보면 이해 완료! — DL6 · 3Blue1Brown 한국어 · 26분 · Youtube 수많은 정보는 LLM 모델 속 어디에 저장되어있는걸까? …"
             },
             {
               "title": "3. 추론(Inference) 핵심 개념 — 서빙 최적화 직결",
-              "node_id": "0196",
+              "node_id": "0203",
               "start_index": 35,
               "end_index": 44,
               "summary": "왜 보나: prefill / decode 구분과 KV cache는 LLM 서빙 시스템(연속 배칭, PagedAttention, prefill-decode 분리 등)을 이해하는 최소 전제입니다. 3편은 짧으니 반드시 보는 것을 권장."
             },
             {
               "title": "4. 추론 엔지니어링 심화 — [PY] Technical Explainer Videos",
-              "node_id": "0197",
+              "node_id": "0204",
               "start_index": 45,
               "end_index": 58,
               "summary": "왜 보나: 4주차(CH7~8 고급 최적화)에서 다룰 양자화 · 병렬 처리(TP/PP/EP) · MoE 서빙의 배경 지식과 그대로 겹칩니다.",
               "nodes": [
                 {
                   "title": "추천 시청 순서",
-                  "node_id": "0198",
+                  "node_id": "0205",
                   "start_index": 59,
                   "end_index": 74,
                   "summary": "시간이 부족하면 3번 그룹(20분) → 2번 요약본(8분) → 1번 메모리 편(27분) 순으로 보세요."
@@ -2108,63 +2172,63 @@
         },
         {
           "title": "Part 2. 추천 Youtube (선택)",
-          "node_id": "0199",
+          "node_id": "0206",
           "start_index": 75,
           "end_index": 78,
           "summary": "노션 \"추천 Youtube\" 토글 전체. Part 1과 겹치는 영상은 ★로 표시했습니다.",
           "nodes": [
             {
               "title": "채널 바로가기",
-              "node_id": "0200",
+              "node_id": "0207",
               "start_index": 79,
               "end_index": 89,
               "summary": "채널 · 성격 · 링크 bRd 3D · 3D 시각화 하드웨어 설명 (한국어) · Youtube Branch Education · 3D 시각화 하드웨어 설명 (영어) · Youtube 3Blue1Brown 한국어 · 수학·딥러닝 시각화 · Youtube [PY] Technical Explainer · LLM 추론 엔지니어링 심화 · Youtube 딥러닝 큐레이터 임커밋 · 짧고 정확한 개념 시각화 (한국어) · Youtube Visual AI · 트랜스포머 내부 시각 해설 (영어) · Youtube"
             },
             {
               "title": "bRd 3D",
-              "node_id": "0201",
+              "node_id": "0208",
               "start_index": 90,
               "end_index": 98,
               "summary": "영상 · 링크 CPU는 어떻게 작동할까?* ★ · Youtube GPU는 어떻게 작동할까* ★ · Youtube 인공지능의 작동방식, 초거대 AI는 어떻게 미래를 바꿀까?* ★ · Youtube 양자컴퓨터는 어떻게 작동할까? · Youtube"
             },
             {
               "title": "Branch Education",
-              "node_id": "0202",
+              "node_id": "0209",
               "start_index": 99,
               "end_index": 106,
               "summary": "영상 · 링크 CPU는 어떻게 작동하나요? · Youtube How do Graphics Cards Work? Exploring GPU Architecture · Youtube 왜 컴퓨터는 한 가지 종류의 메모리만 사용하지 않을까요?* ★ · Youtube"
             },
             {
               "title": "3Blue1Brown 한국어",
-              "node_id": "0203",
+              "node_id": "0210",
               "start_index": 107,
               "end_index": 118,
               "summary": "영상 · 링크 LLM 설명 (요약버전)* ★ · Youtube 뉴럴네트워크라는걸 들어 보셨다면 보셔야 할 영상 — DL1 · Youtube 백프로파게이션 개념적으로 이해하기 — DL3 · Youtube 백프로파게이션 두번째: 실제 계산 — DL4 · Youtube 트랜스포머, ChatGPT가 트랜스포머로 만들어졌죠 — DL5* ★ · Youtube 그 이름도 유명한 어텐션 — DL6 ★ · Youtube 수많은 정보는 LLM 모델 속 어디에 저장되어있는걸까? — DL7 ★ · Youtube"
             },
             {
               "title": "[PY] Technical Explainer Videos",
-              "node_id": "0204",
+              "node_id": "0211",
               "start_index": 119,
               "end_index": 143,
               "summary": "LLM 추론 엔지니어링을 주제별로 파고드는 채널. Part 1의 7편 외에 아래가 추가로 있습니다."
             },
             {
               "title": "딥러닝 큐레이터 임커밋 — 시각화로 쉽게 설명",
-              "node_id": "0205",
+              "node_id": "0212",
               "start_index": 144,
               "end_index": 160,
               "summary": "노션에서 번호가 붙어 있는 시리즈입니다. [0]~[5] 순서대로 보면 서빙 최적화 개념이 한 번에 잡힙니다."
             },
             {
               "title": "Visual AI (영어)",
-              "node_id": "0206",
+              "node_id": "0213",
               "start_index": 161,
               "end_index": 175,
               "summary": "영상 · 링크 Self-Attention Explained: How Transformers Actually Work · Youtube Multi-Head Attention Explained Visually · Youtube Why Transformers Need Positional Encoding \\ · Sin & Cos · Youtube How Does the Transformer Encoder Actually Work? …"
             },
             {
               "title": "기타 / 실무 사례 ★ 운영 관점",
-              "node_id": "0207",
+              "node_id": "0214",
               "start_index": 176,
               "end_index": 195,
               "summary": "영상 · 비고 · 링크 GPT explained in 15min · Youtube [Paper Review] Attention is All You Need (Transformer) · 논문 리뷰 · Youtube [Lablup Conf 5th] NHN Cloud - HPC 구축의 모든 것 (정민) · 국내 사례 · Youtube [Lablup Conf 5th] LLM 서빙토크: 싸고 빠르게 돌리는 LLM 꿀팁 (박배성) · 국내 사례 · Youtube [SC25] 10-day GPUaaS Rollout: CSP Deployment …"
@@ -2186,35 +2250,35 @@
       "structure": [
         {
           "title": "워크숍 · 공식 문서 · 도구",
-          "node_id": "0208",
+          "node_id": "0215",
           "start_index": 1,
           "end_index": 2,
           "summary": "Terraform — EKS Auto Mode 클러스터, VPC, 모델 저장용 S3, Amazon Managed Prometheus, Grafana 대시보드, IAM 역할 Manifests — 추론 워크로드용 Kubernetes 매니페스트 Terraform으로 EKS 클러스터 + GPU 노드 + Managed Prometheus까지 올라갑니다. 실습 후 terraform destroy로 반드시 정리하세요. 정리하지 않으면 GPU 노드·NAT Gateway·LoadBalancer·EBS 비용이 계속 발생합니다. …",
           "nodes": [
             {
               "title": "6주차 — [AWS Workshop] Generative AI on Amazon EKS",
-              "node_id": "0209",
+              "node_id": "0216",
               "start_index": 3,
               "end_index": 11,
               "summary": "Terraform — EKS Auto Mode 클러스터, VPC, 모델 저장용 S3, Amazon Managed Prometheus, Grafana 대시보드, IAM 역할 Manifests — 추론 워크로드용 Kubernetes 매니페스트 Terraform으로 EKS 클러스터 + GPU 노드 + Managed Prometheus까지 올라갑니다. 실습 후 terraform destroy로 반드시 정리하세요. 정리하지 않으면 GPU 노드·NAT Gateway·LoadBalancer·EBS 비용이 계속 발생합니다. …",
               "nodes": [
                 {
                   "title": "제공되는 것",
-                  "node_id": "0210",
+                  "node_id": "0217",
                   "start_index": 12,
                   "end_index": 16,
                   "summary": "Terraform — EKS Auto Mode 클러스터, VPC, 모델 저장용 S3, Amazon Managed Prometheus, Grafana 대시보드, IAM 역할 Manifests — 추론 워크로드용 Kubernetes 매니페스트"
                 },
                 {
                   "title": "사전 준비",
-                  "node_id": "0211",
+                  "node_id": "0218",
                   "start_index": 17,
                   "end_index": 28,
                   "summary": "항목 · 비고 AWS CLI v2+ Terraform v1.3+ kubectl GPU 인스턴스 쿼터 · 계정에 미리 신청 필요 — 승인에 시간이 걸릴 수 있음 권장 배경 지식 · ML 프레임워크 기초, 쿠버네티스 기초, Python"
                 },
                 {
                   "title": "주의",
-                  "node_id": "0212",
+                  "node_id": "0219",
                   "start_index": 29,
                   "end_index": 36,
                   "summary": "Terraform으로 EKS 클러스터 + GPU 노드 + Managed Prometheus까지 올라갑니다. 실습 후 terraform destroy로 반드시 정리하세요. 정리하지 않으면 GPU 노드·NAT Gateway·LoadBalancer·EBS 비용이 계속 발생합니다. 관련 배경 자료: pdfs.md → \"2. GPU-Enabled Platforms on Kubernetes V2\" (커널 수준부터 본 K8s GPU 동작 원리, 202p)"
@@ -2223,28 +2287,28 @@
             },
             {
               "title": "7주차 — llm-d",
-              "node_id": "0213",
+              "node_id": "0220",
               "start_index": 37,
               "end_index": 45,
               "summary": "llm-d는 쿠버네티스용 오픈소스 추론 서빙 스택입니다. 단일 노드 엔진을 클러스터 규모 시스템으로 확장하는 것이 목표입니다.",
               "nodes": [
                 {
                   "title": "특징",
-                  "node_id": "0214",
+                  "node_id": "0221",
                   "start_index": 46,
                   "end_index": 52,
                   "summary": "엔진 비종속 — vLLM, SGLang 등 여러 모델 서버 지원 (하나에 락인되지 않음) 하드웨어 유연성 — NVIDIA, AMD, 커스텀 가속기 Well-Lit Paths — 검증된 배포 레시피 (Helm 차트, Kustomize 매니페스트, 튜닝 파라미터, 모니터링 구성) 고급 워크로드 — 에이전틱 파이프라인, 멀티모달, 배치 처리, 고처리량 서빙"
                 },
                 {
                   "title": "문서 구성",
-                  "node_id": "0215",
+                  "node_id": "0222",
                   "start_index": 53,
                   "end_index": 61,
                   "summary": "Getting Started — 퀵스타트, 가속기 지원 현황 Well-Lit Paths — Foundations(최적화, 라우팅, 캐싱, 스케일링) / Workloads(에이전틱, 멀티모달, 배치) Concepts & Architecture Operations & Monitoring Infrastructure & Environments API References"
                 },
                 {
                   "title": "배경",
-                  "node_id": "0216",
+                  "node_id": "0223",
                   "start_index": 62,
                   "end_index": 69,
                   "summary": "Red Hat, Google Cloud, IBM Research, CoreWeave, NVIDIA가 참여하는 CNCF Sandbox 프로젝트."
@@ -2253,21 +2317,21 @@
             },
             {
               "title": "인터랙티브 학습 도구",
-              "node_id": "0217",
+              "node_id": "0224",
               "start_index": 70,
               "end_index": 71,
               "summary": "GPT-2를 브라우저에서 직접 돌리며 토큰이 임베딩 → 어텐션 → 출력 확률로 흘러가는 과정을 시각적으로 따라갈 수 있습니다. 1주차 CH2(LLM 서빙) 전에 5분만 만져봐도 어텐션 개념이 잡힙니다. 원논문: arXiv:1706.03762",
               "nodes": [
                 {
                   "title": "Transformer Explainer",
-                  "node_id": "0218",
+                  "node_id": "0225",
                   "start_index": 72,
                   "end_index": 80,
                   "summary": "GPT-2를 브라우저에서 직접 돌리며 토큰이 임베딩 → 어텐션 → 출력 확률로 흘러가는 과정을 시각적으로 따라갈 수 있습니다. 1주차 CH2(LLM 서빙) 전에 5분만 만져봐도 어텐션 개념이 잡힙니다."
                 },
                 {
                   "title": "Attention Is All You Need",
-                  "node_id": "0219",
+                  "node_id": "0226",
                   "start_index": 81,
                   "end_index": 86,
                   "summary": "원논문: arXiv:1706.03762"
@@ -2276,14 +2340,14 @@
             },
             {
               "title": "실습 환경",
-              "node_id": "0220",
+              "node_id": "0227",
               "start_index": 87,
               "end_index": 95,
               "summary": "자료 · 링크 Google Colab (무료 GPU) · https://developers.google.com/colab g6e.2xlarge 사양·요금 · https://instances.vantage.sh/aws/ec2/g6e.2xlarge"
             },
             {
               "title": "코드 저장소 모음",
-              "node_id": "0221",
+              "node_id": "0228",
               "start_index": 96,
               "end_index": 103,
               "summary": "저장소 · 용도 orca3/llm-model-inference · 주교재 예제 코드 aws-samples/sample-genai-on-eks · 6주차 AWS 워크숍 Terraform/매니페스트 elizabetht/100-days-of-inference · Inference Engineering 실습 부록 cfregly/ai-performance-engineering · AI Systems Performance Engineering 예제"
@@ -2297,7 +2361,7 @@
       "doc_description": "노션 서브페이지 정리",
       "meta": {
         "type": "markdown",
-        "lines": 66,
+        "lines": 68,
         "index_unit": "line",
         "summary_method": "extractive-first-paragraph",
         "generator": "tools/build_pageindex.py"
@@ -2305,47 +2369,47 @@
       "structure": [
         {
           "title": "노션 서브페이지 정리",
-          "node_id": "0222",
+          "node_id": "0229",
           "start_index": 1,
           "end_index": 6,
           "summary": "메인 노션 페이지에 링크된 서브페이지 내용을 직접 열어 정리한 문서들입니다.",
           "nodes": [
             {
               "title": "정리 완료",
-              "node_id": "0223",
+              "node_id": "0230",
               "start_index": 7,
-              "end_index": 19,
-              "summary": "문서 · 원문 · 한 줄 gpu-setup-docker-k8s.md · 🛣️ 노션 · 로컬 PC → 컨테이너 → K8s 단계별 GPU 인식/실행 실습. OCI 훅·Device Plugin 내부 동작까지 gpu-interconnect-bandwidth.md · 노션 · 메모리 대역폭 병목(메모리 장벽 4.7배)과 NVLink/NVSwitch/PCIe 토폴로지 hami-gpu-virtualization.md · 🛁 노션 · SW 기반 GPU 가상화. …"
+              "end_index": 20,
+              "summary": "문서 · 원문 · 한 줄 gpu-setup-docker-k8s.md · 🛣️ 노션 · 로컬 PC → 컨테이너 → K8s 단계별 GPU 인식/실행 실습. OCI 훅·Device Plugin 내부 동작까지 gpu-setup-windows-wsl2.md ★ · (위 문서의 재구성) · 같은 실습을 Windows 11 + WSL2 + RTX 4080 Laptop(12GB) 에서 바로 따라 하는 판. …"
             },
             {
               "title": "링크만 (별도 정리 불필요)",
-              "node_id": "0224",
-              "start_index": 20,
-              "end_index": 28,
+              "node_id": "0231",
+              "start_index": 21,
+              "end_index": 29,
               "summary": "도서 요약 페이지의 목차: 생성형 AI 자체가 처음이라면 CH1~2를, 교재 CH4(에이전틱·RAG)를 보강하려면 CH4~5를 참고하세요.",
               "nodes": [
                 {
                   "title": "(참고) 그림으로 배우는 생성형 AI",
-                  "node_id": "0225",
-                  "start_index": 29,
-                  "end_index": 45,
+                  "node_id": "0232",
+                  "start_index": 30,
+                  "end_index": 46,
                   "summary": "도서 요약 페이지의 목차: 생성형 AI 자체가 처음이라면 CH1~2를, 교재 CH4(에이전틱·RAG)를 보강하려면 CH4~5를 참고하세요."
                 }
               ]
             },
             {
               "title": "주제 지도",
-              "node_id": "0226",
-              "start_index": 46,
-              "end_index": 59,
+              "node_id": "0233",
+              "start_index": 47,
+              "end_index": 60,
               "summary": ""
             },
             {
               "title": "읽는 순서 추천",
-              "node_id": "0227",
-              "start_index": 60,
-              "end_index": 66,
-              "summary": "gpu-setup-docker-k8s — GPU가 컨테이너/K8s에 어떻게 노출되는지 (기초) gpu-interconnect-bandwidth — 왜 메모리·인터커넥트가 병목인지 (교재 CH5의 배경) ai-factory-ops-lab Lesson 4 — TTFT/goodput을 직접 측정 (교재 CH3·CH5 체감) genai-on-eks-workshop-notes — 6주차 직전에 나머지는 필요할 때 참조"
+              "node_id": "0234",
+              "start_index": 61,
+              "end_index": 68,
+              "summary": "gpu-setup-docker-k8s — GPU가 컨테이너/K8s에 어떻게 노출되는지 (기초) Windows 랩탑에서 직접 실행하려면 → gpu-setup-windows-wsl2 gpu-interconnect-bandwidth — 왜 메모리·인터커넥트가 병목인지 (교재 CH5의 배경) ai-factory-ops-lab Lesson 4 — TTFT/goodput을 직접 측정 (교재 CH3·CH5 체감) genai-on-eks-workshop-notes — 6주차 직전에 나머지는 필요할 때 참조"
             }
           ]
         }
@@ -2364,63 +2428,63 @@
       "structure": [
         {
           "title": "AI Factory Operations Lab",
-          "node_id": "0228",
+          "node_id": "0235",
           "start_index": 1,
           "end_index": 5,
           "summary": "원문: 노션 서브페이지 📡 (정리 중) 실습 가이드 출처: ld-singh.github.io/ai-factory-ops-lab",
           "nodes": [
             {
               "title": "한 줄 요약",
-              "node_id": "0229",
+              "node_id": "0236",
               "start_index": 6,
               "end_index": 11,
               "summary": "가짜 GPU(fake-gpu-operator)와 kind 클러스터로 실제 GPU 없이 GPU 플랫폼 운영을 실습하는 레슨 모음. 스케줄링 → 공유 → 관측 → 추론 서빙 순으로 이어집니다."
             },
             {
               "title": "레슨 구성",
-              "node_id": "0230",
+              "node_id": "0237",
               "start_index": 12,
               "end_index": 26,
               "summary": "Lesson · 주제 · 상태 1 · Kubernetes GPU Scheduling · ✅ 1B · Queue-Based GPU Scheduling with KAI Scheduler · ✅ 1C · GPU Sharing & Fractional GPUs with HAMi · ✅ 2 · Slurm GPU Workload Management · 작성 예정 3 · GPU Observability · ✅ 4 · Inference Serving · ✅ 5 · BCM-Style Cluster Lifecycle (Conceptual) · 작성 예 …"
             },
             {
               "title": "Lesson 1 — Kubernetes GPU Scheduling",
-              "node_id": "0231",
+              "node_id": "0238",
               "start_index": 27,
               "end_index": 34,
               "summary": "Step · 내용 1 · Stand Up the Simulated Fleet — 시뮬레이션 GPU 플릿 구성 2 · Deploy the Four Scenarios — gpu-demo 네임스페이스에 4가지 workload 배포 3 · Triage Like Production — Pending pod 분석 (3가지 케이스)"
             },
             {
               "title": "Lesson 1B — Queue-Based GPU Scheduling with KAI Scheduler",
-              "node_id": "0232",
+              "node_id": "0239",
               "start_index": 35,
               "end_index": 45,
               "summary": "단계 · 내용 설치 · KAI Scheduler 설치, namespace + queue hierarchy 생성 Exercise A · Quota enforcement (validated) Exercise B · Borrowing Idle Capacity — team-prod가 idle GPU를 borrow해 quota 이상 배포 시도 → 상한 제한 기능 확인 Exercise C · Reclaim Exercise D · Gang Scheduling — all-or-none 동작 재현 (podgroup 추가) Exercise E · P …"
             },
             {
               "title": "Lesson 1C — GPU Sharing & Fractional GPUs with HAMi",
-              "node_id": "0233",
+              "node_id": "0240",
               "start_index": 46,
               "end_index": 57,
               "summary": "환경: kind k8s + fake-gpu-operator + HAMi (노드 등록)"
             },
             {
               "title": "Lesson 3 — GPU Observability",
-              "node_id": "0234",
+              "node_id": "0241",
               "start_index": 58,
               "end_index": 69,
               "summary": "Step · 내용 0 · kind 클러스터 + 가짜 GPU fleet 생성 1 · 모니터링 스택 설치 — kube-prometheus-stack + fake DCGM exporter + ServiceMonitor + 알림규칙 6개 + Grafana 대시보드 2개 2 · synthetic(가짜) exporter 이해 3 · Prometheus / Grafana 열기 4 · Break it on purpose — 장애 주입 후 Alert 확인 GPU 관련 Metrics 정리 포함."
             },
             {
               "title": "Lesson 4 — Inference Serving ★ 스터디 주제와 가장 직결",
-              "node_id": "0235",
+              "node_id": "0242",
               "start_index": 70,
               "end_index": 90,
               "summary": "Docker(Ollama)만 있으면 되는 독립 실습 실습 환경: NVIDIA RTX 4070 Ti (VRAM 16GB), 모델 Qwen2.5-3B-Instruct CPU 모델 버전은 동시성 1→2→4→8로 축소해 동일 실험을 반복합니다."
             },
             {
               "title": "스터디 연결",
-              "node_id": "0236",
+              "node_id": "0243",
               "start_index": 91,
               "end_index": 96,
               "summary": "Lesson 1·1B → GPU-Enabled Platforms on Kubernetes PDF CH3(Orchestrating GPU Sharing, KAI-Scheduler) Lesson 1C → HAMi 서브페이지 Lesson 3 → PC GPU 설정 실습 6단계(DCGM Exporter), PDF CH5(Monitoring) Lesson 4 → 교재 CH3·CH5 / Inference Engineering PDF CH1.4(Measuring Latency and Throughput)"
@@ -2442,42 +2506,42 @@
       "structure": [
         {
           "title": "[AWS] 고성능 컴퓨팅 네트워크 & 분산 트레이닝 관점에서의 AWS 인터커넥트 기술",
-          "node_id": "0237",
+          "node_id": "0244",
           "start_index": 1,
           "end_index": 6,
           "summary": "원문: 노션 서브페이지 AWS 한국 기술 블로그의 두 시리즈(총 6편)를 정리한 페이지입니다. 원문 링크는 references/articles-and-blogs.md §2에 모두 정리해 두었습니다.",
           "nodes": [
             {
               "title": "구성",
-              "node_id": "0238",
+              "node_id": "0245",
               "start_index": 7,
               "end_index": 20,
               "summary": "시리즈 · 편 · 제목 AWS 고성능 컴퓨팅 네트워크 · 1부 · AWS가 제공하는 고속 네트워크 인터페이스, EFA (Elastic Fabric Adapter) 2부 · AWS가 제공하는 고성능 네트워크 프로토콜, SRD (Scalable Reliable Datagram) 분산 트레이닝 관점에서의 AWS 인터커넥트 기술 · 1편 · AWS는 왜 인터커넥트 기술로 EFA를 사용하는가? …"
             },
             {
               "title": "핵심 개념 — EC2 네트워크 인터페이스 3종",
-              "node_id": "0239",
+              "node_id": "0246",
               "start_index": 21,
               "end_index": 32,
               "summary": "AWS EC2 인스턴스 간 네트워크 인터페이스는 ENI / ENA / EFA 세 가지로 나뉩니다."
             },
             {
               "title": "왜 EFA인가",
-              "node_id": "0240",
+              "node_id": "0247",
               "start_index": 33,
               "end_index": 40,
               "summary": "일반 TCP/IP 스택은 커널을 거치므로 지연이 큼 → EFA는 OS 커널 바이패스로 지연을 줄임 SRD(Scalable Reliable Datagram)는 AWS가 자체 개발한 프로토콜로, InfiniBand의 대안 역할 NCCL이 EFA 위에서 동작하도록 지원 (aws-ofi-nccl 플러그인) → 3편의 주제"
             },
             {
               "title": "온프레미스 기술과의 대응 관계",
-              "node_id": "0241",
+              "node_id": "0248",
               "start_index": 41,
               "end_index": 50,
               "summary": "계층 · 온프레미스 · AWS 노드 내부 GPU 연결 · NVLink / NVSwitch · NVLink / NVSwitch (동일) 노드 간 인터커넥트 · InfiniBand / RoCEv2 · EFA + SRD 집합통신 라이브러리 · NCCL · NCCL (+ aws-ofi-nccl)"
             },
             {
               "title": "스터디 연결",
-              "node_id": "0242",
+              "node_id": "0249",
               "start_index": 51,
               "end_index": 56,
               "summary": "NCCL: GPU Cluster Communication Model — 3편의 배경 이론 NHN Cloud GPU 백서 §2.2 — InfiniBand 기반 온프레미스 설계와 비교 fergusfinn: 인피니밴드, RoCE, 그리고 그 외 모든 것들 — 프로토콜 비교 심화 6주차 AWS EKS 실습에서 다중 GPU 노드를 쓴다면 EFA 지원 인스턴스 여부가 성능을 좌우합니다"
@@ -2499,42 +2563,42 @@
       "structure": [
         {
           "title": "[Old] Generative AI on Amazon EKS 워크숍 실습 정리",
-          "node_id": "0243",
+          "node_id": "0250",
           "start_index": 1,
           "end_index": 8,
           "summary": "원문: 노션 서브페이지 🏷️ 워크숍: catalog.workshops.aws/genai-on-eks (한국어 버전도 있음) 참고 후기: AEWS 4기 9주차 실습 정리",
           "nodes": [
             {
               "title": "한 줄 요약",
-              "node_id": "0244",
+              "node_id": "0251",
               "start_index": 9,
               "end_index": 14,
               "summary": "Amazon EKS 위에서 프로덕션 수준의 LLM 워크로드를 배포·관리하는 워크숍. GPU 노드를 세세히 관리하는 대신 EKS Auto Mode가 필요 시 GPU 노드를 프로비저닝하고, vLLM과 Ray로 추론 워크로드를 실행하는 흐름입니다. 사용 모델: Ministral-3-8B-Instruct-2512 (S3에 준비)"
             },
             {
               "title": "전체 구성",
-              "node_id": "0245",
+              "node_id": "0252",
               "start_index": 15,
               "end_index": 30,
               "summary": ""
             },
             {
               "title": "1. 실습 환경 배포 (Self-paced)",
-              "node_id": "0246",
+              "node_id": "0253",
               "start_index": 31,
               "end_index": 40,
               "summary": "단계 · 내용 EC2 Service Quota 증설 · On-Demand G and VT instances — 계정에 미리 신청 필요 ODCR 생성 · GPU 인스턴스용 On-Demand Capacity Reservation — 실습 시점에 용량을 확보해 두는 것 Terraform 배포 · VPC, EKS Auto Mode 클러스터, S3, Amazon Managed Prometheus, Grafana"
             },
             {
               "title": "2. 소개 (Introduction)",
-              "node_id": "0247",
+              "node_id": "0254",
               "start_index": 41,
               "end_index": 53,
               "summary": "Amazon EKS에서 생성형 AI 워크로드 실행에 필요한 구성이 올바른지 확인하는 섹션입니다.",
               "nodes": [
                 {
                   "title": "LLM 추론을 위한 GPU 인프라 최적화",
-                  "node_id": "0248",
+                  "node_id": "0255",
                   "start_index": 54,
                   "end_index": 61,
                   "summary": "EKS Auto Mode GPU Node Provisioning — Auto Mode를 사용한 고성능 LLM 추론용 GPU 인프라 최적화 EKS Auto Mode는 GPU 인스턴스의 경우 NVIDIA Device Plugin이 내장되어 있음 (별도 설치 불필요) SOCI Snapshotter — 컨테이너 이미지 지연 로딩으로 대용량 추론 이미지의 기동 시간 단축"
@@ -2543,28 +2607,28 @@
             },
             {
               "title": "3. 추론 (Inference on Amazon EKS)",
-              "node_id": "0249",
+              "node_id": "0256",
               "start_index": 62,
               "end_index": 66,
               "summary": "vLLM 모델 로딩 LLM 추론 워크로드 모니터링 — AWS 관리형 Prometheus(AMP) + Grafana"
             },
             {
               "title": "4. 고급 (Advanced AI on Amazon EKS)",
-              "node_id": "0250",
+              "node_id": "0257",
               "start_index": 67,
               "end_index": 68,
               "summary": "vLLM과 분산 컴퓨팅 프레임워크 Ray를 결합한 고급 확장 기법. 여러 추론 요청을 효율적으로 처리하고 분산 워크로드를 모니터링합니다. 참고: Ray Serve 공식 문서 Strands Agents SDK로 EKS에 지능형 에이전트를 배포. LLM이 과거 상호작용을 기억하고, 의사 결정을 내리고, 시간·날씨 서비스 같은 도구를 사용해 위치 기반 쿼리에 응답하도록 구성합니다.",
               "nodes": [
                 {
                   "title": "4-1. vLLM 및 Ray를 사용한 LLM 추론 스케일링 ★",
-                  "node_id": "0251",
+                  "node_id": "0258",
                   "start_index": 69,
                   "end_index": 84,
                   "summary": "vLLM과 분산 컴퓨팅 프레임워크 Ray를 결합한 고급 확장 기법. 여러 추론 요청을 효율적으로 처리하고 분산 워크로드를 모니터링합니다. 참고: Ray Serve 공식 문서"
                 },
                 {
                   "title": "4-2. Strands Agents (Agentic AI)",
-                  "node_id": "0252",
+                  "node_id": "0259",
                   "start_index": 85,
                   "end_index": 96,
                   "summary": "Strands Agents SDK로 EKS에 지능형 에이전트를 배포. LLM이 과거 상호작용을 기억하고, 의사 결정을 내리고, 시간·날씨 서비스 같은 도구를 사용해 위치 기반 쿼리에 응답하도록 구성합니다."
@@ -2573,14 +2637,14 @@
             },
             {
               "title": "5. 실습 환경 제거",
-              "node_id": "0253",
+              "node_id": "0260",
               "start_index": 97,
               "end_index": 104,
               "summary": "섹션 실습 완료 후 리소스 삭제 → 전체 환경 제거 단계 수행."
             },
             {
               "title": "스터디 연결",
-              "node_id": "0254",
+              "node_id": "0261",
               "start_index": 105,
               "end_index": 110,
               "summary": "6주차(09-06) 본 실습의 예습 자료 workshops-and-docs.md — 현재 회차 워크숍 정보 GPU-Enabled Platforms on Kubernetes PDF — K8s GPU 동작 원리 배경 관련 영상: Ray를 활용한 GPU Util 100% MLOps (videos.md)"
@@ -2602,35 +2666,35 @@
       "structure": [
         {
           "title": "[기초부터 이해하는 GPU Network] 1. GPU Interconnect Bandwidth",
-          "node_id": "0255",
+          "node_id": "0262",
           "start_index": 1,
           "end_index": 4,
           "summary": "원문: 노션 서브페이지 핵심 주장 4가지: GPU 클러스터의 주된 병목은 메모리 대역폭이다. GPU는 계산은 빠르지만 HBM에서 데이터를 충분히 빨리 못 받으면 대기한다. Multi-GPU 서버에서는 GPU 개수보다 GPU 간 연결 구조가 더 중요하다. PCIe-only / NVLink pair / 4-way NVLink / HGX NVSwitch fabric은 성능 특성이 완전히 다르다. …",
           "nodes": [
             {
               "title": "한 줄 요약",
-              "node_id": "0256",
+              "node_id": "0263",
               "start_index": 5,
               "end_index": 18,
               "summary": "핵심 주장 4가지: GPU 클러스터의 주된 병목은 메모리 대역폭이다. GPU는 계산은 빠르지만 HBM에서 데이터를 충분히 빨리 못 받으면 대기한다. Multi-GPU 서버에서는 GPU 개수보다 GPU 간 연결 구조가 더 중요하다. PCIe-only / NVLink pair / 4-way NVLink / HGX NVSwitch fabric은 성능 특성이 완전히 다르다. …"
             },
             {
               "title": "1. 데이터 흐름 기초",
-              "node_id": "0257",
+              "node_id": "0264",
               "start_index": 19,
               "end_index": 20,
               "summary": "DMA(Direct Memory Access): Disk Controller가 CPU를 거치지 않고 DRAM에 직접 씀. 대량 데이터 이동은 Controller가 하고 CPU는 제어·연산에 집중. DMA가 없으면 CPU가 데이터 복사에 계속 묶임.",
               "nodes": [
                 {
                   "title": "CPU만 쓸 때",
-                  "node_id": "0258",
+                  "node_id": "0265",
                   "start_index": 21,
                   "end_index": 32,
                   "summary": "DMA(Direct Memory Access): Disk Controller가 CPU를 거치지 않고 DRAM에 직접 씀. 대량 데이터 이동은 Controller가 하고 CPU는 제어·연산에 집중. DMA가 없으면 CPU가 데이터 복사에 계속 묶임."
                 },
                 {
                   "title": "GPU를 쓸 때",
-                  "node_id": "0259",
+                  "node_id": "0266",
                   "start_index": 33,
                   "end_index": 50,
                   "summary": "구간 · 하는 일 Disk → DRAM · dataset, model weight, checkpoint가 메인 메모리로 DRAM → CPU · 전처리, batch 구성, tensor 생성, 실행 흐름 제어 CPU → PCIe · GPU 연산 요청, tensor 전송 시작 PCIe → GPU Memory · 입력 tensor·model weight를 GPU 전용 메모리로 복사 GPU Memory → GPU · GPU kernel 실행 GPU → GPU Memory · 결과 저장. …"
@@ -2639,21 +2703,21 @@
             },
             {
               "title": "2. 메모리 대역폭 병목 — \"The Memory Wall\" ★",
-              "node_id": "0260",
+              "node_id": "0267",
               "start_index": 51,
               "end_index": 55,
               "summary": "GPU 연산 코어는 충분히 빠른데 메모리에서 데이터를 가져오는 데서 병목 → GPU 입장에서 '데이터 기아' 상태 HBM(High Bandwidth Memory): 처리 *속도*가 아니라 너비(Interface Width) 를 확장. 이를 위해 DRAM 칩을 수직으로 적층하고, 기존 방식으로는 연결이 불가능해 실리콘 인터포저에 GPU와 HBM을 함께 연결",
               "nodes": [
                 {
                   "title": "메모리 장벽의 수치",
-                  "node_id": "0261",
+                  "node_id": "0268",
                   "start_index": 56,
                   "end_index": 71,
                   "summary": "2026년 1월, 구글의 샤오위 마와 튜링상 수상자 데이비드 패터슨의 논문: 이 4.7배 격차가 \"메모리 장벽(The Memory Wall)\" 이며, 나아지기는커녕 악화되고 있습니다. 이는 교재 CH5(Challenges When Serving LLMs)의 핵심 주제와 정확히 같습니다."
                 },
                 {
                   "title": "참고 자료",
-                  "node_id": "0262",
+                  "node_id": "0269",
                   "start_index": 72,
                   "end_index": 79,
                   "summary": "[안될공학] GPU만 빠르면 뭐해? HBM과 CoWoS — AI 인프라 5가지 병목 · Youtube Why is Inference Slow and Expensive? What is a GPU? GPU는 왜 AI에서 필수가 되었나 — 5. 병목: 메모리 HBM (나무위키)"
@@ -2662,49 +2726,49 @@
             },
             {
               "title": "3. 패키징 용어 정리",
-              "node_id": "0263",
+              "node_id": "0270",
               "start_index": 80,
               "end_index": 93,
               "summary": "용어 · 쉽게 말하면 · 예시 Wafer · 반도체를 한꺼번에 만드는 원판 · 300mm 실리콘 웨이퍼 Die · 웨이퍼에서 잘라낸 실제 회로 조각 · GPU die, CPU die Chip · 패키징되어 제품처럼 쓰이는 부품 · CPU chip, GPU chip Chiplet · 큰 칩을 여러 작은 기능 die로 나눈 조각 · CPU compute chiplet, I/O die Package · die/chiplet을 올리고 핀·전원·신호를 연결하는 물리 제품 · CPU 패키지 Interposer · 여러 die를 고밀도로 연결하 …"
             },
             {
               "title": "4. 인터커넥트 계층 — 칩(다이)에서 Rack까지",
-              "node_id": "0264",
+              "node_id": "0271",
               "start_index": 94,
               "end_index": 95,
               "summary": "한 패키지 안에서 GPU 다이 두 개를 직접 붙이는 기술. Blackwell은 칩 하나가 사실 다이 두 개이며, 이 둘을 약 10 TB/s로 이어 운영체제에는 단일 GPU로 보이게 만듭니다. 같은 패키지 안에서 종류가 다른 칩(CPU ↔ GPU) 을 잇습니다. Grace CPU와 Blackwell GPU를 900 GB/s로 연결하고 메모리를 cache-coherent하게 공유 — GPU가 CPU 메모리를, CPU가 GPU 메모리를 복사 없이 바로 들여다볼 수 있는 것이 핵심. NVLink = GPU끼리의 지름길. …",
               "nodes": [
                 {
                   "title": "NV-HBI (다이 ↔ 다이)",
-                  "node_id": "0265",
+                  "node_id": "0272",
                   "start_index": 96,
                   "end_index": 99,
                   "summary": "한 패키지 안에서 GPU 다이 두 개를 직접 붙이는 기술. Blackwell은 칩 하나가 사실 다이 두 개이며, 이 둘을 약 10 TB/s로 이어 운영체제에는 단일 GPU로 보이게 만듭니다."
                 },
                 {
                   "title": "NVLink-C2C (칩 ↔ 칩)",
-                  "node_id": "0266",
+                  "node_id": "0273",
                   "start_index": 100,
                   "end_index": 103,
                   "summary": "같은 패키지 안에서 종류가 다른 칩(CPU ↔ GPU) 을 잇습니다. Grace CPU와 Blackwell GPU를 900 GB/s로 연결하고 메모리를 cache-coherent하게 공유 — GPU가 CPU 메모리를, CPU가 GPU 메모리를 복사 없이 바로 들여다볼 수 있는 것이 핵심."
                 },
                 {
                   "title": "NVSwitch Fabric > NVLink Bridge > PCIe",
-                  "node_id": "0267",
+                  "node_id": "0274",
                   "start_index": 104,
                   "end_index": 117,
                   "summary": "방식 · 성격 PCIe · 범용 연결. CPU-GPU, GPU-GPU 모두 가능하나 대역폭이 상대적으로 낮음 NVLink · GPU끼리 직접 잇는 고속 링크. 2-GPU 또는 4-GPU domain에 유리 NVSwitch · 여러 GPU를 고대역폭 fabric으로 묶음. HGX 같은 8-GPU급 서버에서 통신 병목을 줄이는 핵심"
                 },
                 {
                   "title": "구성별 대역폭 비교",
-                  "node_id": "0268",
+                  "node_id": "0275",
                   "start_index": 118,
                   "end_index": 129,
                   "summary": "구성 · Form Factor / Topology · Interconnect · Point-to-Point BW RTX PRO 6000 · PCIe Gen5 · PCIe · 128 GB/s bidirectional H100 NVL · PCIe, 2-card bridge · NVLink · 600 GB/s bidirectional H200 NVL · PCIe, 2-way bridge · NVLink · 900 GB/s bidirectional H200 NVL · PCIe, 4-way bridge · NVLink · 1.8 TB/s a …"
                 },
                 {
                   "title": "비유로 정리",
-                  "node_id": "0269",
+                  "node_id": "0276",
                   "start_index": 130,
                   "end_index": 137,
                   "summary": "NVLink = GPU끼리의 지름길. 원래 GPU는 CPU를 거쳐야 다른 GPU와 통신했는데, 그 우회로를 없앰 NVSwitch = 교차로. 여러 GPU의 NVLink 포트를 하나의 스위치 칩에 모아, 어떤 GPU 쌍이든 같은 속도로 통신하는 All-to-All 패브릭 PCIe = 시스템 전체의 표준 도로. 범용이라 호환성은 좋지만 AI가 요구하는 데이터량엔 좁음 같은 세대 기준 대역폭 차이는 약 14배 (PCIe Gen5 ×16 약 128 GB/s vs NVLink 5 1.8 TB/s). …"
@@ -2713,14 +2777,14 @@
             },
             {
               "title": "5. 후속 예정",
-              "node_id": "0270",
+              "node_id": "0277",
               "start_index": 138,
               "end_index": 143,
               "summary": "Rack ↔ Rack 간 네트워크 장비는 다른 연재글에서 작성 예정."
             },
             {
               "title": "스터디 연결",
-              "node_id": "0271",
+              "node_id": "0278",
               "start_index": 144,
               "end_index": 149,
               "summary": "NHN Cloud GPU 백서 §2.2(고속 인터커넥트)와 직접 이어집니다. NCCL 서브페이지 — 이 인터커넥트 위에서 실제 집합통신이 어떻게 도는지 AWS 인터커넥트 서브페이지 — 클라우드(EFA/SRD)에서의 대응 기술 원문 참고 블로그: From A100 to B300: The Evolution of NVIDIA GPUs and Interconnects"
@@ -2734,7 +2798,7 @@
       "doc_description": "(따라하며 확인하는) PC에 GPU 설정 및 사용 by Docker / K8S",
       "meta": {
         "type": "markdown",
-        "lines": 124,
+        "lines": 796,
         "index_unit": "line",
         "summary_method": "extractive-first-paragraph",
         "generator": "tools/build_pageindex.py"
@@ -2742,82 +2806,463 @@
       "structure": [
         {
           "title": "(따라하며 확인하는) PC에 GPU 설정 및 사용 by Docker / K8S",
-          "node_id": "0272",
+          "node_id": "0279",
           "start_index": 1,
-          "end_index": 5,
+          "end_index": 8,
           "summary": "원문: 노션 서브페이지 🛣️ 참고 문서: references/pdfs.md → GPU-Enabled Platforms on Kubernetes",
           "nodes": [
             {
               "title": "한 줄 요약",
-              "node_id": "0273",
-              "start_index": 6,
-              "end_index": 19,
-              "summary": "로컬 PC → 컨테이너 → 쿠버네티스 단계별로 GPU 인식·실행을 확인하는 실습 가이드. 단순 설치 절차가 아니라 GPU가 OS·컨테이너·K8s 안에서 어떤 경로로 노출되는지 구조를 설명합니다."
+              "node_id": "0280",
+              "start_index": 9,
+              "end_index": 22,
+              "summary": "로컬 PC → 컨테이너 → 쿠버네티스 단계별로 GPU 인식·실행을 확인하는 실습. 단순 설치 절차가 아니라 GPU가 OS·컨테이너·K8s 안에서 어떤 경로로 노출되는지 구조를 확인합니다."
             },
             {
               "title": "실습 순서",
-              "node_id": "0274",
-              "start_index": 20,
-              "end_index": 32,
-              "summary": "GPU 카드가 장착된 PC에 Ubuntu 24.04 Server 설치 NVIDIA Driver 설치 및 확인 Docker 설치 → NVIDIA Container Toolkit 설치 및 확인 Docker 삭제 → K3s 설치 → NVIDIA device plugin for Kubernetes 설치 및 확인 파드 기동 및 확인 kube-prometheus-stack 설치 → DCGM Exporter 설치 및 확인"
-            },
-            {
-              "title": "1. Ubuntu 설치 시 주의점",
-              "node_id": "0275",
-              "start_index": 33,
-              "end_index": 39,
-              "summary": "24.04 권장 — 26.04도 나왔지만 K8s 생태계 다수 툴이 24.04까지만 지원 (’26.7.8 기준) Desktop보다 Server — 실습에 최대 리소스를 쓰기 위함 Secure Boot 끄기 (필수) — UEFI 펌웨어가 부팅 시 신뢰되지 않은 커널 모듈 로드를 허용해야 함 WSL 환경은 비권장 — GPU-PV(Paravirtualization) 구조로 PCIe 패스스루가 아닌 가상화, 기능 제한"
-            },
-            {
-              "title": "2. NVIDIA Driver — GPU 코드가 실행되는 경로",
-              "node_id": "0276",
-              "start_index": 40,
-              "end_index": 55,
-              "summary": "설치 후 확인할 것: 커널 모듈 nvidia.ko.zst, CUDA Driver API 라이브러리 libcuda.so, 장치 파일 /dev/nvidia0 애플리케이션이 GPU와 통신할 때 실제로 여는 디바이스 파일: /dev/nvidia0 동작 확인: verify_gpu.py로 4096×4096 GPU 행렬곱 실행 → nvidia-smi로 GPU-Util 100% / 메모리 사용량 실시간 확인"
-            },
-            {
-              "title": "3. NVIDIA Container Toolkit — OCI 훅이 끼어드는 지점 ★",
-              "node_id": "0277",
-              "start_index": 56,
-              "end_index": 66,
-              "summary": "runc가 네임스페이스로 컨테이너를 격리시키려는 찰나(컨테이너 프로세스 START 직전) 에 toolkit이 훅으로 끼어들어 4가지를 순서대로 수행합니다."
-            },
-            {
-              "title": "4. K8s가 GPU를 인식하는 과정 — Device Plugin ★",
-              "node_id": "0278",
-              "start_index": 67,
-              "end_index": 90,
-              "summary": "결과로 노드에 다음이 찍힙니다: 이제 파드가 resources.limits.nvidia.com/gpu: 1을 요청하면, 스케줄러가 이를 CPU/메모리처럼 \"숫자가 있는 자원\" 으로 취급해 GPU 노드에 배치합니다."
-            },
-            {
-              "title": "5. GPU 파드가 실제로 뜨는 전체 흐름 ★",
-              "node_id": "0279",
-              "start_index": 91,
-              "end_index": 103,
-              "summary": "참고: runtime hook 관련 CDI(Container Device Interface) 스펙"
-            },
-            {
-              "title": "6. 모니터링 — DCGM Exporter",
-              "node_id": "0280",
-              "start_index": 104,
-              "end_index": 109,
-              "summary": "kube-prometheus-stack 설치 DCGM Exporter (NVIDIA GPU Telemetry) 설치 — Helm, Grafana 대시보드 ID 12239 GPU 부하 발생 후 메트릭 확인",
+              "node_id": "0281",
+              "start_index": 23,
+              "end_index": 33,
+              "summary": "GPU 카드가 장착된 PC에 Ubuntu 24.04 Server 설치 NVIDIA Driver 설치 및 확인 Docker 설치 → NVIDIA Container Toolkit 설치 및 확인 Docker 삭제 → K3s 설치 → NVIDIA device plugin for Kubernetes 설치 및 확인 파드 기동 및 확인 kube-prometheus-stack 설치 → DCGM Exporter 설치 및 확인",
               "nodes": [
                 {
-                  "title": "참고: Prometheus Alert Rule 예시",
-                  "node_id": "0281",
-                  "start_index": 110,
-                  "end_index": 119,
-                  "summary": "알림 · 조건 HighGpuTemperature · 85℃ 초과 5분 GpuXidError · XID 에러 발생 1분 HighGpuMemoryUsage · VRAM 90% 초과 10분"
+                  "title": "원문 실습 환경",
+                  "node_id": "0282",
+                  "start_index": 34,
+                  "end_index": 46,
+                  "summary": "항목 · 값 GPU · GeForce RTX 4070 Ti SUPER (16GB, AD103) CPU / RAM · 16 vCPU / 64GB OS / 커널 · Ubuntu 24.04 / 6.8.0-134-generic 드라이버 · nvidia-driver-595-open (NVIDIA-SMI 595.71.05, CUDA 13.2)"
                 }
               ]
             },
             {
+              "title": "1. Ubuntu 설치 시 주의점",
+              "node_id": "0283",
+              "start_index": 47,
+              "end_index": 53,
+              "summary": "24.04 권장 — 26.04도 나왔지만 K8s 생태계 다수 툴이 24.04까지만 지원 ('26.7.8 기준) Desktop보다 Server — 실습에 최대 리소스를 쓰기 위함 Secure Boot 끄기 (필수) — UEFI 펌웨어가 부팅 시 신뢰되지 않은 커널 모듈 로드를 허용해야 함 WSL 환경은 비권장 — GPU-PV(Paravirtualization) 구조로 PCIe 패스스루가 아닌 가상화, 기능 제한",
+              "nodes": [
+                {
+                  "title": "Secure Boot 확인 · 해제",
+                  "node_id": "0284",
+                  "start_index": 54,
+                  "end_index": 67,
+                  "summary": ""
+                }
+              ]
+            },
+            {
+              "title": "2. NVIDIA Driver — GPU 코드가 실행되는 경로",
+              "node_id": "0285",
+              "start_index": 68,
+              "end_index": 79,
+              "summary": "애플리케이션이 GPU와 통신할 때 실제로 여는 디바이스 파일: /dev/nvidia0",
+              "nodes": [
+                {
+                  "title": "설치",
+                  "node_id": "0286",
+                  "start_index": 80,
+                  "end_index": 96,
+                  "summary": ""
+                },
+                {
+                  "title": "확인 — 드라이버가 남긴 것들",
+                  "node_id": "0287",
+                  "start_index": 97,
+                  "end_index": 124,
+                  "summary": "DKMS가 관리하는 커널 모듈 확인. NVIDIA 드라이버는 커널 버전마다 모듈을 새로 빌드해야 해서 DKMS로 관리됩니다(nvidia-dkms-595-open 패키지 담당)."
+                },
+                {
+                  "title": "동작 확인 — `verify_gpu.py`",
+                  "node_id": "0288",
+                  "start_index": 125,
+                  "end_index": 184,
+                  "summary": "터미널 2개를 띄워 부하와 모니터링을 동시에 봅니다. 원문 실행 결과: 모니터링 쪽에서 GPU-Util 100%, Pwr:Usage 284W / 285W, Processes에 /root/gpu-test-venv/bin/python이 잡히는 것을 확인합니다."
+                }
+              ]
+            },
+            {
+              "title": "3. NVIDIA Container Toolkit — OCI 훅이 끼어드는 지점 ★",
+              "node_id": "0289",
+              "start_index": 185,
+              "end_index": 195,
+              "summary": "runc가 네임스페이스로 컨테이너를 격리시키려는 찰나(컨테이너 프로세스 START 직전) 에 toolkit이 훅으로 끼어들어 4가지를 순서대로 수행합니다.",
+              "nodes": [
+                {
+                  "title": "Docker 설치",
+                  "node_id": "0290",
+                  "start_index": 196,
+                  "end_index": 221,
+                  "summary": ""
+                },
+                {
+                  "title": "NVIDIA Container Toolkit 설치",
+                  "node_id": "0291",
+                  "start_index": 222,
+                  "end_index": 265,
+                  "summary": "등록 결과 확인 — /etc/docker/daemon.json:"
+                },
+                {
+                  "title": "컨테이너 안에서 4가지 주입 직접 확인",
+                  "node_id": "0292",
+                  "start_index": 266,
+                  "end_index": 290,
+                  "summary": "컨테이너 안에서:"
+                }
+              ]
+            },
+            {
+              "title": "4. Docker 삭제 → K3s 설치",
+              "node_id": "0293",
+              "start_index": 291,
+              "end_index": 292,
+              "summary": "",
+              "nodes": [
+                {
+                  "title": "Docker 삭제",
+                  "node_id": "0294",
+                  "start_index": 293,
+                  "end_index": 327,
+                  "summary": ""
+                },
+                {
+                  "title": "K3s 설치",
+                  "node_id": "0295",
+                  "start_index": 328,
+                  "end_index": 350,
+                  "summary": ""
+                },
+                {
+                  "title": "K3s 확인 — nvidia 런타임 자동 발견 ★",
+                  "node_id": "0296",
+                  "start_index": 351,
+                  "end_index": 372,
+                  "summary": ""
+                }
+              ]
+            },
+            {
+              "title": "5. NVIDIA Device Plugin — K8s가 GPU를 인식하는 과정 ★",
+              "node_id": "0297",
+              "start_index": 373,
+              "end_index": 384,
+              "summary": "securityContext에서 확인할 것: 이제 파드가 resources.limits.nvidia.com/gpu: 1을 요청하면, 스케줄러가 이를 CPU/메모리처럼 \"숫자가 있는 자원\" 으로 취급해 GPU 노드에 배치합니다.",
+              "nodes": [
+                {
+                  "title": "설치",
+                  "node_id": "0298",
+                  "start_index": 385,
+                  "end_index": 400,
+                  "summary": ""
+                },
+                {
+                  "title": "확인 — 최소 권한으로 도는 것 관찰 ★",
+                  "node_id": "0299",
+                  "start_index": 401,
+                  "end_index": 439,
+                  "summary": "securityContext에서 확인할 것:"
+                },
+                {
+                  "title": "노드에 GPU 자원이 잡혔는지",
+                  "node_id": "0300",
+                  "start_index": 440,
+                  "end_index": 462,
+                  "summary": "이제 파드가 resources.limits.nvidia.com/gpu: 1을 요청하면, 스케줄러가 이를 CPU/메모리처럼 \"숫자가 있는 자원\" 으로 취급해 GPU 노드에 배치합니다."
+                }
+              ]
+            },
+            {
+              "title": "6. GPU 파드가 실제로 뜨는 전체 흐름 ★",
+              "node_id": "0301",
+              "start_index": 463,
+              "end_index": 473,
+              "summary": "파드 안에서 — §3의 Docker 때와 똑같은 것을 확인합니다: 토치가 미리 들어 있는 이미지를 쓰면 설치 없이 바로 됩니다: runtime hook의 실체는 CDI(Container Device Interface) 스펙 파일입니다. nvidia.yaml 안에 §3의 4가지가 선언적으로 적혀 있습니다: GPU가 UUID로도 등록됩니다 (name: GPU-eabaa66e-...). Device Plugin이 AllocateRequest에 담아 보내는 DeviceIDs가 바로 이 이름입니다.",
+              "nodes": [
+                {
+                  "title": "파드 기동",
+                  "node_id": "0302",
+                  "start_index": 474,
+                  "end_index": 535,
+                  "summary": "파드 안에서 — §3의 Docker 때와 똑같은 것을 확인합니다: 토치가 미리 들어 있는 이미지를 쓰면 설치 없이 바로 됩니다:"
+                },
+                {
+                  "title": "CDI — 훅이 무엇을 하는지 스펙 파일로 보기 ★",
+                  "node_id": "0303",
+                  "start_index": 536,
+                  "end_index": 579,
+                  "summary": "runtime hook의 실체는 CDI(Container Device Interface) 스펙 파일입니다. nvidia.yaml 안에 §3의 4가지가 선언적으로 적혀 있습니다: GPU가 UUID로도 등록됩니다 (name: GPU-eabaa66e-...). Device Plugin이 AllocateRequest에 담아 보내는 DeviceIDs가 바로 이 이름입니다."
+                }
+              ]
+            },
+            {
+              "title": "7. 모니터링 — kube-prometheus-stack + DCGM Exporter",
+              "node_id": "0304",
+              "start_index": 580,
+              "end_index": 581,
+              "summary": "파라미터 파일을 만듭니다. 핵심만 발췌하면: Grafana 대시보드 ID 12239를 임포트하면 위 메트릭이 그려집니다. 원문 결과 해석:",
+              "nodes": [
+                {
+                  "title": "kube-prometheus-stack 설치",
+                  "node_id": "0305",
+                  "start_index": 582,
+                  "end_index": 666,
+                  "summary": "파라미터 파일을 만듭니다. 핵심만 발췌하면:"
+                },
+                {
+                  "title": "DCGM Exporter 설치",
+                  "node_id": "0306",
+                  "start_index": 667,
+                  "end_index": 692,
+                  "summary": "Grafana 대시보드 ID 12239를 임포트하면 위 메트릭이 그려집니다."
+                },
+                {
+                  "title": "GPU 부하 발생 — nbody 벤치마크",
+                  "node_id": "0307",
+                  "start_index": 693,
+                  "end_index": 728,
+                  "summary": "원문 결과 해석: 출력 · 의미 5,000,000 → 5,000,192 · GPU thread/block 효율을 위해 body 수를 256의 배수로 자동 상향 211,781 ms / 10 iterations · 1 iteration당 약 21.18초 1,180.552 billion interactions/s · 초당 약 1.18조 상호작용 23,611 GFLOP/s · FP32 단정밀도 기준 Compute Capability 8.9 · RTX 4070 Ti SUPER = Ada Lovelace 아키텍처가 \"Ampere\"로 표시됨 · …"
+                },
+                {
+                  "title": "Prometheus Alert Rule",
+                  "node_id": "0308",
+                  "start_index": 729,
+                  "end_index": 774,
+                  "summary": ""
+                }
+              ]
+            },
+            {
+              "title": "실습 전체를 관통하는 한 가지",
+              "node_id": "0309",
+              "start_index": 775,
+              "end_index": 788,
+              "summary": "§3(Docker), §6(K8s 파드), §6의 CDI 스펙 — 세 곳에서 똑같은 4가지 주입을 확인하게 됩니다. ls -l /dev/nvidia*와 env | grep NVIDIA를 각 레이어에서 반복해 찍어보는 것이 이 실습의 핵심입니다."
+            },
+            {
               "title": "스터디 연결",
-              "node_id": "0282",
-              "start_index": 120,
-              "end_index": 124,
-              "summary": "6주차 AWS EKS 실습 전에 읽으면 실습 중 GPU 파드가 뜨는 과정을 이해하기 쉽습니다. HAMi 서브페이지의 전제 환경이 이 문서입니다. GPU-Enabled Platforms on Kubernetes PDF CH1(Foundations)과 내용이 대응합니다 — 실제로 이 서브페이지의 도식 다수가 해당 자료 출처입니다."
+              "node_id": "0310",
+              "start_index": 789,
+              "end_index": 796,
+              "summary": "6주차 AWS EKS 실습 전에 읽으면 실습 중 GPU 파드가 뜨는 과정을 이해하기 쉽습니다. HAMi 서브페이지의 전제 환경이 이 문서입니다. GPU-Enabled Platforms on Kubernetes PDF CH1(Foundations)과 내용이 대응합니다 — 이 서브페이지의 도식 다수가 해당 자료 출처입니다. Windows 랩탑에서 실행하려면 → gpu-setup-windows-wsl2.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "doc_name": "knowledge/subpages/gpu-setup-windows-wsl2.md",
+      "doc_description": "(Windows 랩탑판) PC에 GPU 설정 및 사용 by Docker / K8S",
+      "meta": {
+        "type": "markdown",
+        "lines": 493,
+        "index_unit": "line",
+        "summary_method": "extractive-first-paragraph",
+        "generator": "tools/build_pageindex.py"
+      },
+      "structure": [
+        {
+          "title": "(Windows 랩탑판) PC에 GPU 설정 및 사용 by Docker / K8S",
+          "node_id": "0311",
+          "start_index": 1,
+          "end_index": 9,
+          "summary": "원문 실습: gpu-setup-docker-k8s.md — Ubuntu 24.04 Server 베어메탈 기준 이 문서: 같은 실습을 Windows 11 + WSL2 + GeForce RTX 4080 Laptop (12GB) 에서 바로 따라 할 수 있게 옮긴 것",
+          "nodes": [
+            {
+              "title": "원문과 달라지는 지점 한눈에",
+              "node_id": "0312",
+              "start_index": 10,
+              "end_index": 23,
+              "summary": "원문 (Ubuntu 베어메탈) · 여기 (Windows + WSL2) Ubuntu 24.04 Server 설치 · WSL2에 Ubuntu 24.04 배포판 설치 Secure Boot 끄기 · 불필요 — 커널 모듈을 직접 올리지 않음 리눅스용 NVIDIA Driver 설치 · 설치 금지 ★ — Windows 드라이버를 WSL이 그대로 씁니다 디바이스 파일 /dev/nvidia0 · /dev/dxg ★ — 이 차이가 GPU-PV의 정체 K3s 바로 설치 · K3s 전에 systemd 활성화 필요 DCGM Exporter 전체 메트릭 · …"
+            },
+            {
+              "title": "0. 사전 확인 (Windows 쪽, 5분)",
+              "node_id": "0313",
+              "start_index": 24,
+              "end_index": 37,
+              "summary": "PowerShell에서: nvidia-smi가 12GB(12288MiB 내외)를 보여주면 준비 완료입니다. 안 나오면 NVIDIA 드라이버를 먼저 설치하세요. CUDA Toolkit은 Windows에 설치할 필요 없습니다.",
+              "nodes": [
+                {
+                  "title": "랩탑 필수 설정",
+                  "node_id": "0314",
+                  "start_index": 38,
+                  "end_index": 45,
+                  "summary": "항목 · 이유 전원 어댑터 연결 · 배터리 모드는 TGP가 깎여 클럭이 내려갑니다. 측정값이 흔들립니다 Windows 설정 → 시스템 → 디스플레이 → 그래픽 → 고성능 · dGPU 고정 브라우저·Teams 등 종료 · 12GB 중 일부를 디스플레이·앱이 이미 씁니다"
+                },
+                {
+                  "title": "WSL2 메모리 상한 설정",
+                  "node_id": "0315",
+                  "start_index": 46,
+                  "end_index": 62,
+                  "summary": "WSL2는 기본적으로 호스트 RAM의 50%를 가져갑니다. K3s + 모델 로딩까지 하면 부족할 수 있으니 %USERPROFILE%\\.wslconfig를 만드세요:"
+                }
+              ]
+            },
+            {
+              "title": "1. WSL2 + Ubuntu 24.04 설치",
+              "node_id": "0316",
+              "start_index": 63,
+              "end_index": 77,
+              "summary": "원문 §1의 \"Ubuntu 24.04 Server 설치\"에 대응합니다. Secure Boot 끄는 단계는 없습니다 — WSL2는 Microsoft 커널을 쓰고 우리가 커널 모듈을 올리지 않기 때문입니다. VERSION이 1이면 wsl --set-version Ubuntu-24.04 2로 올리세요. 이후 명령은 모두 WSL 안의 Ubuntu 셸에서 실행합니다."
+            },
+            {
+              "title": "2. GPU 인식 확인 — ★ 드라이버를 설치하지 마세요",
+              "node_id": "0317",
+              "start_index": 78,
+              "end_index": 92,
+              "summary": "원문 §2는 리눅스에 NVIDIA Driver를 설치하고 nvidia.ko 커널 모듈과 /dev/nvidia0을 확인합니다. WSL2에서는 이 단계를 건너뜁니다. Windows 호스트 드라이버가 WSL 안으로 필요한 것들을 직접 투영해주기 때문입니다.",
+              "nodes": [
+                {
+                  "title": "★ 원문과 결정적으로 다른 지점 — 디바이스 파일",
+                  "node_id": "0318",
+                  "start_index": 93,
+                  "end_index": 105,
+                  "summary": "원문은 \"애플리케이션이 GPU와 통신할 때 실제로 여는 파일은 /dev/nvidia0\"이라고 설명합니다. WSL2에서 직접 확인해보세요: /dev/nvidia0이 없고 /dev/dxg가 대신 있습니다. WSL2는 PCIe 디바이스를 패스스루하지 않고, dxgkrnl이라는 Windows 그래픽 커널 인터페이스를 반가상화(GPU-PV)해서 넘겨줍니다. 즉 리눅스 커널이 GPU를 직접 잡는 게 아니라 Windows에게 대신 요청하는 구조입니다."
+                },
+                {
+                  "title": "CUDA Toolkit 설치 (선택) — ★ 함정 주의",
+                  "node_id": "0319",
+                  "start_index": 106,
+                  "end_index": 120,
+                  "summary": "nvcc가 필요하면 설치하되, 반드시 cuda-toolkit 패키지만 설치하세요. 레포지토리 경로가 wsl-ubuntu인 점을 확인하세요. 일반 ubuntu2404 경로를 쓰면 드라이버 패키지가 딸려옵니다."
+                },
+                {
+                  "title": "동작 확인 — `verify_gpu.py`",
+                  "node_id": "0320",
+                  "start_index": 121,
+                  "end_index": 165,
+                  "summary": "원문의 4096×4096 행렬곱 검증에 대응합니다. 다른 WSL 터미널에서 부하를 보며 실행하세요:"
+                }
+              ]
+            },
+            {
+              "title": "3. Docker + NVIDIA Container Toolkit",
+              "node_id": "0321",
+              "start_index": 166,
+              "end_index": 187,
+              "summary": "원문 §3에 대응합니다. Docker Desktop이 아니라 WSL 안에 직접 설치하는 걸 권장합니다 — 뒤에서 K3s가 containerd를 직접 다뤄야 해서 Docker Desktop은 방해가 됩니다.",
+              "nodes": [
+                {
+                  "title": "동작 확인 — OCI 훅이 실제로 하는 일 보기",
+                  "node_id": "0322",
+                  "start_index": 188,
+                  "end_index": 212,
+                  "summary": "순정 ubuntu 이미지에 nvidia-smi가 있을 리 없는데 동작합니다. 원문 §3이 설명하는 4가지 주입(디바이스 마운트 / 드라이버 라이브러리 / 환경변수 / cgroup) 중 2번이 눈에 보이는 순간입니다. WSL2에서 실제로 뭐가 들어갔는지 직접 확인해보세요: 마지막 명령에서 원문은 nvidia0, nvidiactl, nvidia-uvm이 나오지만 여기서는 dxg가 나옵니다. toolkit이 WSL 환경을 감지해 /dev/dxg와 /usr/lib/wsl/lib를 대신 마운트한 것입니다. …"
+                }
+              ]
+            },
+            {
+              "title": "4. K3s 설치 — ★ WSL2 전용 사전 작업",
+              "node_id": "0323",
+              "start_index": 213,
+              "end_index": 235,
+              "summary": "원문 §4는 Docker를 지우고 K3s를 깝니다. WSL2에서는 그 전에 systemd를 켜야 합니다. K3s가 systemd 서비스로 동작하기 때문입니다. PowerShell에서 재시작: 다시 들어와서 확인:",
+              "nodes": [
+                {
+                  "title": "K3s 설치",
+                  "node_id": "0324",
+                  "start_index": 236,
+                  "end_index": 249,
+                  "summary": ""
+                },
+                {
+                  "title": "K3s가 nvidia 런타임을 잡았는지 확인",
+                  "node_id": "0325",
+                  "start_index": 250,
+                  "end_index": 279,
+                  "summary": "원문이 언급하는 \"K3s의 컨테이너 런타임 자동 발견\"이 동작했는지 봅니다: nvidia 런타임 항목이 안 보이면 toolkit 설치 후 K3s를 재시작하세요: RuntimeClass를 만들어 둡니다:"
+                }
+              ]
+            },
+            {
+              "title": "5. NVIDIA Device Plugin 설치",
+              "node_id": "0326",
+              "start_index": 280,
+              "end_index": 290,
+              "summary": "원문 §4 후반 — \"K8s는 GPU를 전혀 모르므로 통역사를 심는다\"에 대응합니다.",
+              "nodes": [
+                {
+                  "title": "동작 확인 — 원문의 4단계를 로그로 추적",
+                  "node_id": "0327",
+                  "start_index": 291,
+                  "end_index": 321,
+                  "summary": "원문이 말한 Registered device plugin for 'nvidia.com/gpu' with Kubelet이 이 로그입니다. 이 줄이 뜬 순간이 gRPC 스트림이 열린 시점입니다. 노드에 자원이 잡혔는지 확인: 원문의 결과와 동일하게 나와야 합니다:"
+                }
+              ]
+            },
+            {
+              "title": "6. GPU 파드 기동 및 확인",
+              "node_id": "0328",
+              "start_index": 322,
+              "end_index": 346,
+              "summary": "원문 §5에 대응합니다. 파드가 뜨는 동안 kubelet ↔ Device Plugin의 Allocate 호출을 봅니다: 핵심은 원문이 강조한 이 문장입니다 — Device Plugin은 \"어떤 GPU를 줄지\"만 정하고, 실제 /dev 마운트는 컨테이너 런타임(toolkit)이 합니다. 위 §3에서 Docker로 확인한 4가지 주입이 여기서는 containerd → runc의 prestart 훅에서 똑같이 일어납니다. 파드 안에서 직접 확인: 정리:",
+              "nodes": [
+                {
+                  "title": "원문 §5의 흐름을 실제로 관찰하기",
+                  "node_id": "0329",
+                  "start_index": 347,
+                  "end_index": 371,
+                  "summary": "파드가 뜨는 동안 kubelet ↔ Device Plugin의 Allocate 호출을 봅니다: 핵심은 원문이 강조한 이 문장입니다 — Device Plugin은 \"어떤 GPU를 줄지\"만 정하고, 실제 /dev 마운트는 컨테이너 런타임(toolkit)이 합니다. 위 §3에서 Docker로 확인한 4가지 주입이 여기서는 containerd → runc의 prestart 훅에서 똑같이 일어납니다. 파드 안에서 직접 확인: 정리:"
+                }
+              ]
+            },
+            {
+              "title": "7. 모니터링 — DCGM Exporter (부분 동작)",
+              "node_id": "0330",
+              "start_index": 372,
+              "end_index": 393,
+              "summary": "원문 §6에 대응하지만 여기가 WSL2에서 가장 많이 깨지는 구간입니다.",
+              "nodes": [
+                {
+                  "title": "⚠️ 기대치 조정",
+                  "node_id": "0331",
+                  "start_index": 394,
+                  "end_index": 409,
+                  "summary": "WSL2의 GPU-PV 구조상 DCGM이 하드웨어 카운터에 직접 접근하지 못해 상당수 메트릭이 0이거나 아예 나오지 않습니다. 특히: DCGM이 아예 뜨지 않으면 Grafana 대시보드 12239 실습은 건너뛰고, 대신 nvidia-smi 폴링을 Prometheus에 직접 넣는 방식으로 대체하세요. 원문의 Alert Rule 3종(HighGpuTemperature 85℃/5분, GpuXidError 1분, HighGpuMemoryUsage VRAM 90%/10분)은 규칙 자체는 그대로 쓸 수 있습니다."
+                }
+              ]
+            },
+            {
+              "title": "8. 이어서 — vLLM 띄우기 (12GB 기준)",
+              "node_id": "0332",
+              "start_index": 410,
+              "end_index": 422,
+              "summary": "원문 실습에는 없지만, 1주차 과제로 이어가려면 여기까지 온 환경에서 바로 할 수 있습니다.",
+              "nodes": [
+                {
+                  "title": "VRAM 12GB에서 고를 수 있는 모델",
+                  "node_id": "0333",
+                  "start_index": 423,
+                  "end_index": 433,
+                  "summary": "가용 VRAM은 약 10.5GB(프레임워크·컨텍스트 제외)이고, KV cache 자리를 남겨야 합니다."
+                },
+                {
+                  "title": "측정 포인트 (1주차 CH1~2 연결)",
+                  "node_id": "0334",
+                  "start_index": 434,
+                  "end_index": 453,
+                  "summary": "05-week1-prep.md §5의 \"스터디 중 확인할 질문\"을 그대로 실험으로 바꿀 수 있습니다. Llama-3.1-8B(32층, KV헤드 8, head_dim 128, FP16) 기준 토큰당 KV = 128 KB입니다. KV에 5GB를 주면 총 4만 토큰 ≈ 요청당 2048토큰일 때 동시 20요청. 실측 OOM 지점과 이 계산을 맞춰보는 것이 과제의 핵심이 됩니다."
+                }
+              ]
+            },
+            {
+              "title": "9. 원문 대비 재현 불가 항목",
+              "node_id": "0335",
+              "start_index": 454,
+              "end_index": 470,
+              "summary": "정직하게 정리합니다. 뒷주차 주제 중 이 환경에서 안 되는 것들: → 이 항목들이 필요해지는 시점(4~6주차)에는 클라우드 GPU 인스턴스나 Colab으로 옮기세요. 01-environment-setup.md"
+            },
+            {
+              "title": "트러블슈팅",
+              "node_id": "0336",
+              "start_index": 471,
+              "end_index": 485,
+              "summary": "증상 · 원인 / 해결 WSL에서 nvidia-smi 실패 · Windows 드라이버 미설치 또는 구버전. Windows에서 먼저 nvidia-smi 확인 CUDA 설치 후 GPU가 죽음 · cuda 메타패키지로 리눅스 드라이버가 깔린 것. sudo apt-get remove --purge '^nvidia-.*' 후 cuda-toolkit-12-6만 재설치 systemctl 이 \"not been booted with systemd\" · /etc/wsl.conf 설정 후 wsl --shutdown 안 한 것 K3s 파드가 GPU를 못 …"
+            },
+            {
+              "title": "출처",
+              "node_id": "0337",
+              "start_index": 486,
+              "end_index": 493,
+              "summary": "실습 구조·개념 설명: 노션 서브페이지 (따라하며 확인하는) PC에 GPU 설정 및 사용 by Docker / K8S (멤버 전용) 원문 요약본: gpu-setup-docker-k8s.md 참고 자료: GPU-Enabled Platforms on Kubernetes CH1 Foundations WSL2 관련 명령·제약: 개인 정리 (원문에 없는 내용)"
             }
           ]
         }
@@ -2836,21 +3281,21 @@
       "structure": [
         {
           "title": "(따라하며 확인하는) GPU 가상화: HAMi 설치 및 사용",
-          "node_id": "0283",
+          "node_id": "0338",
           "start_index": 1,
           "end_index": 5,
           "summary": "원문: 노션 서브페이지 🛁 공식 문서: project-hami.io · Github",
           "nodes": [
             {
               "title": "한 줄 요약",
-              "node_id": "0284",
+              "node_id": "0339",
               "start_index": 6,
               "end_index": 9,
               "summary": "HAMi(Heterogeneous AI Computing Virtualization Middleware)는 K8s GPU 가상화 미들웨어로, 소프트웨어 수준에서 GPU 연산(Compute)과 메모리(VRAM) 격리를 제공합니다. 하드웨어 격리인 MIG를 지원하지 않는 GPU 카드에서도 격리가 가능한 것이 핵심 가치입니다.",
               "nodes": [
                 {
                   "title": "⚠️ 중요한 한계 (실습에서 실제로 확인된 것)",
-                  "node_id": "0285",
+                  "node_id": "0340",
                   "start_index": 10,
                   "end_index": 19,
                   "summary": "메모리(VRAM) 격리는 hard limit으로 잘 동작하지만, compute 격리는 신뢰하기 어렵다는 것이 실습의 결론입니다."
@@ -2859,14 +3304,14 @@
             },
             {
               "title": "아키텍처 — 4개 구성요소의 조합",
-              "node_id": "0286",
+              "node_id": "0341",
               "start_index": 20,
               "end_index": 30,
               "summary": "HAMi는 Device Plugin + Scheduler Extender + MutatingWebhook + CUDA API 후킹을 결합해 소프트웨어 기반 vGPU를 구현합니다.",
               "nodes": [
                 {
                   "title": "HAMi-Core가 실제로 제한하는 방식 ★",
-                  "node_id": "0287",
+                  "node_id": "0342",
                   "start_index": 31,
                   "end_index": 37,
                   "summary": "자원 · 방식 VRAM · cuMemAlloc 계열을 인터셉트해 quota 초과 시 즉시 CUDA_ERROR_OUT_OF_MEMORY 반환 Compute · cuLaunchKernel 앞단에서 rate_limiter가 전역 카운터(g_cur_cuda_cores)를 소비하고, 백그라운드 watcher가 실측 사용률로 보충량을 재계산"
@@ -2875,21 +3320,21 @@
             },
             {
               "title": "주요 특징",
-              "node_id": "0288",
+              "node_id": "0343",
               "start_index": 38,
               "end_index": 53,
               "summary": "분류 · 내용 Device Sharing · 다양한 이기종 AI 컴퓨팅 장치(GPU, NPU, 기타 가속기) 호환. 여러 컨테이너가 동시에 장치 공유 Memory Management · 컨테이너 내부 메모리 사용량 엄격 제한, 동적 할당, MB 단위 또는 전체 대비 백분율 지정 Device Specification · 특정 유형 장치 요청, UUID로 특정 장치 타겟팅 Ease of Use · 워크로드에 투명하게 적용 — 컨테이너 내부 코드 변경 불필요"
             },
             {
               "title": "프로젝트 근황",
-              "node_id": "0289",
+              "node_id": "0344",
               "start_index": 54,
               "end_index": 61,
               "summary": "KAI 스케줄러 = \"누가 어떤 GPU를 언제 사용할지\" 결정 → 스케줄링 계층 HAMi = \"일단 할당되면 그 이상 받을 수 없다\"를 보장 → 격리 계층",
               "nodes": [
                 {
                   "title": "KAI Scheduler와의 역할 분담",
-                  "node_id": "0290",
+                  "node_id": "0345",
                   "start_index": 62,
                   "end_index": 68,
                   "summary": "KAI 스케줄러 = \"누가 어떤 GPU를 언제 사용할지\" 결정 → 스케줄링 계층 HAMi = \"일단 할당되면 그 이상 받을 수 없다\"를 보장 → 격리 계층"
@@ -2898,42 +3343,42 @@
             },
             {
               "title": "실습 목차",
-              "node_id": "0291",
+              "node_id": "0346",
               "start_index": 69,
               "end_index": 70,
               "summary": "가이드: hami-isolation-k3s 사전 준비 HAMi 스케줄러가 관리할 수 있게 GPU 노드에 레이블 지정 Helm으로 HAMi 설치 → /usr/local/vgpu/libvgpu.so HAMi WebUI 설치 (Helm) (옵션) HAMi device plugin 메트릭용 Grafana 대시보드 설정 가이드: gpu-partitioning 가이드: hami-vllm 모델 선정이 실습의 핵심 포인트: Deploy vLLM with HAMi Resources Test Inference: NodePort 30003 사용 가이드 …",
               "nodes": [
                 {
                   "title": "1. HAMi 설치",
-                  "node_id": "0292",
+                  "node_id": "0347",
                   "start_index": 71,
                   "end_index": 92,
                   "summary": "가이드: hami-isolation-k3s 사전 준비 HAMi 스케줄러가 관리할 수 있게 GPU 노드에 레이블 지정 Helm으로 HAMi 설치 → /usr/local/vgpu/libvgpu.so HAMi WebUI 설치 (Helm) (옵션) HAMi device plugin 메트릭용 Grafana 대시보드 설정"
                 },
                 {
                   "title": "2. GPU Partitioning with HAMi",
-                  "node_id": "0293",
+                  "node_id": "0348",
                   "start_index": 93,
                   "end_index": 104,
                   "summary": "가이드: gpu-partitioning Step · 내용 1 · HAMi 리소스 유형 이해하기 2 · Two Pods Sharing One GPU — MIG 미지원 GPU에서 하나의 GPU를 공유하는 두 Pod 배포 3 · The VRAM Ceiling — 상한 제한 4 · OOM 테스트로 메모리 격리 증명 — vGPU 메모리 hard limit 동작 확인 ✅ 5 · gpucores로 Compute 제한 — SM 30% 할당 설정 → 실제 거의 100% 사용됨. HW 제한이 아닌 SW 제한의 한계 확인 ⚠️"
                 },
                 {
                   "title": "3. Run vLLM on HAMi GPU 할당",
-                  "node_id": "0294",
+                  "node_id": "0349",
                   "start_index": 105,
                   "end_index": 121,
                   "summary": "가이드: hami-vllm 모델 선정이 실습의 핵심 포인트: Deploy vLLM with HAMi Resources Test Inference: NodePort 30003 사용"
                 },
                 {
                   "title": "4. Volcano vGPU with Gang Scheduling and Queues",
-                  "node_id": "0295",
+                  "node_id": "0350",
                   "start_index": 122,
                   "end_index": 142,
                   "summary": "가이드: volcano-vgpu-gang-queue 목표: Volcano Scheduler(gang scheduling + queue 단위 리소스 제한) + HAMi-core 기반 vGPU를 결합해 검증 컨테이너에 HAMi-core memory/compute limit이 주입되는지 minAvailable 기반 Gang이 partial start를 막는지 Queue capability가 node capacity와 별개로 vGPU 사용량을 제한하는지"
                 },
                 {
                   "title": "5. 작성 예정 항목",
-                  "node_id": "0296",
+                  "node_id": "0351",
                   "start_index": 143,
                   "end_index": 152,
                   "summary": "주제 · 상태 · 링크 HAMi Resource Isolation + KAI Scheduler · 정리 예정 · HAMi Blog · KAI docs · hami-dra Kueue + HAMi vGPU · 추가 작성 예정 · kueue-hami-vgpu GPU Topology-Aware Scheduling on Fake GPUs · 추가 작성 예정 · topology-aware-scheduling"
@@ -2942,7 +3387,7 @@
             },
             {
               "title": "스터디 연결",
-              "node_id": "0297",
+              "node_id": "0352",
               "start_index": 153,
               "end_index": 157,
               "summary": "GPU-Enabled Platforms on Kubernetes PDF CH4 — HAMi: The Software Enforcement Revolution (Compute Throttling, 토큰 버킷)과 정확히 대응합니다. 이론은 PDF, 실습은 이 문서. toss의 MIG 도입기와 비교하면 HW 격리(MIG) vs SW 격리(HAMi) 트레이드오프가 잘 드러납니다. AI Factory Operations Lab Lesson 1C에서도 HAMi를 다룹니다 (fake GPU 환경)."
@@ -2964,42 +3409,42 @@
       "structure": [
         {
           "title": "NCCL: GPU Cluster Communication Model",
-          "node_id": "0298",
+          "node_id": "0353",
           "start_index": 1,
           "end_index": 5,
           "summary": "원문: 노션 서브페이지 출처 도서: Deep Learning for Network Engineers (2025.5) — CH14: GPU Cluster Communication Model - NCCL",
           "nodes": [
             {
               "title": "한 줄 요약",
-              "node_id": "0299",
+              "node_id": "0354",
               "start_index": 6,
               "end_index": 11,
               "summary": "분산 학습 작업이 시작되는 순간부터 그래디언트가 동기화되기까지 무슨 일이 일어나는지를, NCCL Unique ID 배포 → Broadcast → Ring AllReduce(ReduceScatter + AllGather) 순서로 단계별 추적한 문서입니다."
             },
             {
               "title": "0. 전제 — 세 가지 소프트웨어의 역할 분담",
-              "node_id": "0300",
+              "node_id": "0355",
               "start_index": 12,
               "end_index": 25,
               "summary": "NCCL이 지원하는 연산: AllReduce, Broadcast, Reduce, AllGather, ReduceScatter 예제 구성: 2개 노드(Host A, Host B) × 각 4 GPU = 총 8 GPU"
             },
             {
               "title": "1. NCCL Unique ID 배포 — 통신 그룹 부트스트랩",
-              "node_id": "0301",
+              "node_id": "0356",
               "start_index": 26,
               "end_index": 34,
               "summary": "여러 노드의 GPU가 통신하려면 먼저 커뮤니케이터(누가 참여하고 어떻게 데이터를 교환할지 정의하는 공유 컨텍스트)에 동의해야 합니다. 이를 위해 NCCL Unique ID라는 특수 식별자가 필요합니다. 지정된 마스터 프로세스가 한 번 생성한 뒤 다른 모든 프로세스와 공유 세션 식별자 역할 — 모든 참여 GPU 프로세스가 동일한 통신 그룹에 가입하도록 보장 이게 없으면 AllReduce/Broadcast에 쓰이는 링·트리 토폴로지를 구축할 공통 기준점이 없음 네임스페이스 식별자 역할도 함 — 같은 노드 집합에서 여러 분산 작업이 동시 …",
               "nodes": [
                 {
                   "title": "1-1. 마스터 노드에 TCP 소켓 열기",
-                  "node_id": "0302",
+                  "node_id": "0357",
                   "start_index": 35,
                   "end_index": 51,
                   "summary": "torchrun 명령으로 학습 작업이 시작되면 PyTorch 분산 프레임워크가 각 노드에서 GPU당 하나의 프로세스를 시작합니다. 각 프로세스는 글로벌 랭크 ID로 식별됩니다. 랭크 0 (Host A의 GPU 0) = 마스터 랭크 PyTorch가 --master_addr=192.168.10.101, --master_port=12345로 TCP 리스너를 엶 --nnodes=2, --nproc_per_node=4 → 마스터는 랭크 1~7까지 7개 연결 요청을 예상 Host B의 랭크 4-7은 192.168.10.101을, 로컬 랭크 1 …"
                 },
                 {
                   "title": "1-2. TCP 소켓을 통한 ID 배포",
-                  "node_id": "0303",
+                  "node_id": "0358",
                   "start_index": 52,
                   "end_index": 57,
                   "summary": "모든 랭크가 마스터와 TCP 연결을 맺으면, 마스터가 ID를 생성해 랭크 1~7에 전송 이 연결은 보통 프론트엔드 또는 관리 네트워크를 통해 흐름 (백엔드 GPU 네트워크가 아님) 모든 랭크가 이 ID로 로컬 NCCL 커뮤니케이터를 초기화"
@@ -3008,42 +3453,42 @@
             },
             {
               "title": "2. Broadcast — 모델 파라미터 동기화",
-              "node_id": "0304",
+              "node_id": "0359",
               "start_index": 58,
               "end_index": 69,
               "summary": "모든 GPU가 동일한 모델 파라미터로 시작하도록 보장하는 단계입니다. 마스터가 ID를 공유한 후, NCCL 라이브러리가 트리 토폴로지를 구축 Broadcast 집합체로 모델 파라미터를 모든 GPU에 전송"
             },
             {
               "title": "3. AllReduce — 그래디언트 동기화 ★ 이 문서의 핵심",
-              "node_id": "0305",
+              "node_id": "0360",
               "start_index": 70,
               "end_index": 75,
               "summary": "순방향 패스 후 각 GPU가 역방향 패스로 그래디언트를 계산합니다. 이 그래디언트는 버킷(bucket) 이라는 예약 메모리 영역에 저장됩니다.",
               "nodes": [
                 {
                   "title": "설정",
-                  "node_id": "0306",
+                  "node_id": "0361",
                   "start_index": 76,
                   "end_index": 85,
                   "summary": "마지막 레이어에 1024개 파라미터, 각 GPU가 1024개 전부에 대해 그래디언트 계산 버킷을 4개 청크로 분할: 1024 ÷ 4 GPU = 청크당 256개 그래디언트 각 GPU가 청크 A–D를 보유 담당: 랭크 0 → 청크 A, 랭크 1 → B, 랭크 2 → C, 랭크 3 → D 노드 내는 NVLink, 노드 간은 RoCEv2"
                 },
                 {
                   "title": "3-1. ReduceScatter (3회 반복)",
-                  "node_id": "0307",
+                  "node_id": "0362",
                   "start_index": 86,
                   "end_index": 97,
                   "summary": "각 랭크가 담당 청크를 링의 다음 랭크로 전송하고, 이웃에게서 하나를 받아 자신의 로컬 버전에 더합니다. ReduceScatter의 목표: 각 그래디언트의 합(또는 평균)을 계산. 종료 시 각 GPU는 4개 GPU 모두의 기여가 포함된 완전 축소 청크 1개를 갖습니다."
                 },
                 {
                   "title": "3-2. AllGather (3회 반복)",
-                  "node_id": "0308",
+                  "node_id": "0363",
                   "start_index": 98,
                   "end_index": 107,
                   "summary": "완전히 축소된 청크를 모든 GPU에 다시 배포하여, 각 GPU가 전체 그래디언트의 완전한 사본을 갖게 합니다."
                 },
                 {
                   "title": "3-3. 마무리 — 합을 평균으로",
-                  "node_id": "0309",
+                  "node_id": "0364",
                   "start_index": 108,
                   "end_index": 118,
                   "summary": "AllReduce는 합을 계산하지만, 데이터 병렬 학습에서는 보통 평균이 필요합니다. 각 GPU가 1024개 그래디언트를 GPU 수(4)로 요소별 나눗셈 이는 추가 통신 없이 각 GPU에서 독립적으로 수행되는 로컬 연산 모든 GPU가 동일한 동기화 데이터에서 평균을 내므로 결과는 클러스터 전체에서 일관됨 이후 추가 동기화 불필요 → 다음 학습 반복 시작 가능"
@@ -3052,14 +3497,14 @@
             },
             {
               "title": "왜 이 문서가 중요한가",
-              "node_id": "0310",
+              "node_id": "0365",
               "start_index": 119,
               "end_index": 126,
               "summary": "관점 · 이유 인터커넥트가 왜 중요한지 체감 · AllReduce 한 번에 노드 내 NVLink와 노드 간 RoCEv2가 몇 번씩 오갑니다. GPU Interconnect Bandwidth에서 말한 \"GPU 간 통신이 critical path에 들어간다\"의 구체적 근거 Ring 토폴로지의 비용 구조 · N개 GPU에서 ReduceScatter N-1회 + AllGather N-1회 = 총 2(N-1) 스텝. GPU를 늘릴수록 통신 스텝이 선형 증가 서빙과의 관계 · 이 문서는 학습(training) 관점입니다. …"
             },
             {
               "title": "스터디 연결",
-              "node_id": "0311",
+              "node_id": "0366",
               "start_index": 127,
               "end_index": 132,
               "summary": "GPU Interconnect Bandwidth — NVLink/NVSwitch/PCIe 물리 계층 AWS 인터커넥트 — 3편이 \"AWS 환경에서 NCCL을 이용한 GPU 간 통신\" NHN Cloud GPU 백서 §4.2 — 네트워크 병목(Communication-bound) 패턴 Inside TPU and GPU Clusters: The Anatomy of Collective Communication — 같은 주제 영어 심화"
@@ -3081,70 +3526,70 @@
       "structure": [
         {
           "title": "NVIDIA AI Infrastructure",
-          "node_id": "0312",
+          "node_id": "0367",
           "start_index": 1,
           "end_index": 6,
           "summary": "원문: 노션 서브페이지 🚒 NVIDIA AI 인프라 전체 스택을 6개 레이어로 계층화한 목차 중심 페이지입니다. 각 항목은 토글 안에 상세 내용이 들어 있습니다.",
           "nodes": [
             {
               "title": "구성",
-              "node_id": "0313",
+              "node_id": "0368",
               "start_index": 7,
               "end_index": 16,
               "summary": ""
             },
             {
               "title": "1. Inside an AI-Centric DataCenter",
-              "node_id": "0314",
+              "node_id": "0369",
               "start_index": 17,
               "end_index": 27,
               "summary": "주제 · 내용 CPU vs GPU Arch · 아키텍처 차이 DPU · Data Processing Unit Network Fabric · 네트워크 패브릭 Ethernet vs InfiniBand · 상호 비교 Converged Ethernet (CE) · RoCE 계열 Storage · 스토리지"
             },
             {
               "title": "2. NVIDIA Technology Stack — 6계층",
-              "node_id": "0315",
+              "node_id": "0370",
               "start_index": 28,
               "end_index": 29,
               "summary": "DGX A100 Platform, DGX SuperPOD ConnectX IB HCAs / NICs BlueField DPUs / SuperNICs NVIDIA Reference Architectures GPU Cores / GPU Family — CUDA Cores, Tensor Cores, RT Cores NVIDIA DGX Platform Timeline, DGX A100 vs H100 NVLink, NVSwitch InfiniBand (IB), IB vs CE DMA and RDMA GPUDirect RDMA GPUDirec …",
               "nodes": [
                 {
                   "title": "Layer 1: Physical Layer",
-                  "node_id": "0316",
+                  "node_id": "0371",
                   "start_index": 30,
                   "end_index": 38,
                   "summary": "DGX A100 Platform, DGX SuperPOD ConnectX IB HCAs / NICs BlueField DPUs / SuperNICs NVIDIA Reference Architectures GPU Cores / GPU Family — CUDA Cores, Tensor Cores, RT Cores NVIDIA DGX Platform Timeline, DGX A100 vs H100"
                 },
                 {
                   "title": "Layer 2: Data Movement and I/O Acceleration",
-                  "node_id": "0317",
+                  "node_id": "0372",
                   "start_index": 39,
                   "end_index": 49,
                   "summary": "NVLink, NVSwitch InfiniBand (IB), IB vs CE DMA and RDMA GPUDirect RDMA GPUDirect Storage Quick Comparison"
                 },
                 {
                   "title": "Layer 3: DGX OS, GPU Drivers, vGPU / MIG",
-                  "node_id": "0318",
+                  "node_id": "0373",
                   "start_index": 50,
                   "end_index": 57,
                   "summary": "GPU Drivers CPU vs GPU Virtualization vGPU vs MIG"
                 },
                 {
                   "title": "Layer 4: CUDA, NCCL",
-                  "node_id": "0319",
+                  "node_id": "0374",
                   "start_index": 58,
                   "end_index": 65,
                   "summary": "CUDA NCCL NVLink, NVSwitch, PCIe, RDMA vs NCCL"
                 },
                 {
                   "title": "Layer 5: Monitoring and Management",
-                  "node_id": "0320",
+                  "node_id": "0375",
                   "start_index": 66,
                   "end_index": 74,
                   "summary": "nvidia-smi DCGM BCM (Base Command Manager) NVIDIA Tools for monitoring and management"
                 },
                 {
                   "title": "Layer 6: Application & Vertical Solutions",
-                  "node_id": "0321",
+                  "node_id": "0376",
                   "start_index": 75,
                   "end_index": 76,
                   "summary": ""
@@ -3153,14 +3598,14 @@
             },
             {
               "title": "3. AI Workflows",
-              "node_id": "0322",
+              "node_id": "0377",
               "start_index": 77,
               "end_index": 90,
               "summary": "주제 · 내용 ML Frameworks The NVIDIA Differentiator Model Training vs Model Inference · 학습과 추론의 차이 Job Scheduling — Container Orchestration Slurm vs K8s · 워크로드 매니저 비교 NVIDIA Integration NVIDIA Tools Supporting MLOps"
             },
             {
               "title": "어떻게 쓰면 좋은가",
-              "node_id": "0323",
+              "node_id": "0378",
               "start_index": 91,
               "end_index": 100,
               "summary": "이 페이지는 지도(map) 성격입니다. 개별 주제를 깊게 파기 전에 \"지금 내가 보는 게 스택의 어느 층인가\"를 확인하는 용도로 쓰세요."

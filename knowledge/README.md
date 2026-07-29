@@ -21,6 +21,7 @@ knowledge/
 ├── subpages/                 ★ 노션 서브페이지 8종 정리
 │   ├── README.md             인덱스 · 주제 지도 · 읽는 순서
 │   ├── gpu-setup-docker-k8s.md         PC→Docker→K8s GPU 설정 (OCI 훅, Device Plugin 내부)
+│   ├── gpu-setup-windows-wsl2.md       ★ 위 실습의 Windows+WSL2 실행판 (RTX 4080 Laptop)
 │   ├── gpu-interconnect-bandwidth.md   메모리 장벽, NVLink/NVSwitch/PCIe
 │   ├── hami-gpu-virtualization.md      SW GPU 가상화 HAMi
 │   ├── nccl-communication.md           Ring AllReduce 단계별 추적

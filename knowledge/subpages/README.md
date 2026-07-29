@@ -9,6 +9,7 @@
 | 문서 | 원문 | 한 줄 |
 |---|---|---|
 | [gpu-setup-docker-k8s.md](./gpu-setup-docker-k8s.md) | 🛣️ [노션](https://gasidaseo.notion.site/PC-GPU-by-Docker-K8S-39750aec5edf806d8070d580fac38917) | 로컬 PC → 컨테이너 → K8s 단계별 GPU 인식/실행 실습. **OCI 훅·Device Plugin 내부 동작**까지 |
+| [gpu-setup-windows-wsl2.md](./gpu-setup-windows-wsl2.md) ★ | (위 문서의 재구성) | 같은 실습을 **Windows 11 + WSL2 + RTX 4080 Laptop(12GB)** 에서 바로 따라 하는 판. `/dev/nvidia0` 대신 `/dev/dxg`가 나오는 이유와 **어디서부터 깨지는지** |
 | [gpu-interconnect-bandwidth.md](./gpu-interconnect-bandwidth.md) | [노션](https://gasidaseo.notion.site/GPU-Network-1-GPU-Interconnect-Bandwidth-38750aec5edf80428383e33957b728cf) | 메모리 대역폭 병목(**메모리 장벽 4.7배**)과 NVLink/NVSwitch/PCIe 토폴로지 |
 | [hami-gpu-virtualization.md](./hami-gpu-virtualization.md) | 🛁 [노션](https://gasidaseo.notion.site/GPU-HAMi-39750aec5edf8030871ff0b3bcff0389) | SW 기반 GPU 가상화. **VRAM 격리는 되지만 compute 격리는 안 됐다**는 실습 결론 |
 | [nccl-communication.md](./nccl-communication.md) | [노션](https://app.notion.com/p/gasidaseo/NCCL-GPU-Cluster-Communication-Model-3aa50aec5edf807c89b1d273875d1f07) | 분산 학습의 **Ring AllReduce(ReduceScatter + AllGather)** 단계별 추적 |
@@ -60,6 +61,7 @@ GPU 인터커넥트      gpu-interconnect-bandwidth  ·  nccl-communication  · 
 ## 읽는 순서 추천
 
 1. **[gpu-setup-docker-k8s](./gpu-setup-docker-k8s.md)** — GPU가 컨테이너/K8s에 어떻게 노출되는지 (기초)
+   - Windows 랩탑에서 **직접 실행**하려면 → [gpu-setup-windows-wsl2](./gpu-setup-windows-wsl2.md)
 2. **[gpu-interconnect-bandwidth](./gpu-interconnect-bandwidth.md)** — 왜 메모리·인터커넥트가 병목인지 (교재 CH5의 배경)
 3. **[ai-factory-ops-lab](./ai-factory-ops-lab.md) Lesson 4** — TTFT/goodput을 직접 측정 (교재 CH3·CH5 체감)
 4. **[genai-on-eks-workshop-notes](./genai-on-eks-workshop-notes.md)** — 6주차 직전에
