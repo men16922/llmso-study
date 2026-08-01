@@ -69,10 +69,10 @@ python3 tools/search_index.py "attention"
 
 없어도 스터디 참여에 지장은 없습니다. 있다면 미리 해두면 실습이 수월합니다.
 
-- [ ] Ubuntu **24.04 Server** (26.04 아님 — K8s 생태계 툴이 24.04까지 지원)
-- [ ] **Secure Boot 끄기** (안 끄면 NVIDIA 커널 모듈 로드 실패)
-- [ ] NVIDIA Driver → Docker → NVIDIA Container Toolkit
-- [ ] 확인: `docker run --gpus all ubuntu nvidia-smi`
+- [x] Ubuntu **24.04 Server** (26.04 아님 — K8s 생태계 툴이 24.04까지 지원)
+- [x] **Secure Boot 끄기** (안 끄면 NVIDIA 커널 모듈 로드 실패)
+- [x] NVIDIA Driver → Docker → NVIDIA Container Toolkit
+- [x] 확인: `docker run --gpus all ubuntu nvidia-smi`
 
 상세 절차 → [subpages/gpu-setup-docker-k8s.md](./subpages/gpu-setup-docker-k8s.md)
 

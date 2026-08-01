@@ -14,22 +14,27 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소�
 
 ```
 .
-├── knowledge/           스터디 자료 정리 (문서 24개)
+├── knowledge/           스터디 자료 정리 (문서 26개)
 │   ├── 00-study-overview.md      커리큘럼 · 교재 CH1~10 매핑
 │   ├── 01-environment-setup.md   GPU 실습 환경
 │   ├── 02-assignments.md         과제 규정 · 마감표
 │   ├── 03-study-rules.md         저작권 · 슬랙/ZOOM · 질문법
 │   ├── 04-kickoff-checklist.md   시작 전 실행 체크리스트
 │   ├── 05-week1-prep.md          1주차 CH1~2 예습 노트
-│   ├── subpages/                 노션 서브페이지 8종 정리 (실습 가이드)
+│   ├── subpages/                 노션 서브페이지·실측 기록 11종 정리
 │   └── references/               외부 자료 인덱스
 │       ├── priority-guide.md     ★ 중요/선택 등급 분류
 │       ├── deep-dives.md         ★ 핵심 자료 14종 심층 분석
 │       └── pdf/                  다운로드된 PDF 3종 (41.6 MB · 527p)
 │
-├── index/               PageIndex 호환 트리 인덱스 (612 노드)
+├── articles/            실습 수행 기록과 분석 글
+│   └── Run inference of Gemma 4 model on Cloud Run.md
+├── index/               PageIndex 호환 트리 인덱스 (818 노드)
 │   ├── USAGE.md         ★ 도구 사용 가이드
 │   └── README.md        검토 과정 · 실측 결과
+├── labs/                재현 가능한 실습 자산
+│   ├── wsl2-vllm-baseline/       K3s vLLM + TTFT/goodput 기준선
+│   └── cloudrun-gemma4-vllm/     Cloud Run Gemma 4 A1~A4 기준선
 └── tools/               인덱스 생성 · 탐색 스크립트
 ```
 
@@ -39,6 +44,8 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소�
 |---|---|
 | **시작 전 준비** | [`knowledge/04-kickoff-checklist.md`](./knowledge/04-kickoff-checklist.md) |
 | **1주차 예습** | [`knowledge/05-week1-prep.md`](./knowledge/05-week1-prep.md) |
+| **WSL2에서 LLM 서빙 측정** | [`knowledge/subpages/vllm-gpu-serving-baseline-runbook-wsl2.md`](./knowledge/subpages/vllm-gpu-serving-baseline-runbook-wsl2.md) |
+| **Cloud Run에서 31B 모델 측정** | [`articles/Run inference of Gemma 4 model on Cloud Run.md`](./articles/Run%20inference%20of%20Gemma%204%20model%20on%20Cloud%20Run.md) |
 | 스터디 전반 파악 | [`knowledge/README.md`](./knowledge/README.md) |
 | **뭘 먼저 봐야 하나** | [`knowledge/references/priority-guide.md`](./knowledge/references/priority-guide.md) |
 | 자료 내용이 궁금 | [`knowledge/references/deep-dives.md`](./knowledge/references/deep-dives.md) |

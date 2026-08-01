@@ -1,0 +1,21 @@
+target=gemma-rtx-vllm-codelab project=<PROJECT_ID> region=europe-west4
+warmup ok=True TTFT=0.4333844170032535 E2E=0.528s (배칭 곡선에서는 제외)
+A1 batching c=1 ok=8/8 TTFT p50/p95=0.385/0.411s E2E p95=6.855s tok/s=37.513 goodput=100.0%
+A1 batching c=2 ok=8/8 TTFT p50/p95=0.419/1.317s E2E p95=7.573s tok/s=71.902 goodput=100.0%
+A1 batching c=4 ok=8/8 TTFT p50/p95=0.404/0.429s E2E p95=6.957s tok/s=147.544 goodput=100.0%
+A1 batching c=8 ok=8/8 TTFT p50/p95=0.475/0.476s E2E p95=7.069s tok/s=289.510 goodput=100.0%
+A1 batching c=16 ok=16/16 TTFT p50/p95=3.688/7.191s E2E p95=13.819s tok/s=294.618 goodput=50.0%
+A2 cache-hit c=1 ok=5/5 TTFT p50/p95=0.470/0.541s E2E p95=3.841s tok/s=33.911 goodput=100.0%
+A2 cache-miss-control c=1 ok=5/5 TTFT p50/p95=0.859/0.938s E2E p95=4.213s tok/s=30.720 goodput=100.0%
+A3 short c=1 ok=4/4 TTFT p50/p95=0.360/0.394s E2E p95=1.701s tok/s=31.587 goodput=100.0%
+A3 short c=8 ok=8/8 TTFT p50/p95=0.424/0.425s E2E p95=1.742s tok/s=236.842 goodput=100.0%
+A3 prefill c=1 ok=4/4 TTFT p50/p95=0.901/0.911s E2E p95=1.478s tok/s=15.790 goodput=100.0%
+A3 prefill c=8 ok=8/8 TTFT p50/p95=2.827/4.251s E2E p95=4.886s tok/s=37.652 goodput=25.0%
+A3 decode c=1 ok=4/4 TTFT p50/p95=0.365/0.380s E2E p95=1.644s tok/s=31.170 goodput=100.0%
+A3 decode c=8 ok=8/8 TTFT p50/p95=0.403/0.439s E2E p95=1.739s tok/s=235.940 goodput=100.0%
+A4 goodput-capacity c=1 ok=8/8 TTFT p50/p95=0.370/0.451s E2E p95=3.652s tok/s=35.650 goodput=100.0%
+A4 goodput-capacity c=2 ok=8/8 TTFT p50/p95=0.370/0.391s E2E p95=3.604s tok/s=71.385 goodput=100.0%
+A4 goodput-capacity c=4 ok=8/8 TTFT p50/p95=0.389/0.411s E2E p95=3.645s tok/s=140.703 goodput=100.0%
+A4 goodput-capacity c=8 ok=8/8 TTFT p50/p95=0.407/0.439s E2E p95=3.717s tok/s=275.376 goodput=100.0%
+A4 goodput-capacity c=16 ok=16/16 TTFT p50/p95=2.089/3.799s E2E p95=7.081s tok/s=289.098 goodput=50.0%
+result=labs/cloudrun-gemma4-vllm/results/a1-a4-20260801-211752.json

@@ -1,0 +1,35 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: gpu-telemetry-gap-rules
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: gpu.telemetry.gaps
+      rules:
+        - alert: GpuCoreTelemetryMissing
+          expr: absent_over_time(DCGM_FI_DEV_GPU_TEMP[10m])
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: GPU 핵심 메트릭이 수집되지 않음
+            description: DCGM_FI_DEV_GPU_TEMP 시계열이 10분 동안 존재하지 않았습니다. DCGM Exporter와 ServiceMonitor 상태를 확인하세요.
+        - alert: GpuXidTelemetryMissing
+          expr: absent_over_time(DCGM_FI_DEV_XID_ERRORS[10m]) and on() (sum(count_over_time(DCGM_FI_DEV_GPU_TEMP[10m])) > 0)
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: GPU XID 오류 메트릭이 수집되지 않음
+            description: 기본 DCGM 메트릭은 들어오지만 DCGM_FI_DEV_XID_ERRORS가 없습니다. 기존 GpuXidError 규칙은 이 상태에서 발화할 수 없습니다.
+        - alert: GpuProfilingTelemetryMissing
+          expr: absent_over_time(DCGM_FI_PROF_PIPE_TENSOR_ACTIVE[10m]) and on() (sum(count_over_time(DCGM_FI_DEV_GPU_TEMP[10m])) > 0)
+          for: 1m
+          labels:
+            severity: info
+          annotations:
+            summary: GPU Tensor Core 프로파일링 메트릭이 수집되지 않음
+            description: 기본 DCGM 메트릭은 들어오지만 Tensor Core 프로파일링 시계열이 없습니다. Grafana의 Tensor Core 패널이 비어 있을 수 있습니다.

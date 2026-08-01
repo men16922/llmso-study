@@ -1,0 +1,137 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: llm-serving-lab
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: huggingface-cache
+  namespace: llm-serving-lab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-baseline
+  namespace: llm-serving-lab
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vllm-baseline
+  template:
+    metadata:
+      labels:
+        app: vllm-baseline
+    spec:
+      runtimeClassName: nvidia
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: huggingface-cache
+          persistentVolumeClaim:
+            claimName: huggingface-cache
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 2Gi
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:v0.23.0
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - >-
+              exec vllm serve "$MODEL_ID"
+              --served-model-name "$SERVED_MODEL_NAME"
+              --host 0.0.0.0
+              --port 8000
+              --dtype auto
+              --max-model-len 4096
+              --gpu-memory-utilization 0.85
+              --max-num-seqs 16
+          env:
+            - name: MODEL_ID
+              value: Qwen/Qwen2.5-1.5B-Instruct
+            - name: SERVED_MODEL_NAME
+              value: qwen2.5-1.5b
+          ports:
+            - name: http
+              containerPort: 8000
+          resources:
+            requests:
+              cpu: "2"
+              memory: 6Gi
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "6"
+              memory: 16Gi
+              nvidia.com/gpu: "1"
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 120
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 4
+          volumeMounts:
+            - name: huggingface-cache
+              mountPath: /root/.cache/huggingface
+            - name: shm
+              mountPath: /dev/shm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-baseline
+  namespace: llm-serving-lab
+  labels:
+    app: vllm-baseline
+spec:
+  selector:
+    app: vllm-baseline
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vllm-baseline
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - llm-serving-lab
+  selector:
+    matchLabels:
+      app: vllm-baseline
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

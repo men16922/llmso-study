@@ -32,7 +32,15 @@ TOC_DIR = os.path.join(REPO, "tools", "toc")
 OUT_DIR = os.path.join(REPO, "index")
 
 # 마크다운 인덱싱에서 제외할 디렉터리
-MD_SKIP_DIRS = {".git", ".claude", "node_modules", "__pycache__", ".venv", "venv"}
+MD_SKIP_DIRS = {
+    ".git",
+    ".claude",
+    "_workspace",
+    "node_modules",
+    "__pycache__",
+    ".venv",
+    "venv",
+}
 
 SUMMARY_CHARS = 300
 
@@ -180,7 +188,9 @@ def build_pdf(path, idgen):
 # Markdown
 # --------------------------------------------------------------------------
 
-HEADING = re.compile(r"^(#{1,4})\s+(.*)$")
+# Notion 토글(<details>)의 자식 블록은 탭으로 들여쓴다. 공백 네 칸은
+# 코드 블록일 수 있으므로 허용하지 않고, 선행 탭만 제거해 헤딩을 찾는다.
+HEADING = re.compile(r"^\t*(#{1,4})\s+(.*)$")
 FENCE = re.compile(r"^\s*(```|~~~)")
 
 

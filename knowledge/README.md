@@ -1,6 +1,6 @@
 # knowledge — LLMSO 스터디 자료 정리
 
-CloudNet@ **Hands-On LLM Serving and Optimization Study (LLMSO)** 멤버 페이지 전체(메인 + 서브페이지 8개 + 접힌 토글 포함)를 정리한 폴더입니다.
+CloudNet@ **Hands-On LLM Serving and Optimization Study (LLMSO)** 멤버 페이지와 실습 기록을 정리한 폴더입니다.
 
 - 원본: [Notion — Hands-On LLM Serving and Optimization Study](https://app.notion.com/p/gasidaseo/Hands-On-LLM-Serving-and-Optimization-Study-3aa50aec5edf8027b6a6ffff4325d077) (멤버 전용)
 - 정리 기준일: 2026-07-29
@@ -18,10 +18,12 @@ knowledge/
 ├── 04-kickoff-checklist.md   ★ 시작 전 실행 체크리스트
 ├── 05-week1-prep.md          ★ 1주차 CH1~2 예습 노트
 │
-├── subpages/                 ★ 노션 서브페이지 8종 정리
+├── subpages/                 ★ 노션 서브페이지·실측 기록 11종 정리
 │   ├── README.md             인덱스 · 주제 지도 · 읽는 순서
 │   ├── gpu-setup-docker-k8s.md         PC→Docker→K8s GPU 설정 (OCI 훅, Device Plugin 내부)
 │   ├── gpu-setup-windows-wsl2.md       ★ 위 실습의 Windows+WSL2 실행판 (RTX 4080 Laptop)
+│   ├── gpu-setup-docker-k8s-lab-report-wsl2.md  ★ WSL2 실측 결과와 트러블슈팅
+│   ├── vllm-gpu-serving-baseline-runbook-wsl2.md ★ 실제 vLLM 서빙·성능 측정 런북
 │   ├── gpu-interconnect-bandwidth.md   메모리 장벽, NVLink/NVSwitch/PCIe
 │   ├── hami-gpu-virtualization.md      SW GPU 가상화 HAMi
 │   ├── nccl-communication.md           Ring AllReduce 단계별 추적
@@ -67,6 +69,8 @@ knowledge/
 | 그 자료가 무슨 내용인지 먼저 알고 싶다 | [references/deep-dives.md](./references/deep-dives.md) |
 | 이번 주 뭘 읽어야 하나 | [references/priority-guide.md](./references/priority-guide.md) 주차별 권장 |
 | GPU/K8s 실습을 따라해보고 싶다 | [subpages/README.md](./subpages/README.md) |
+| **WSL2에서 실제 LLM을 서빙·측정하고 싶다** | [subpages/vllm-gpu-serving-baseline-runbook-wsl2.md](./subpages/vllm-gpu-serving-baseline-runbook-wsl2.md) |
+| **Cloud Run GPU와 로컬 GPU를 비교하고 싶다** | [Gemma 4 Cloud Run 실습 기록](../articles/Run%20inference%20of%20Gemma%204%20model%20on%20Cloud%20Run.md) |
 | 과제 소재를 찾고 있다 | [references/priority-guide.md](./references/priority-guide.md) "과제용" 섹션 |
 | **PDF에서 개념 위치 찾기** | `python3 tools/search_index.py "KV cache"` → 사용법은 [index/USAGE.md](../index/USAGE.md) |
 | 자료 원문을 보고 싶다 | [references/pdf/](./references/pdf/) |

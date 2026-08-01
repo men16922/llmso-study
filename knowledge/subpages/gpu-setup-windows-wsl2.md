@@ -3,6 +3,9 @@
 원문 실습: [`gpu-setup-docker-k8s.md`](./gpu-setup-docker-k8s.md) — Ubuntu 24.04 Server **베어메탈** 기준
 이 문서: 같은 실습을 **Windows 11 + WSL2 + GeForce RTX 4080 Laptop (12GB)** 에서 바로 따라 할 수 있게 옮긴 것
 
+실행 결과: [`gpu-setup-docker-k8s-lab-report-wsl2.md`](./gpu-setup-docker-k8s-lab-report-wsl2.md) — Docker·K3s·DCGM 실측 증빙과 트러블슈팅
+다음 실험: [`vllm-gpu-serving-baseline-runbook-wsl2.md`](./vllm-gpu-serving-baseline-runbook-wsl2.md) — K3s에 실제 vLLM을 올려 TTFT·처리량·goodput 측정
+
 > ⚠️ **원문은 WSL을 명시적으로 비권장합니다.** GPU-PV(Paravirtualization) 구조라 PCIe 패스스루가 아니고 기능 제한이 있기 때문입니다. 그럼에도 이 문서를 쓰는 이유는 ① 1~5단계는 WSL2에서 그대로 재현되고 ② **어디서 깨지는지가 오히려 GPU 노출 구조를 이해하는 좋은 재료**이기 때문입니다. 재현 불가 항목은 [§9](#9-원문-대비-재현-불가-항목)에 모아뒀습니다.
 
 ---
@@ -401,7 +404,7 @@ WSL2의 GPU-PV 구조상 **DCGM이 하드웨어 카운터에 직접 접근하지
 | `DCGM_FI_PROF_*` (프로파일링: SM Activity, Tensor Active 등) | **대부분 미지원** |
 | XID 에러, 온도·전력 일부 | 불안정 |
 
-DCGM이 아예 뜨지 않으면 **Grafana 대시보드 12239 실습은 건너뛰고**, 대신 `nvidia-smi` 폴링을 Prometheus에 직접 넣는 방식으로 대체하세요. 원문의 Alert Rule 3종(`HighGpuTemperature` 85℃/5분, `GpuXidError` 1분, `HighGpuMemoryUsage` VRAM 90%/10분)은 규칙 자체는 그대로 쓸 수 있습니다.
+DCGM이 아예 뜨지 않으면 **Grafana 대시보드 12239 실습은 건너뛰고**, 대신 `nvidia-smi` 폴링을 Prometheus에 직접 넣는 방식으로 대체하세요. 원문의 Alert Rule 3종 중 `HighGpuTemperature`와 `HighGpuMemoryUsage`는 기본 메트릭으로 동작하지만, `GpuXidError`는 `DCGM_FI_DEV_XID_ERRORS`가 노출되지 않으면 로드만 되고 발화하지 않습니다. 메트릭 부재 감지는 [vLLM 기준선 실험의 PrometheusRule](../../labs/wsl2-vllm-baseline/k8s/gpu-telemetry-gap-rule.yaml)을 사용합니다.
 
 > **이 실패 자체가 과제 소재입니다.** "가상화 계층이 하나 끼면 관측성이 어디서부터 무너지는가"는 6주차 EKS 실습과 대비하기 좋은 주제입니다.
 
@@ -414,7 +417,7 @@ DCGM이 아예 뜨지 않으면 **Grafana 대시보드 12239 실습은 건너뛰
 ```bash
 docker run --rm --gpus all -p 8000:8000 \
   -v ~/.cache/huggingface:/root/.cache/huggingface \
-  vllm/vllm-openai:latest \
+  vllm/vllm-openai:v0.23.0 \
   --model Qwen/Qwen2.5-1.5B-Instruct \
   --max-model-len 4096 \
   --gpu-memory-utilization 0.85
