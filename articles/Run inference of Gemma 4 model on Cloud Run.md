@@ -3,7 +3,7 @@
 <aside>
 🎯
 
-**한 줄 요약**: Gemma 4 31B-it 가중치를 Cloud Storage에 미리 캐시하고, Cloud Run의 RTX PRO 6000 GPU에서 vLLM으로 OpenAI 호환 API를 제공하는 실습이다. Direct VPC Egress와 Run:ai Model Streamer가 인스턴스 기동 시 모델 로딩 시간을 줄이는 핵심이다.
+**한 줄 요약**: Google Cloud의 Cloud Run RTX PRO 6000 GPU에 Gemma 4 31B-it를 배포하고, vLLM과 Run:ai Model Streamer로 추론 성능과 인스턴스 시작 시간을 최적화하는 과정을 다룬다.
 
 </aside>
 
@@ -11,22 +11,28 @@
 
 - [이 문서의 목표](#이-문서의-목표)
 - [전체 흐름](#전체-흐름)
-- [스터디 공유 본문](#스터디-공유-본문)
-  - [3. 원문과 달라진 실제 문제](#3-원문과-달라진-실제-문제)
-  - [4. 콜드 스타트 실측](#4-콜드-스타트-실측)
-  - [5. A1~A4 최종 결과](#5-a1a4-최종-결과)
-  - [6. 실습 증거](#6-실습-증거)
-  - [7. 결과 해석과 한계](#7-결과-해석과-한계)
+- [실습 결과](#실습-결과)
+  - [1. 원문과 달라진 실제 문제](#1-원문과-달라진-실제-문제)
+  - [2. 콜드 스타트 실측](#2-콜드-스타트-실측)
+  - [3. 실험 목적과 결과](#3-실험-목적과-결과)
+  - [4. 측정 원본과 터미널 출력](#4-측정-원본과-터미널-출력)
+  - [5. 실습 증거](#5-실습-증거)
+  - [6. 결과 해석과 한계](#6-결과-해석과-한계)
 - 재현 부록
   - [A. 원문 배포 절차](#재현-부록-a-원문-배포-절차)
-  - [B. 실제 GCP 수행 기록](#재현-부록-b-실제-gcp-수행-기록)
-  - [C. 성능 측정과 인증 절차](#재현-부록-c-성능-측정과-인증-절차)
-  - [D. 트러블슈팅과 운영 상태](#재현-부록-d-트러블슈팅과-운영-상태)
+  - [B. 실제 배포에서 달라진 점](#재현-부록-b-실제-배포에서-달라진-점)
+  - [C. 성능 측정 방법](#재현-부록-c-성능-측정-방법)
+  - [D. 런타임 로그 주의사항](#재현-부록-d-런타임-로그-주의사항)
 - [참고 자료](#참고-자료)
 
 ---
 
 ## 이 문서의 목표
+
+이 문서의 목표는 다음 두 가지다.
+
+1. Google Cloud의 **Cloud Run RTX PRO 6000 GPU에 Gemma 4 모델을 배포하는 방법**을 단계별로 정리한다.
+2. **vLLM과 Run:ai Model Streamer를 사용해 추론 속도를 높이고 인스턴스 시작 시간을 단축하는 방법**을 실제 측정 결과와 함께 확인한다.
 
 | 항목 | 내용 |
 | --- | --- |
@@ -38,19 +44,6 @@
 
 > **주의**: 이 기능은 Pre-GA이며 지원 범위가 변경될 수 있다. GPU·Cloud Build·Cloud Storage 비용이 발생하므로 마지막 정리 단계를 반드시 실행한다.
 >
-
-### 이 실습이 스터디에서 맡는 역할
-
-쉽게 말하면, **책에서 배운 “LLM 서버가 빨라지는 원리”를 실제 31B 모델로 확인하는 실습**이다. 모델에게 질문이 되는지만 보는 것이 아니라, 요청이 늘거나 입력·출력이 길어질 때 어디서 느려지는지를 숫자로 확인한다.
-
-| 실험 | 확인하는 것 | 스터디 연결 |
-| --- | --- | --- |
-| A1 배칭 | 요청을 함께 처리하면 처리량이 어디까지 늘어나는가 | CH3·CH6 배칭 |
-| A2 Prefix Caching | 같은 긴 앞부분을 재사용하면 첫 토큰이 얼마나 빨라지는가 | CH6 KV cache·prefix caching |
-| A3 Prefill/Decode | 긴 입력과 긴 출력은 각각 어떤 지표를 느리게 만드는가 | CH2 prefill·decode |
-| A4 Goodput | 빠른 요청의 수가 아니라 SLO를 지킨 요청을 얼마나 처리하는가 | CH3·CH4 성능 측정·용량 계획 |
-
-Cloud Run·GCS·VPC는 이 실험을 실행하는 **인프라**이고, vLLM의 배칭·캐싱·양자화와 TTFT·처리량·goodput이 이 스터디의 본론이다. 따라서 주제에는 잘 맞는다. 다만 한 번의 수치만으로 최적 설정을 결론 내리기보다, 같은 측정기를 WSL2와 EKS에서도 실행해 비교해야 학습 효과가 완성된다.
 
 ## 전체 흐름
 
@@ -65,9 +58,9 @@ flowchart LR
 
 ---
 
-## 스터디 공유 본문
+## 실습 결과
 
-### 3. 원문과 달라진 실제 문제
+### 1. 원문과 달라진 실제 문제
 
 | 지점 | 원문 | 실제 환경에서의 변경 | 배운 점 |
 | --- | --- | --- | --- |
@@ -75,9 +68,9 @@ flowchart LR
 | GPU 확장 | 최대 인스턴스 3 | 프로젝트 할당량에 맞춰 1로 축소 | 조회 명령보다 실제 배포 오류의 `requested: 3 allowed: 1`이 적용 한도를 정확히 보여줌 |
 | CLI 준비 | beta 명령 바로 실행 | `gcloud components install beta --quiet` 선행 | 비대화형 환경에서는 설치 프롬프트도 배포를 멈출 수 있음 |
 
-서버사이드 모델 복사는 미국 리전에서 `europe-west4`까지 **30분 56초**가 걸렸다. 이 차이는 단순한 명령 수정이 아니라 대형 모델을 어디에서 이동시키는지에 관한 문제다. 자세한 오류와 명령은 [재현 부록 B](#재현-부록-b-실제-gcp-수행-기록)에 남겼다.
+서버사이드 모델 복사는 미국 리전에서 `europe-west4`까지 **30분 56초**가 걸렸다. 이 차이는 단순한 명령 수정이 아니라 대형 모델을 어디에서 이동시키는지에 관한 문제다. 자세한 오류와 명령은 [재현 부록 B](#재현-부록-b-실제-배포에서-달라진-점)에 남겼다.
 
-### 4. 콜드 스타트 실측
+### 2. 콜드 스타트 실측
 
 | 단계 | 시각(UTC) | 시작 후 경과 |
 | --- | --- | ---: |
@@ -88,20 +81,107 @@ flowchart LR
 
 58.28GiB 체크포인트는 GPU에 31.47GiB로 적재됐고, 남은 57.09GiB가 KV cache 124,704토큰에 할당됐다. 따라서 이 구성에서 scale-to-zero는 유휴 비용을 줄이지만, 첫 요청이 약 4분 30초를 기다릴 수 있다는 의미이기도 하다.
 
-### 5. A1~A4 최종 결과
+### 3. 실험 목적과 결과
 
-측정 원본은 [`a1-a4-20260801-211752.json`](../labs/cloudrun-gemma4-vllm/results/a1-a4-20260801-211752.json), 터미널 출력은 [`a1-a4-20260801-211752.log`](../labs/cloudrun-gemma4-vllm/results/a1-a4-20260801-211752.log)에 있다. warmup을 제외한 **143건이 모두 성공**했고, 전 요청에서 API가 제공한 정확한 토큰 수를 사용했다.
+먼저 이 실험에서 궁금했던 점을 쉽게 풀면 다음과 같다.
 
-| 실험 | 핵심 결과 | 해석 |
-| --- | --- | --- |
-| A1 배칭 | 동시성 1→8에서 출력 처리량 37.5→289.5 tok/s. 동시성 16은 294.6 tok/s로 증가 폭이 거의 없고 TTFT p50이 3.688초로 상승 | `MAX_NUM_SEQS=8` 이후에는 처리량보다 큐 대기가 커짐 |
-| A2 Prefix Caching | miss 대조군 TTFT p50 0.859초, hit 0.470초 | 동일 prefix 재사용으로 TTFT **45.3% 감소** |
-| A3 Prefill/Decode | 긴 입력·동시성 8에서 TTFT p50 2.827초, goodput 25%. 긴 출력·동시성 8은 TTFT p50 0.403초, goodput 100% | 이 조건에서는 긴 출력보다 긴 입력의 prefill이 SLO를 먼저 깨뜨림 |
-| A4 Goodput | 동시성 1·2·4·8은 goodput 100%, 동시성 16은 50% | TTFT 2초·E2E 30초 SLO 기준 최대 동시성은 **8** |
+| 실험 | 확인하려는 질문 | 실제 결과 | 쉽게 말하면 |
+| --- | --- | --- | --- |
+| A1 배칭 | 요청을 동시에 보내면 GPU 처리량은 계속 늘어날까? | 동시성 1→8에서 37.5→289.5 tok/s로 증가했지만, 16에서는 294.6 tok/s에 그쳤다. TTFT p50은 3.688초로 늘었다. | **8개까지는 함께 처리하는 효과가 크지만, 그 이상은 줄을 서서 기다리는 시간이 길어졌다.** |
+| A2 Prefix Caching | 여러 요청이 같은 긴 앞부분을 쓰면 첫 응답이 빨라질까? | TTFT p50이 0.859초에서 0.470초로 45.3% 감소했다. | **반복되는 내용을 다시 계산하지 않아서 첫 토큰이 더 빨리 나왔다.** |
+| A3 Prefill/Decode | 긴 입력과 긴 출력 중 무엇이 먼저 병목이 될까? | 긴 입력·동시성 8에서 TTFT p50 2.827초, goodput 25%였다. 긴 출력은 같은 조건에서 TTFT p50 0.403초, goodput 100%였다. | **이번 설정에서는 답변 길이보다 긴 입력을 읽는 과정이 먼저 느려졌다.** |
+| A4 Goodput | 응답 성공 여부가 아니라 목표 시간까지 지키는 최대 동시성은 얼마일까? | 동시성 8까지 goodput 100%, 동시성 16에서는 50%였다. | **요청은 모두 성공했지만, 정해진 시간 안에 처리하려면 동시성 8이 안전선이었다.** |
 
-단순 성공률만 보면 동시성 16도 16건 모두 성공한다. 그러나 절반은 TTFT SLO를 넘는다. 이 차이가 처리량만이 아니라 goodput을 함께 봐야 하는 이유다.
+warmup을 제외한 **143건이 모두 성공**했고 전 요청에서 API가 제공한 정확한 토큰 수를 사용했다. 여기서 goodput은 `TTFT 2초`와 `전체 응답 30초`를 모두 지킨 요청의 비율이다.
 
-### 6. 실습 증거
+Run:ai Model Streamer는 58.28GiB 모델을 73초에 읽었고 Cloud Run은 인스턴스 시작 4분 31초 뒤 Ready 상태가 됐다. 다만 Model Streamer를 끈 비교 실험은 하지 않았으므로, 시작 시간이 정확히 얼마나 단축됐는지는 이 결과만으로 계산할 수 없다.
+
+### 4. 측정 원본과 터미널 출력
+
+143개 요청의 개별 이벤트는 제외하고, 결과 계산에 사용한 필드를 원본 JSON에서 추려 그대로 옮겼다. 숫자는 읽기 쉽도록 소수점 여섯 자리까지 표시했다.
+
+<details>
+<summary><strong>측정 결과 JSON</strong></summary>
+
+```json
+{
+  "run": {
+    "created_at": "2026-08-01T21:17:55.679622+00:00",
+    "region": "europe-west4",
+    "service": "gemma-rtx-vllm-codelab",
+    "model": "google/gemma-4-31B-it",
+    "ttft_slo_s": 2.0,
+    "e2e_slo_s": 30.0,
+    "goodput_target_pct": 95.0
+  },
+  "requests": {
+    "warmup": 1,
+    "measured": 143,
+    "successes": 143,
+    "failures": 0,
+    "tokens_exact": 143
+  },
+  "derived": {
+    "prefix_cache_hit_ttft_p50_s": 0.469756,
+    "prefix_cache_miss_ttft_p50_s": 0.858663,
+    "prefix_cache_ttft_reduction_pct": 45.292176,
+    "max_concurrency_meeting_goodput_target": 8
+  },
+  "summaries": [
+    {"experiment":"A1","scenario":"batching","concurrency":1,"ok":"8/8","ttft_p50_s":0.384592,"ttft_p95_s":0.410805,"e2e_p95_s":6.855011,"output_tok_per_s":37.512623,"goodput_pct":100.0},
+    {"experiment":"A1","scenario":"batching","concurrency":2,"ok":"8/8","ttft_p50_s":0.418700,"ttft_p95_s":1.316903,"e2e_p95_s":7.572968,"output_tok_per_s":71.902403,"goodput_pct":100.0},
+    {"experiment":"A1","scenario":"batching","concurrency":4,"ok":"8/8","ttft_p50_s":0.403521,"ttft_p95_s":0.429052,"e2e_p95_s":6.956934,"output_tok_per_s":147.543979,"goodput_pct":100.0},
+    {"experiment":"A1","scenario":"batching","concurrency":8,"ok":"8/8","ttft_p50_s":0.474893,"ttft_p95_s":0.475532,"e2e_p95_s":7.069001,"output_tok_per_s":289.510321,"goodput_pct":100.0},
+    {"experiment":"A1","scenario":"batching","concurrency":16,"ok":"16/16","ttft_p50_s":3.687515,"ttft_p95_s":7.190515,"e2e_p95_s":13.819057,"output_tok_per_s":294.617913,"goodput_pct":50.0},
+    {"experiment":"A2","scenario":"cache-hit","concurrency":1,"ok":"5/5","ttft_p50_s":0.469756,"ttft_p95_s":0.541270,"e2e_p95_s":3.840943,"output_tok_per_s":33.910598,"goodput_pct":100.0},
+    {"experiment":"A2","scenario":"cache-miss-control","concurrency":1,"ok":"5/5","ttft_p50_s":0.858663,"ttft_p95_s":0.938002,"e2e_p95_s":4.213359,"output_tok_per_s":30.719720,"goodput_pct":100.0},
+    {"experiment":"A3","scenario":"short","concurrency":1,"ok":"4/4","ttft_p50_s":0.359859,"ttft_p95_s":0.393535,"e2e_p95_s":1.700972,"output_tok_per_s":31.587324,"goodput_pct":100.0},
+    {"experiment":"A3","scenario":"short","concurrency":8,"ok":"8/8","ttft_p50_s":0.423872,"ttft_p95_s":0.424857,"e2e_p95_s":1.741515,"output_tok_per_s":236.841566,"goodput_pct":100.0},
+    {"experiment":"A3","scenario":"prefill","concurrency":1,"ok":"4/4","ttft_p50_s":0.901325,"ttft_p95_s":0.911320,"e2e_p95_s":1.477946,"output_tok_per_s":15.789599,"goodput_pct":100.0},
+    {"experiment":"A3","scenario":"prefill","concurrency":8,"ok":"8/8","ttft_p50_s":2.826886,"ttft_p95_s":4.250892,"e2e_p95_s":4.885585,"output_tok_per_s":37.651873,"goodput_pct":25.0},
+    {"experiment":"A3","scenario":"decode","concurrency":1,"ok":"4/4","ttft_p50_s":0.365164,"ttft_p95_s":0.379683,"e2e_p95_s":1.644418,"output_tok_per_s":31.170304,"goodput_pct":100.0},
+    {"experiment":"A3","scenario":"decode","concurrency":8,"ok":"8/8","ttft_p50_s":0.403023,"ttft_p95_s":0.438855,"e2e_p95_s":1.739240,"output_tok_per_s":235.939905,"goodput_pct":100.0},
+    {"experiment":"A4","scenario":"goodput-capacity","concurrency":1,"ok":"8/8","ttft_p50_s":0.369643,"ttft_p95_s":0.450579,"e2e_p95_s":3.651564,"output_tok_per_s":35.650038,"goodput_pct":100.0},
+    {"experiment":"A4","scenario":"goodput-capacity","concurrency":2,"ok":"8/8","ttft_p50_s":0.370180,"ttft_p95_s":0.390641,"e2e_p95_s":3.603506,"output_tok_per_s":71.384796,"goodput_pct":100.0},
+    {"experiment":"A4","scenario":"goodput-capacity","concurrency":4,"ok":"8/8","ttft_p50_s":0.388962,"ttft_p95_s":0.411293,"e2e_p95_s":3.644974,"output_tok_per_s":140.702946,"goodput_pct":100.0},
+    {"experiment":"A4","scenario":"goodput-capacity","concurrency":8,"ok":"8/8","ttft_p50_s":0.406731,"ttft_p95_s":0.438963,"e2e_p95_s":3.716558,"output_tok_per_s":275.375985,"goodput_pct":100.0},
+    {"experiment":"A4","scenario":"goodput-capacity","concurrency":16,"ok":"16/16","ttft_p50_s":2.089280,"ttft_p95_s":3.799207,"e2e_p95_s":7.081058,"output_tok_per_s":289.098325,"goodput_pct":50.0}
+  ]
+}
+```
+
+</details>
+
+<details>
+<summary><strong>터미널 출력</strong></summary>
+
+```text
+target=gemma-rtx-vllm-codelab project=<PROJECT_ID> region=europe-west4
+warmup ok=True TTFT=0.4333844170032535 E2E=0.528s (배칭 곡선에서는 제외)
+A1 batching c=1 ok=8/8 TTFT p50/p95=0.385/0.411s E2E p95=6.855s tok/s=37.513 goodput=100.0%
+A1 batching c=2 ok=8/8 TTFT p50/p95=0.419/1.317s E2E p95=7.573s tok/s=71.902 goodput=100.0%
+A1 batching c=4 ok=8/8 TTFT p50/p95=0.404/0.429s E2E p95=6.957s tok/s=147.544 goodput=100.0%
+A1 batching c=8 ok=8/8 TTFT p50/p95=0.475/0.476s E2E p95=7.069s tok/s=289.510 goodput=100.0%
+A1 batching c=16 ok=16/16 TTFT p50/p95=3.688/7.191s E2E p95=13.819s tok/s=294.618 goodput=50.0%
+A2 cache-hit c=1 ok=5/5 TTFT p50/p95=0.470/0.541s E2E p95=3.841s tok/s=33.911 goodput=100.0%
+A2 cache-miss-control c=1 ok=5/5 TTFT p50/p95=0.859/0.938s E2E p95=4.213s tok/s=30.720 goodput=100.0%
+A3 short c=1 ok=4/4 TTFT p50/p95=0.360/0.394s E2E p95=1.701s tok/s=31.587 goodput=100.0%
+A3 short c=8 ok=8/8 TTFT p50/p95=0.424/0.425s E2E p95=1.742s tok/s=236.842 goodput=100.0%
+A3 prefill c=1 ok=4/4 TTFT p50/p95=0.901/0.911s E2E p95=1.478s tok/s=15.790 goodput=100.0%
+A3 prefill c=8 ok=8/8 TTFT p50/p95=2.827/4.251s E2E p95=4.886s tok/s=37.652 goodput=25.0%
+A3 decode c=1 ok=4/4 TTFT p50/p95=0.365/0.380s E2E p95=1.644s tok/s=31.170 goodput=100.0%
+A3 decode c=8 ok=8/8 TTFT p50/p95=0.403/0.439s E2E p95=1.739s tok/s=235.940 goodput=100.0%
+A4 goodput-capacity c=1 ok=8/8 TTFT p50/p95=0.370/0.451s E2E p95=3.652s tok/s=35.650 goodput=100.0%
+A4 goodput-capacity c=2 ok=8/8 TTFT p50/p95=0.370/0.391s E2E p95=3.604s tok/s=71.385 goodput=100.0%
+A4 goodput-capacity c=4 ok=8/8 TTFT p50/p95=0.389/0.411s E2E p95=3.645s tok/s=140.703 goodput=100.0%
+A4 goodput-capacity c=8 ok=8/8 TTFT p50/p95=0.407/0.439s E2E p95=3.717s tok/s=275.376 goodput=100.0%
+A4 goodput-capacity c=16 ok=16/16 TTFT p50/p95=2.089/3.799s E2E p95=7.081s tok/s=289.098 goodput=50.0%
+result=labs/cloudrun-gemma4-vllm/results/a1-a4-20260801-211752.json
+```
+
+</details>
+
+### 5. 실습 증거
 
 Cloud Run 콘솔은 원시 결과의 실행 구간 `2026-08-01 21:17:52~21:22:03Z`를 한국시간 `2026-08-02 06:17:52~06:22:03`으로 변환해 확인했다. 차트는 앞뒤 여유를 둔 `06:15~06:25` 범위다.
 
@@ -113,15 +193,14 @@ Cloud Run 콘솔은 원시 결과의 실행 구간 `2026-08-01 21:17:52~21:22:03
 
 Metrics와 Logs는 서버 측 요청·지연·GPU 부하를 증명한다. TTFT·tok/s·goodput의 최종 근거는 벤치마크 JSON과 터미널 로그다.
 
-### 7. 결과 해석과 한계
+### 6. 결과 해석과 한계
 
 - **배칭**: 동시성 8까지는 처리량이 늘지만 16에서는 거의 포화되고 TTFT가 급격히 증가했다.
 - **Prefix Caching**: 길이를 맞춘 miss 대조군과 비교해 TTFT 감소를 확인했다.
 - **Prefill**: 긴 입력이 동시성 8에서 TTFT SLO를 먼저 무너뜨렸다. 입력 길이와 동시성을 함께 용량 계획에 반영해야 한다.
 - **서버리스 GPU**: scale-to-zero는 유휴 GPU 비용을 줄이지만 4분대 콜드 스타트와 맞바꾼다.
 - **FP8 한계**: 로그에는 보정되지 않은 scaling factor 1.0이 정확도를 낮출 수 있다는 경고가 남았다. 이번 실험은 성능 측정이며 품질 평가는 하지 않았다.
-- **검증 범위**: 단일 GPU·단일 리전·한 차례의 측정 결과다. 같은 측정기를 WSL2와 EKS에서 반복해야 환경별 차이를 비교할 수 있다.
-- **남은 인증**: A1~A4 완료 터미널 화면과 실제 Container instance count 차트는 아직 보완이 필요하다.
+- **검증 범위**: 단일 GPU·단일 리전·한 차례의 측정 결과다. 설정값을 바꿔 반복 측정해야 최적 구성을 판단할 수 있다.
 
 ---
 
@@ -130,11 +209,11 @@ Metrics와 Logs는 서버 측 요청·지연·GPU 부하를 증명한다. TTFT·
 <details>
 <summary><strong>1. 기본 리소스 준비</strong></summary>
 
-### 2. Setup and Requirements
+### 환경 설정
 
 Cloud Shell 또는 로컬 Cloud SDK에서 프로젝트·리전·리소스 이름을 고정한다.
 
-이 저장소의 실제 프로젝트는 루트 `.env`의 `PROJECT_ID`에 들어 있다. 아래 값은 원문을 재사용할 수 있도록 자리표시자로 남겼으며, 보완한 벤치마크 스크립트는 `--project`를 생략하면 `.env`에서 이 키만 읽는다.
+아래의 프로젝트 ID와 리소스 이름을 자신의 환경에 맞게 설정한다.
 
 ```bash
 export MODEL_NAME="google/gemma-4-31B-it"
@@ -159,7 +238,7 @@ gcloud config set run/region "$GOOGLE_CLOUD_REGION"
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com   artifactregistry.googleapis.com iam.googleapis.com compute.googleapis.com   vpcaccess.googleapis.com storage.googleapis.com
 ```
 
-### 3. Create Service Account
+### 서비스 계정 생성
 
 Compute Engine 기본 서비스 계정 대신 Cloud Run 전용 서비스 계정을 만든다. 과도한 기본 권한을 피하기 위한 출발점이다.
 
@@ -167,7 +246,7 @@ Compute Engine 기본 서비스 계정 대신 Cloud Run 전용 서비스 계정�
 gcloud iam service-accounts create "$SERVICE_ACCOUNT"   --project "$GOOGLE_CLOUD_PROJECT"   --display-name "vLLM Service Account"
 ```
 
-### 4. Setup Cloud Storage
+### Cloud Storage 준비
 
 가중치는 수십 GB 이상이므로 시작할 때마다 외부 모델 허브에서 받지 않는다. Cloud Run과 **동일한 단일 리전**의 GCS 버킷에 캐시한다.
 
@@ -186,7 +265,7 @@ gcloud storage buckets create "gs://$MODEL_CACHE_BUCKET"   --uniform-bucket-leve
 <details>
 <summary><strong>2. 모델 캐시·네트워크·권한 구성</strong></summary>
 
-### 5. Retrieve and Cache Model Weights
+### 모델 가중치 캐시
 
 로컬 디스크를 거치지 않고 Cloud Build의 대용량 디스크를 사용해 모델을 GCS에 적재한다.
 
@@ -198,10 +277,10 @@ Google이 제공하는 Gemma 4 공개 버킷을 내 버킷으로 복사하는 �
 gcloud storage cp -r -D   "gs://vertex-model-garden-public-us/gemma4/gemma-4-31B-it"   "$GCS_MODEL_LOCATION"
 ```
 
-> `-D`(daisy-chain)는 실행 머신을 경유해 내려받았다 다시 올리는 모드다. Cloud Build 밖(로컬·Cloud Shell)에서 실행한다면 `-D`를 빼고 서버사이드 복사를 쓴다 — [실제 GCP 수행 기록](#재현-부록-b-실제-gcp-수행-기록) 참조.
+> `-D`(daisy-chain)는 실행 머신을 경유해 내려받았다 다시 올리는 모드다. Cloud Build 밖(로컬·Cloud Shell)에서 실행한다면 `-D`를 빼고 서버사이드 복사를 쓴다 — [실제 배포에서 달라진 점](#재현-부록-b-실제-배포에서-달라진-점) 참조.
 >
 
-### 6. Configure Networking for Direct VPC Egress
+### Direct VPC Egress 구성
 
 Cloud Run이 VPC를 통해 Cloud Storage 같은 Google API에 접근하도록 구성한다. 서브넷에는 **Private Google Access**가 필요하다.
 
@@ -211,7 +290,7 @@ gcloud compute networks create "$VPC_NETWORK"   --subnet-mode=custom --bgp-routi
 gcloud compute networks subnets create "$VPC_SUBNET"   --network="$VPC_NETWORK" --region="$GOOGLE_CLOUD_REGION"   --range="$SUBNET_RANGE" --enable-private-ip-google-access   --project "$GOOGLE_CLOUD_PROJECT"
 ```
 
-### 7. Configure Service Account Access Policy
+### 서비스 계정 권한 설정
 
 Cloud Run 런타임 서비스 계정이 모델 버킷을 읽을 수 있어야 한다. Codelab은 단순화를 위해 `Storage Admin`을 부여한다.
 
@@ -229,7 +308,7 @@ gcloud storage buckets add-iam-policy-binding "gs://$MODEL_CACHE_BUCKET"   --mem
 <details>
 <summary><strong>3. vLLM 설정과 Cloud Run 배포</strong></summary>
 
-### 8. Initialize Configuration Variables
+### vLLM 및 Cloud Run 변수 설정
 
 vLLM과 Cloud Run의 성능·용량 파라미터를 설정한다.
 
@@ -247,7 +326,7 @@ export CLOUD_RUN_MAX_INSTANCES=3
 export CLOUD_RUN_CONCURRENCY=16
 ```
 
-> 기본 프로젝트의 RTX PRO 6000 할당량은 **1**이라 `CLOUD_RUN_MAX_INSTANCES=3`이면 배포가 거부된다. 증설 전에는 1로 두거나 `g.co/cloudrun/gpu-quota`에서 요청한다 — [실제 GCP 수행 기록](#재현-부록-b-실제-gcp-수행-기록) 참조.
+> 기본 프로젝트의 RTX PRO 6000 할당량은 **1**이라 `CLOUD_RUN_MAX_INSTANCES=3`이면 배포가 거부된다. 증설 전에는 1로 두거나 `g.co/cloudrun/gpu-quota`에서 요청한다 — [실제 배포에서 달라진 점](#재현-부록-b-실제-배포에서-달라진-점) 참조.
 >
 
 | 파라미터 | 의미 / 조정 기준 |
@@ -260,7 +339,7 @@ export CLOUD_RUN_CONCURRENCY=16
 
 OOM이 나면 우선 `MAX_NUM_SEQS` 또는 `MAX_MODEL_LEN`을 낮춘다. FP8 모델/KV cache 양자화는 메모리를 줄이고 성능을 높일 수 있지만, 실제 품질 평가는 별도로 해야 한다.
 
-### 9. Deploy to Cloud Run
+### Cloud Run 배포
 
 `--load-format runai_streamer`로 Model Streamer를 사용하고, Gemma 4의 tool call/reasoning parser를 지정한다.
 
@@ -303,7 +382,7 @@ gcloud beta run deploy "$SERVICE_NAME"   --image="us-docker.pkg.dev/vertex-ai/ve
 <details>
 <summary><strong>4. 호출 검증과 리소스 정리</strong></summary>
 
-### 10. Test the Service
+### API 호출 검증
 
 서비스 URL을 얻은 뒤, Google ID 토큰으로 vLLM OpenAI 호환 API를 호출한다.
 
@@ -320,7 +399,7 @@ curl -s "$SERVICE_URL/v1/chat/completions"   -H "Authorization: Bearer $(gcloud 
 
 실패하면 호출자의 Cloud Run Invoker 권한, 서비스 Ready/startup probe 로그, 서비스 계정의 GCS 접근, GPU quota·리전 가용성, OOM 여부를 차례로 확인한다.
 
-### 12. Clean up
+### 리소스 정리
 
 비용 발생을 중지하려면 서비스·서비스 계정·버킷·VPC를 삭제한다.
 
@@ -341,33 +420,14 @@ gcloud compute networks delete "$VPC_NETWORK"   --project "$GOOGLE_CLOUD_PROJECT
 
 ---
 
-## 재현 부록 B. 실제 GCP 수행 기록
+## 재현 부록 B. 실제 배포에서 달라진 점
 
-이 문서의 절차를 개인 GCP 프로젝트에서 처음부터 끝까지 실행한 기록이다. 아래 수치·로그는 모두 실행 결과에서 그대로 옮긴 것이다.
-
-<details>
-<summary><strong>5. 실행 환경</strong></summary>
-
-| 항목 | 값 |
-| --- | --- |
-| 프로젝트 | 개인 실습 프로젝트 (`.env`의 `PROJECT_ID` 사용) |
-| 리전 | `europe-west4` |
-| 실행 위치 | 로컬 macOS + Google Cloud SDK 571.0.0 (Cloud Shell 아님) |
-| 서비스 | `gemma-rtx-vllm-codelab`, 리비전 `gemma-rtx-vllm-codelab-00001-7pm` |
-| GPU | `run.googleapis.com/accelerator=nvidia-rtx-pro-6000`, `nvidia.com/gpu: 1` |
-| vLLM | `0.17.2rc1.dev133+g9279c59a0` (`pytorch-vllm-serve:gemma4`) |
-| 모델 | 10개 객체 / 62,578,670,545 B (58.28 GiB), 소스와 바이트 단위 일치 |
-
-</details>
-
----
-
-<a id="원문과-결정적으로-갈라진-지점"></a>
+원문 절차를 그대로 실행했을 때 막혔던 두 지점과 해결 방법만 정리했다.
 
 <details>
-<summary><strong>6. 원문과 결정적으로 갈라진 지점</strong></summary>
+<summary><strong>5. 모델 복사와 GPU 할당량 문제</strong></summary>
 
-### 문제 1 — §5 `gcloud storage cp`에서 `-D`를 뺐다
+### 문제 1 — 모델 복사 명령에서 `-D`를 뺐다
 
 `-D`는 `--daisy-chain`으로, **객체를 실행 머신에 내려받은 뒤 다시 업로드**하는 모드다. Codelab이 이 명령을 `E2_HIGHCPU_32` + 500GB 디스크 Cloud Build에서 돌리는 이유가 이것이다. 로컬에서 그대로 실행하면 58GiB를 집 회선으로 내렸다 올리게 된다. 플래그를 빼면 GCS 서버사이드 복사(copy in the cloud)가 되어 로컬 대역폭을 쓰지 않는다.
 
@@ -378,7 +438,7 @@ gcloud storage cp -r "gs://vertex-model-garden-public-us/gemma4/gemma-4-31B-it" 
 
 미국 → `europe-west4` 서버사이드 복사 소요: **30분 56초** (18:15:24 → 18:46:20 UTC).
 
-### 문제 2 — §8 `CLOUD_RUN_MAX_INSTANCES`를 3 → 1로 낮췄다
+### 문제 2 — `CLOUD_RUN_MAX_INSTANCES`를 3 → 1로 낮췄다
 
 원문 값 3으로 배포하면 실패한다.
 
@@ -395,96 +455,12 @@ NvidiaRtxPro6000GpuAllocNoZonalRedundancyPerProjectRegion requested: 3 allowed: 
 
 </details>
 
----
+## 재현 부록 C. 성능 측정 방법
 
 <details>
-<summary><strong>7. 콜드 스타트 타임라인 — Cloud Run 로그 실측</strong></summary>
+<summary><strong>6. A1~A4 측정 프로토콜</strong></summary>
 
-| 시각(UTC) | 이벤트 | 소요 |
-| --- | --- | --- |
-| 18:50:36 | 인스턴스 시작 (`DEPLOYMENT_ROLLOUT`) | — |
-| 18:51:17 | vLLM 프로세스 기동 | +41s |
-| 18:51:44 | V1 엔진 초기화, fp8 온라인 양자화 커널 선택 | +27s |
-| 18:53:07 | **Run:ai Model Streamer 로딩 완료** | 1188 텐서 / 1분 13초 |
-| 18:54:24 | `torch.compile` 완료 | 62.19s |
-| 18:54:40 | KV cache 확보 | — |
-| 18:54:44 | `init engine (profile, create kv cache, warmup)` | 97.04s |
-| 18:54:59 | `Starting vLLM server on http://0.0.0.0:8080` | — |
-| 18:55:07 | Cloud Run `Ready=True` | — |
-
-**인스턴스 시작 → 서버 리슨: 4분 23초**, → `Ready`: 4분 31초. 원문의 `initialDelaySeconds=240` + `failureThreshold=40` 설정이 왜 그 크기인지 실측으로 확인된다 — 240초 지연은 실제 서버 기동(263초)보다 짧아 프로브가 헛돌지 않고, 이후 15초 간격 재시도로 흡수된다.
-
-핵심 로그:
-
-```
-Loading safetensors using Runai Model Streamer: 100% Completed | 1188/1188 [01:13<00:00, 16.21it/s]
-INFO [gpu_model_runner.py:4601] Model loading took 31.47 GiB memory and 78.084206 seconds
-INFO [__init__.py:255] Selected CutlassFP8ScaledMMLinearKernel for Fp8OnlineLinearMethod
-INFO [gpu_worker.py:456] Available KV cache memory: 57.09 GiB
-INFO [kv_cache_utils.py:1316] GPU KV cache size: 124,704 tokens
-INFO [core.py:281] init engine (profile, create kv cache, warmup model) took 97.04 seconds
-```
-
-읽어낼 점 3가지:
-
-1. **Model Streamer 처리량 약 0.8 GiB/s** — 58.28 GiB를 73초에 읽었다. Direct VPC Egress + 동일 리전 버킷 조합의 효과가 여기서 나온다.
-2. **fp8 온라인 양자화가 실제로 걸렸다** — 디스크상 bf16 58.28 GiB가 GPU에는 31.47 GiB로 적재됐다. 원문 §8의 `--quantization fp8`은 fp8 체크포인트를 받는 게 아니라 **런타임에 양자화**하는 경로다.
-3. **남은 메모리가 전부 KV cache로 간다** — 57.09 GiB / 124,704 토큰. `MAX_MODEL_LEN=32767` 기준 컨텍스트 3~4개 분량이며, `MAX_NUM_SEQS=8`이 여유 있게 들어간다.
-
-</details>
-
----
-
-<details>
-<summary><strong>8. 추론 검증</strong></summary>
-
-`/v1/models` → HTTP 200, `id: google/gemma-4-31B-it`, `max_model_len: 32767`, `root`가 GCS 경로로 표시된다.
-
-원문의 `Why is the sky blue?` 호출 결과:
-
-```
-usage: {"prompt_tokens":21,"completion_tokens":993,"total_tokens":1014}
-finish_reason: "stop"
-model: "google/gemma-4-31B-it"
-```
-
-> The shortest answer is a phenomenon called **Rayleigh scattering**. … Because **blue light** travels in shorter, smaller waves, it crashes into the gas molecules and gets scattered (bounced) in every direction. …
-
-| 측정 | 값 |
-| --- | --- |
-| 비스트리밍 993 토큰 생성 | 27.3s (≈36 tok/s) |
-| 스트리밍 TTFT (warm) | **0.411s** |
-| 스트리밍 decode 처리량 | **38.5 tok/s** |
-| vLLM 로그상 generation throughput | 29.6 ~ 38.9 tok/s |
-
-동시성 1 기준 수치다. `CLOUD_RUN_CONCURRENCY=16` / `MAX_NUM_SEQS=8`의 동시성 부하 및 Prefix Caching 효과는 아래 **실험 A1, A2**에서 처음 관찰했다.
-
-</details>
-
----
-
-## 재현 부록 C. 성능 측정과 인증 절차
-
-<details>
-<summary><strong>9. 왜 1차 A1·A2 결과를 다시 측정했는가</strong></summary>
-
-초기 측정에서는 동시성 8 이후의 처리량 포화와 Prefix Caching의 TTFT 감소를 관찰했다. 하지만 다음 문제 때문에 숫자 자체는 최종 기준선에서 제외했다.
-
-- TTFT를 첫 내용 토큰이 아니라 첫 SSE 이벤트로 측정했다.
-- 출력 토큰 수를 API `usage` 대신 `문자 수 ÷ 4`로 추정했다.
-- 동시성 1에만 콜드 스타트가 섞였고 요청별 원시 JSON이 없었다.
-- Prefix Caching은 길이를 맞춘 miss 대조군 없이 첫 요청과 후속 요청만 비교했다.
-
-따라서 1차 결과는 병목 가설을 세우는 용도로만 사용하고, 발표 수치는 다음 A1~A4 재측정 결과만 사용한다.
-
-</details>
-
----
-
-<details>
-<summary><strong>10. 보완한 재측정 프로토콜 — A1~A4</strong></summary>
-
-[`labs/cloudrun-gemma4-vllm/benchmark_a1_a4.py`](../labs/cloudrun-gemma4-vllm/benchmark_a1_a4.py)는 다음처럼 보완했다.
+아래 7번에 첨부한 실행 스크립트는 다음 기준으로 측정한다.
 
 - 첫 `content` 또는 `reasoning_content` 조각이 도착한 시점을 TTFT로 기록
 - 스트리밍 `usage.completion_tokens`를 사용하고, 없을 때만 추정치로 표시
@@ -506,19 +482,25 @@ model: "google/gemma-4-31B-it"
 먼저 스모크 테스트로 인증과 결과 저장만 확인한다. 이 명령은 scale-to-zero 상태의 GPU를 기동하므로 비용이 발생할 수 있다.
 
 ```bash
-python3 labs/cloudrun-gemma4-vllm/benchmark_a1_a4.py \
+python3 benchmark_a1_a4.py \
+  --project "$GOOGLE_CLOUD_PROJECT" \
+  --region "$GOOGLE_CLOUD_REGION" \
+  --service "$SERVICE_NAME" \
   --exp smoke \
-  --output labs/cloudrun-gemma4-vllm/results/smoke.json
+  --output smoke.json
 ```
 
 스모크 결과가 성공한 뒤 전체 실험을 실행한다.
 
 ```bash
-python3 labs/cloudrun-gemma4-vllm/benchmark_a1_a4.py \
+python3 benchmark_a1_a4.py \
+  --project "$GOOGLE_CLOUD_PROJECT" \
+  --region "$GOOGLE_CLOUD_REGION" \
+  --service "$SERVICE_NAME" \
   --exp all \
   --ttft-slo 2 \
   --e2e-slo 30 \
-  --output labs/cloudrun-gemma4-vllm/results/a1-a4-rerun.json
+  --output a1-a4-result.json
 ```
 
 `exact_usage_requests`가 성공 요청 수보다 작으면 해당 구간의 tok/s에 추정 토큰이 섞였다는 뜻이다. 그 결과는 정확한 기준선으로 승격하지 않는다.
@@ -528,233 +510,667 @@ python3 labs/cloudrun-gemma4-vllm/benchmark_a1_a4.py \
 ---
 
 <details>
-<summary><strong>11. 실습 인증 스크린샷</strong></summary>
+<summary><strong>7. A1~A4 실행 스크립트</strong></summary>
 
-#### 인증 캡처 현황 — 3종 통과, 1종 부분 통과, 1종 재촬영 필요
+아래 코드를 `benchmark_a1_a4.py`로 저장한 뒤 6번의 명령으로 실행한다. Notion 문서만 공유해도 그대로 복사해 사용할 수 있도록 전체 코드를 첨부했다.
 
-2026-08-02 로그인된 Chrome 세션으로 Cloud Run 콘솔을 직접 열어 다시 검수했다. 원시 결과의 UTC 실행 구간은 한국시간으로 `2026-08-02 06:17:52~06:22:03 (UTC+9)`이며, 측정항목 캡처는 앞뒤 여유를 둔 `06:15~06:25`로 맞췄다.
+```python
+#!/usr/bin/env python3
+"""Cloud Run의 OpenAI 호환 vLLM API에서 A1~A4 서빙 실험을 수행한다."""
 
-| 파일명 | 링크 | 검수 판정 | 확인 결과 |
-| --- | --- | --- | --- |
-| `proof-01-terminal-a1-a4.png` | — | ❌ 재촬영 | 실행 결과가 아니라 AI 작업 패널과 대기·캡처 명령이 보임. 공유본에는 첨부하지 않음 |
-| `proof-02-request-load.png` | [proof-02](./screenshots/proof-02-request-load.png) | ✅ 통과 | `06:15~06:25` 범위에서 요청 수, 요청 지연 시간, 엔드 투 엔드 지연 시간과 부하 형태가 보임. 동시성별 용량 판정은 원시 JSON로 보완 |
-| `proof-03-gpu-utilization.png` | [proof-03](./screenshots/proof-03-gpu-utilization.png) | ✅ 통과 | 같은 실행 구간에서 GPU 사용률이 최대 100%까지 올라가고 GPU 메모리 사용률이 약 95~98%로 유지되는 모습이 보임 |
-| `proof-04-gpu-memory-instance.png` | [proof-04](./screenshots/proof-04-gpu-memory-instance.png) | ⚠️ 부분 통과 | 추천 인스턴스가 1까지 올라가고 GPU 메모리 사용량이 약 92~94GiB로 증가한 것은 확인됨. 실제 Container instance count 차트는 별도 캡처가 필요 |
-| `proof-05-request-logs.png` | [proof-05](./screenshots/proof-05-request-logs.png) | ✅ 통과 | 절대 시각 쿼리, 결과 144건, POST·HTTP 200·요청별 latency가 한 화면에 보임 |
+from __future__ import annotations
 
-#### 검증된 재측정 결과
+import argparse
+import asyncio
+import dataclasses
+import datetime as dt
+import json
+import math
+import os
+import statistics
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+import uuid
+from pathlib import Path
+from typing import Any
 
-원시 파일은 [`a1-a4-20260801-211752.json`](../labs/cloudrun-gemma4-vllm/results/a1-a4-20260801-211752.json), 터미널 로그는 [`a1-a4-20260801-211752.log`](../labs/cloudrun-gemma4-vllm/results/a1-a4-20260801-211752.log)에 저장됐다.
 
-| 검증 항목 | 결과 |
-| --- | --- |
-| 실행 구간 | `2026-08-01T21:17:52Z` ~ `2026-08-01T21:22:03Z` |
-| warmup | 1건 성공, TTFT 0.433s |
-| A1~A4 요청 | 143건 전부 성공, 실패 0건 |
-| 토큰 집계 | 143건 모두 `tokens_exact=true` |
-| Cloud Logging | warmup 포함 POST 144건 |
-| Prefix Caching | TTFT p50 0.859s → 0.470s, 45.3% 감소 |
-| Goodput 95% 용량 | 최대 동시성 8, 동시성 16에서는 goodput 50% |
+MODEL_NAME = "google/gemma-4-31B-it"
+SERVICE_NAME = "gemma-rtx-vllm-codelab"
+REGION = "europe-west4"
+EXPERIMENTS = ("smoke", "a1", "a2", "a3", "a4", "all")
 
-대표 인증 이미지는 [스터디 공유 본문의 실습 증거](#6-실습-증거)에 표시했다. 이 부록에서는 파일별 판정과 재촬영 절차만 관리한다.
 
-#### 1. 실행 시각과 원시 결과부터 남긴다
+@dataclasses.dataclass
+class RequestResult:
+    experiment: str
+    scenario: str
+    concurrency: int
+    request_id: int
+    ok: bool
+    status: int
+    ttft_s: float | None
+    e2e_s: float
+    output_tokens: int
+    tokens_exact: bool
+    error: str | None = None
 
-스모크 테스트를 먼저 끝내고, 전체 A1~A4는 별도 시간 구간에서 실행한다. 그래야 스모크 요청이 부하 테스트 로그에 섞이지 않는다.
+    def as_dict(self) -> dict[str, Any]:
+        return dataclasses.asdict(self)
 
-```bash
-set -o pipefail
-RUN_STAMP=$(date -u +%Y%m%d-%H%M%S)
-START_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-python3 labs/cloudrun-gemma4-vllm/benchmark_a1_a4.py \
-  --exp all \
-  --ttft-slo 2 \
-  --e2e-slo 30 \
-  --output "labs/cloudrun-gemma4-vllm/results/a1-a4-${RUN_STAMP}.json" \
-  2>&1 | tee "labs/cloudrun-gemma4-vllm/results/a1-a4-${RUN_STAMP}.log"
+def percentile(values: list[float], quantile: float) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    rank = (len(ordered) - 1) * quantile
+    lower = math.floor(rank)
+    upper = math.ceil(rank)
+    if lower == upper:
+        return ordered[lower]
+    weight = rank - lower
+    return ordered[lower] * (1 - weight) + ordered[upper] * weight
 
-END_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-printf 'START_UTC=%s\nEND_UTC=%s\n' "$START_UTC" "$END_UTC"
+
+def parse_positive_ints(value: str) -> list[int]:
+    try:
+        values = [int(item.strip()) for item in value.split(",") if item.strip()]
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("쉼표로 구분한 정수를 입력하세요.") from exc
+    if not values or any(item < 1 for item in values):
+        raise argparse.ArgumentTypeError("값은 모두 1 이상이어야 합니다.")
+    return values
+
+
+def project_from_dotenv() -> str | None:
+    """저장소 .env에서 프로젝트 ID 키만 읽는다. 다른 값은 로드하지 않는다."""
+    env_path = Path(__file__).resolve().parents[2] / ".env"
+    if not env_path.exists():
+        return None
+    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        if key.strip() in {"PROJECT_ID", "GOOGLE_CLOUD_PROJECT", "GCLOUD_PROJECT"}:
+            return value.strip().strip("\"'") or None
+    return None
+
+
+def default_project() -> str | None:
+    return (
+        os.getenv("PROJECT_ID")
+        or os.getenv("GOOGLE_CLOUD_PROJECT")
+        or os.getenv("GCLOUD_PROJECT")
+        or project_from_dotenv()
+    )
+
+
+def run_gcloud(arguments: list[str]) -> str:
+    try:
+        return subprocess.check_output(
+            ["gcloud", *arguments], text=True, stderr=subprocess.STDOUT
+        ).strip()
+    except (OSError, subprocess.CalledProcessError) as exc:
+        detail = getattr(exc, "output", None) or str(exc)
+        raise RuntimeError(f"gcloud 실행 실패: {detail.strip()}") from exc
+
+
+def identity_token() -> str:
+    return run_gcloud(["auth", "print-identity-token"])
+
+
+def service_url(project: str, region: str, service: str) -> str:
+    return run_gcloud(
+        [
+            "run",
+            "services",
+            "describe",
+            service,
+            "--project",
+            project,
+            "--region",
+            region,
+            "--format=value(status.url)",
+        ]
+    )
+
+
+def estimate_tokens(text: str) -> int:
+    """usage가 없는 호환 서버의 대체값이며 결과에 추정치임을 표시한다."""
+    return max(0, round(len(text) / 4))
+
+
+def uncached_user_messages(prompt: str) -> list[dict[str, str]]:
+    """A2 외 실험에서 자동 prefix caching이 비교를 섞지 않도록 첫 블록을 고유화한다."""
+    return [{"role": "user", "content": f"request-id={uuid.uuid4().hex}\n{prompt}"}]
+
+
+def make_streaming_request(
+    *,
+    url: str,
+    token: str,
+    model: str,
+    messages: list[dict[str, str]],
+    max_tokens: int,
+    experiment: str,
+    scenario: str,
+    concurrency: int,
+    request_id: int,
+    timeout_s: float,
+    enable_thinking: bool,
+) -> RequestResult:
+    payload: dict[str, Any] = {
+        "model": model,
+        "messages": messages,
+        "max_tokens": max_tokens,
+        "temperature": 0,
+        "seed": 42,
+        "stream": True,
+        "stream_options": {"include_usage": True},
+        "chat_template_kwargs": {"enable_thinking": enable_thinking},
+    }
+    request = urllib.request.Request(
+        f"{url.rstrip('/')}/v1/chat/completions",
+        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    started = time.perf_counter()
+    first_token_at: float | None = None
+    output_parts: list[str] = []
+    output_tokens: int | None = None
+    status = 0
+
+    try:
+        with urllib.request.urlopen(request, timeout=timeout_s) as response:
+            status = response.status
+            for raw_line in response:
+                line = raw_line.decode("utf-8").strip()
+                if not line.startswith("data:"):
+                    continue
+                data = line[5:].strip()
+                if data == "[DONE]":
+                    break
+                event = json.loads(data)
+                usage = event.get("usage")
+                if usage and usage.get("completion_tokens") is not None:
+                    output_tokens = int(usage["completion_tokens"])
+                for choice in event.get("choices", []):
+                    delta = choice.get("delta", {})
+                    for key in ("reasoning_content", "content"):
+                        fragment = delta.get(key)
+                        if fragment:
+                            if first_token_at is None:
+                                first_token_at = time.perf_counter()
+                            output_parts.append(str(fragment))
+        ended = time.perf_counter()
+        exact = output_tokens is not None
+        if output_tokens is None:
+            output_tokens = estimate_tokens("".join(output_parts))
+        return RequestResult(
+            experiment=experiment,
+            scenario=scenario,
+            concurrency=concurrency,
+            request_id=request_id,
+            ok=200 <= status < 300 and first_token_at is not None,
+            status=status,
+            ttft_s=(first_token_at - started) if first_token_at else None,
+            e2e_s=ended - started,
+            output_tokens=output_tokens,
+            tokens_exact=exact,
+            error=None if first_token_at else "스트림에서 내용 토큰을 받지 못했습니다.",
+        )
+    except urllib.error.HTTPError as exc:
+        ended = time.perf_counter()
+        detail = exc.read(800).decode("utf-8", errors="replace")
+        return RequestResult(
+            experiment,
+            scenario,
+            concurrency,
+            request_id,
+            False,
+            exc.code,
+            None,
+            ended - started,
+            0,
+            False,
+            detail,
+        )
+    except Exception as exc:
+        ended = time.perf_counter()
+        return RequestResult(
+            experiment,
+            scenario,
+            concurrency,
+            request_id,
+            False,
+            status,
+            None,
+            ended - started,
+            0,
+            False,
+            f"{type(exc).__name__}: {exc}",
+        )
+
+
+async def run_requests(
+    *,
+    url: str,
+    token: str,
+    model: str,
+    messages_factory,
+    max_tokens: int,
+    experiment: str,
+    scenario: str,
+    concurrency: int,
+    request_count: int,
+    timeout_s: float,
+    enable_thinking: bool,
+) -> tuple[list[RequestResult], float]:
+    semaphore = asyncio.Semaphore(concurrency)
+
+    async def one(request_id: int) -> RequestResult:
+        async with semaphore:
+            return await asyncio.to_thread(
+                make_streaming_request,
+                url=url,
+                token=token,
+                model=model,
+                messages=messages_factory(request_id),
+                max_tokens=max_tokens,
+                experiment=experiment,
+                scenario=scenario,
+                concurrency=concurrency,
+                request_id=request_id,
+                timeout_s=timeout_s,
+                enable_thinking=enable_thinking,
+            )
+
+    started = time.perf_counter()
+    results = await asyncio.gather(*(one(i) for i in range(request_count)))
+    return list(results), time.perf_counter() - started
+
+
+def summarize(
+    results: list[RequestResult], wall_s: float, ttft_slo: float, e2e_slo: float
+) -> dict[str, Any]:
+    successful = [item for item in results if item.ok]
+    ttfts = [item.ttft_s for item in successful if item.ttft_s is not None]
+    e2es = [item.e2e_s for item in successful]
+    good = [
+        item
+        for item in successful
+        if item.ttft_s is not None
+        and item.ttft_s <= ttft_slo
+        and item.e2e_s <= e2e_slo
+    ]
+    total_tokens = sum(item.output_tokens for item in successful)
+    return {
+        "experiment": results[0].experiment,
+        "scenario": results[0].scenario,
+        "concurrency": results[0].concurrency,
+        "requests": len(results),
+        "successes": len(successful),
+        "failures": len(results) - len(successful),
+        "ttft_p50_s": percentile(ttfts, 0.50),
+        "ttft_p95_s": percentile(ttfts, 0.95),
+        "e2e_p50_s": percentile(e2es, 0.50),
+        "e2e_p95_s": percentile(e2es, 0.95),
+        "output_tokens": total_tokens,
+        "output_tok_per_s": total_tokens / wall_s if wall_s > 0 else None,
+        "goodput_pct": len(good) / len(results) * 100 if results else 0,
+        "exact_usage_requests": sum(item.tokens_exact for item in successful),
+        "wall_s": wall_s,
+    }
+
+
+def print_summary(item: dict[str, Any]) -> None:
+    def display(value: float | None) -> str:
+        return "-" if value is None else f"{value:.3f}"
+
+    print(
+        f"{item['experiment'].upper()} {item['scenario']} c={item['concurrency']} "
+        f"ok={item['successes']}/{item['requests']} "
+        f"TTFT p50/p95={display(item['ttft_p50_s'])}/{display(item['ttft_p95_s'])}s "
+        f"E2E p95={display(item['e2e_p95_s'])}s "
+        f"tok/s={display(item['output_tok_per_s'])} "
+        f"goodput={item['goodput_pct']:.1f}%"
+    )
+
+
+async def run_group_and_record(
+    records: dict[str, Any],
+    *,
+    args,
+    token: str,
+    url: str,
+    experiment: str,
+    scenario: str,
+    concurrency: int,
+    request_count: int,
+    max_tokens: int,
+    messages_factory,
+) -> dict[str, Any]:
+    results, wall_s = await run_requests(
+        url=url,
+        token=token,
+        model=args.model,
+        messages_factory=messages_factory,
+        max_tokens=max_tokens,
+        experiment=experiment,
+        scenario=scenario,
+        concurrency=concurrency,
+        request_count=request_count,
+        timeout_s=args.timeout,
+        enable_thinking=args.enable_thinking,
+    )
+    summary = summarize(results, wall_s, args.ttft_slo, args.e2e_slo)
+    records["summaries"].append(summary)
+    records["requests"].extend(item.as_dict() for item in results)
+    print_summary(summary)
+    return summary
+
+
+async def experiment_a1(records, args, token: str, url: str) -> None:
+    prompt = (
+        "Transformer와 self-attention의 구조를 LLM 서빙 관점에서 "
+        "200단어 안팎으로 설명해 주세요."
+    )
+    for concurrency in args.concurrency:
+        await run_group_and_record(
+            records,
+            args=args,
+            token=token,
+            url=url,
+            experiment="a1",
+            scenario="batching",
+            concurrency=concurrency,
+            request_count=max(args.requests_per_level, concurrency),
+            max_tokens=256,
+            messages_factory=lambda _i, prompt=prompt: uncached_user_messages(prompt),
+        )
+
+
+async def experiment_a2(records, args, token: str, url: str) -> None:
+    common = (
+        "당신은 LLM 서빙 인프라 전문가입니다. 다음 배경을 참고하세요. "
+        + (
+            "prefill은 입력을 처리해 KV cache를 만들고 decode는 토큰을 하나씩 생성합니다. "
+            "PagedAttention은 KV cache를 블록 단위로 관리해 메모리 단편화를 줄입니다. "
+        )
+        * 80
+    )
+    hit_prefix = f"cache-group={'0' * 32}\n{common}"
+    prime = make_streaming_request(
+        url=url,
+        token=token,
+        model=args.model,
+        messages=[
+            {"role": "system", "content": hit_prefix},
+            {"role": "user", "content": "핵심을 한 문장으로 요약해 주세요."},
+        ],
+        max_tokens=32,
+        experiment="a2",
+        scenario="cache-prime",
+        concurrency=1,
+        request_id=-1,
+        timeout_s=args.timeout,
+        enable_thinking=args.enable_thinking,
+    )
+    records["requests"].append(prime.as_dict())
+    if not prime.ok:
+        raise RuntimeError(f"A2 cache prime 실패: {prime.error}")
+
+    hit_factory = lambda i: [
+        {"role": "system", "content": hit_prefix},
+        {"role": "user", "content": f"질문 {i}: PagedAttention의 장점을 설명해 주세요."},
+    ]
+    hit_summary = await run_group_and_record(
+        records,
+        args=args,
+        token=token,
+        url=url,
+        experiment="a2",
+        scenario="cache-hit",
+        concurrency=1,
+        request_count=args.prefix_repeats,
+        max_tokens=128,
+        messages_factory=hit_factory,
+    )
+
+    def miss_factory(i: int) -> list[dict[str, str]]:
+        unique_prefix = f"cache-group={uuid.uuid4().hex}\n{common}"
+        return [
+            {"role": "system", "content": unique_prefix},
+            {"role": "user", "content": "PagedAttention의 장점을 설명해 주세요."},
+        ]
+
+    miss_summary = await run_group_and_record(
+        records,
+        args=args,
+        token=token,
+        url=url,
+        experiment="a2",
+        scenario="cache-miss-control",
+        concurrency=1,
+        request_count=args.prefix_repeats,
+        max_tokens=128,
+        messages_factory=miss_factory,
+    )
+    hit_p50 = hit_summary["ttft_p50_s"]
+    miss_p50 = miss_summary["ttft_p50_s"]
+    reduction = None
+    if hit_p50 is not None and miss_p50:
+        reduction = (miss_p50 - hit_p50) / miss_p50 * 100
+    records["derived"]["a2_prefix_cache"] = {
+        "hit_ttft_p50_s": hit_p50,
+        "miss_control_ttft_p50_s": miss_p50,
+        "ttft_reduction_pct": reduction,
+    }
+
+
+async def experiment_a3(records, args, token: str, url: str) -> None:
+    short_prompt = "prefill과 decode의 차이를 한 문장으로 설명해 주세요."
+    long_prompt = (
+        "다음 설명을 읽고 핵심 병목을 한 문장으로 답하세요.\n\n"
+        + (
+            "prefill은 입력 토큰을 병렬 처리해 KV cache를 만들고, decode는 저장된 "
+            "KV cache를 읽으며 새 토큰을 순차 생성합니다. 입력 길이와 출력 길이는 "
+            "서로 다른 병목을 만듭니다. "
+        )
+        * 80
+    )
+    scenarios = [
+        ("short", short_prompt, 64),
+        ("prefill", long_prompt, 64),
+        ("decode", short_prompt, 512),
+    ]
+    for scenario, prompt, max_tokens in scenarios:
+        for concurrency in args.a3_concurrency:
+            await run_group_and_record(
+                records,
+                args=args,
+                token=token,
+                url=url,
+                experiment="a3",
+                scenario=scenario,
+                concurrency=concurrency,
+                request_count=max(args.a3_requests, concurrency),
+                max_tokens=max_tokens,
+                messages_factory=lambda _i, prompt=prompt: uncached_user_messages(prompt),
+            )
+
+
+async def experiment_a4(records, args, token: str, url: str) -> None:
+    prompt = "GPU 한 장의 LLM 서버가 처리할 수 있는 요청량을 판단할 지표를 설명해 주세요."
+    qualifying: list[int] = []
+    for concurrency in args.concurrency:
+        summary = await run_group_and_record(
+            records,
+            args=args,
+            token=token,
+            url=url,
+            experiment="a4",
+            scenario="goodput-capacity",
+            concurrency=concurrency,
+            request_count=max(args.requests_per_level, concurrency),
+            max_tokens=128,
+            messages_factory=lambda _i, prompt=prompt: uncached_user_messages(prompt),
+        )
+        if summary["goodput_pct"] >= args.goodput_target:
+            qualifying.append(concurrency)
+    records["derived"]["a4_capacity"] = {
+        "goodput_target_pct": args.goodput_target,
+        "max_concurrency_meeting_target": max(qualifying) if qualifying else None,
+    }
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--url", help="생략하면 gcloud로 Cloud Run URL 조회")
+    parser.add_argument("--project", default=default_project())
+    parser.add_argument("--region", default=os.getenv("GOOGLE_CLOUD_REGION", REGION))
+    parser.add_argument("--service", default=SERVICE_NAME)
+    parser.add_argument("--model", default=MODEL_NAME)
+    parser.add_argument("--exp", choices=EXPERIMENTS, default="smoke")
+    parser.add_argument("--concurrency", type=parse_positive_ints, default=[1, 2, 4, 8, 16])
+    parser.add_argument("--requests-per-level", type=int, default=8)
+    parser.add_argument("--a3-concurrency", type=parse_positive_ints, default=[1, 8])
+    parser.add_argument("--a3-requests", type=int, default=4)
+    parser.add_argument("--prefix-repeats", type=int, default=5)
+    parser.add_argument("--ttft-slo", type=float, default=2.0)
+    parser.add_argument("--e2e-slo", type=float, default=30.0)
+    parser.add_argument("--goodput-target", type=float, default=95.0)
+    parser.add_argument("--timeout", type=float, default=600)
+    parser.add_argument("--enable-thinking", action="store_true")
+    parser.add_argument("--skip-warmup", action="store_true")
+    parser.add_argument("--output", type=Path)
+    return parser
+
+
+async def async_main(args) -> tuple[int, dict[str, Any]]:
+    if not args.project:
+        raise RuntimeError("GCP 프로젝트를 찾지 못했습니다. --project 또는 .env의 PROJECT_ID를 설정하세요.")
+    if min(args.requests_per_level, args.a3_requests, args.prefix_repeats) < 1:
+        raise RuntimeError("요청 수는 모두 1 이상이어야 합니다.")
+
+    url = args.url or service_url(args.project, args.region, args.service)
+    token = identity_token()
+    records: dict[str, Any] = {
+        "meta": {
+            "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+            "project": args.project,
+            "region": args.region,
+            "service": args.service,
+            "url": url,
+            "model": args.model,
+            "experiment": args.exp,
+            "ttft_definition": "요청 시작부터 첫 content 또는 reasoning_content 조각까지",
+            "throughput_definition": "성공 요청의 completion_tokens 합계 / 벽시계 시간",
+            "goodput_definition": "TTFT와 E2E SLO를 모두 만족한 요청 비율",
+            "ttft_slo_s": args.ttft_slo,
+            "e2e_slo_s": args.e2e_slo,
+            "goodput_target_pct": args.goodput_target,
+            "enable_thinking": args.enable_thinking,
+        },
+        "warmup": None,
+        "derived": {},
+        "summaries": [],
+        "requests": [],
+    }
+    print(f"target={args.service} project={args.project} region={args.region}")
+
+    if not args.skip_warmup:
+        warmup = make_streaming_request(
+            url=url,
+            token=token,
+            model=args.model,
+            messages=[{"role": "user", "content": "한 단어로 준비 상태를 답하세요."}],
+            max_tokens=8,
+            experiment="warmup",
+            scenario="cold-start-observation",
+            concurrency=1,
+            request_id=0,
+            timeout_s=args.timeout,
+            enable_thinking=False,
+        )
+        records["warmup"] = warmup.as_dict()
+        print(
+            f"warmup ok={warmup.ok} TTFT={warmup.ttft_s} E2E={warmup.e2e_s:.3f}s "
+            "(배칭 곡선에서는 제외)"
+        )
+        if not warmup.ok:
+            return 1, records
+
+    if args.exp == "smoke":
+        await run_group_and_record(
+            records,
+            args=args,
+            token=token,
+            url=url,
+            experiment="smoke",
+            scenario="short",
+            concurrency=1,
+            request_count=1,
+            max_tokens=32,
+            messages_factory=lambda _i: [
+                {"role": "user", "content": "하늘이 파란 이유를 한 문장으로 답하세요."}
+            ],
+        )
+    else:
+        if args.exp in {"a1", "all"}:
+            await experiment_a1(records, args, token, url)
+        if args.exp in {"a2", "all"}:
+            await experiment_a2(records, args, token, url)
+        if args.exp in {"a3", "all"}:
+            await experiment_a3(records, args, token, url)
+        if args.exp in {"a4", "all"}:
+            await experiment_a4(records, args, token, url)
+
+    ok = all(item["ok"] for item in records["requests"])
+    return (0 if ok else 1), records
+
+
+def default_output() -> Path:
+    stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    return Path(__file__).resolve().parent / "results" / f"gemma4-{stamp}.json"
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    output = args.output or default_output()
+    try:
+        exit_code, records = asyncio.run(async_main(args))
+    except Exception as exc:
+        print(f"실험 준비 실패: {exc}", file=sys.stderr)
+        return 1
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(
+        json.dumps(records, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    print(f"result={output}")
+    return exit_code
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
 ```
-
-측정 직후에는 Monitoring 반영이 늦을 수 있으므로 3~5분 뒤 새로고침한다. Instance count의 0→1→0까지 남기려면 scale-to-zero가 확인될 때까지 기다린 뒤 `OBS_END_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)`도 기록한다.
-
-기본 설정의 `--exp all`은 다음 요청을 만든다.
-
-| 구간 | 요청 수 |
-| --- | ---: |
-| warmup | 1 |
-| A1 배칭 | 48 |
-| A2 Prefix Caching | 11 |
-| A3 prefill/decode | 36 |
-| A4 goodput | 48 |
-| **합계** | **144** |
-
-`--skip-warmup`을 붙이면 143건이다. 실패·재시도가 있거나 실행 중 다른 호출이 들어오면 Cloud Logging 건수는 달라질 수 있으므로 JSON의 `requests` 길이와 함께 대조한다.
-
-```bash
-jq '{meta, warmup, derived, summaries, request_count: (.requests | length)}' \
-  "labs/cloudrun-gemma4-vllm/results/a1-a4-${RUN_STAMP}.json"
-```
-
-정상 완료라면 JSON의 `request_count`는 warmup을 제외한 143이고 `warmup.ok`는 `true`다. Cloud Logging의 전체 POST 요청은 둘을 합친 144건이어야 한다.
-
-#### 2. 터미널 인증 화면
-
-파일명: `proof-01-terminal-a1-a4.png`
-
-다음 항목이 한 화면에서 읽혀야 한다.
-
-- 실행 명령이 `--exp all`인지
-- A1·A2·A3·A4 요약 줄이 모두 있는지
-- 실패 수와 goodput이 보이는지
-- 마지막 `result=...a1-a4-<시각>.json`
-- `START_UTC`, `END_UTC`
-
-편집기 전체 화면, 다른 프로젝트 파일, AI 작업 패널, 실행 중인 spinner는 넣지 않는다. 명령이 끝난 뒤 터미널 영역만 확대하고 불필요한 주변 UI를 잘라낸다.
-
-#### 3. 요청 수·지연·동시성 화면
-
-파일명: `proof-02-request-load.png`
-
-Cloud Run → `gemma-rtx-vllm-codelab` → **관측 가능성 → 측정항목**으로 이동한다.
-
-1. 기간을 `지난 1일`이 아닌 **맞춤 범위**로 바꾼다.
-2. 1번에서 기록한 `START_UTC` 1분 전부터 `OBS_END_UTC` 1분 후까지 지정한다.
-   - 콘솔 차트가 `UTC+9`로 표시되면 UTC 시각에 9시간을 더한다. 이번 실행의 `21:17:52Z~21:22:03Z`는 한국시간 `06:17:52~06:22:03`이다.
-3. 도움말·툴팁을 모두 닫는다.
-4. 서비스 이름, 선택 기간, 차트 제목, 축, 범례가 보이게 한다.
-5. **Request count**, **Request latency**, **Max concurrent requests**를 캡처한다.
-
-Cloud Run 기본 화면에 Max concurrent requests가 없다면 Monitoring → Metrics Explorer에서 다음 메트릭을 선택한다.
-
-```text
-run.googleapis.com/request_count
-run.googleapis.com/request_latencies
-run.googleapis.com/container/max_request_concurrencies
-```
-
-리소스 유형은 `Cloud Run Revision`, 필터는 `service_name = gemma-rtx-vllm-codelab`로 고정한다.
-
-#### 4. GPU·인스턴스 화면
-
-파일명은 화면 수에 따라 다음처럼 나눈다.
-
-- `proof-03-gpu-utilization.png`
-- `proof-04-gpu-memory-instance.png`
-
-Cloud Run 화면을 충분히 아래로 내리거나 Metrics Explorer에서 다음 메트릭을 각각 선택한다.
-
-```text
-run.googleapis.com/container/gpu/utilizations
-run.googleapis.com/container/gpu/memory_utilizations
-run.googleapis.com/container/instance_count
-```
-
-다음이 보여야 한다.
-
-- A1~A4 실행 구간에서 GPU 사용률이 실제로 올라가는 모습
-- 모델 상주 중 GPU 메모리 사용률
-- 인스턴스가 0→1로 올라오고 실행 뒤 다시 0으로 내려가는 흐름
-- 서비스 필터와 맞춤 시간 범위
-
-GPU 차트가 보이지 않는 상단 요청 차트를 다시 찍어 `GPU 증빙`으로 사용하지 않는다.
-
-#### 5. Logs Explorer 요청 목록
-
-파일명: `proof-05-request-logs.png`
-
-다음 쿼리에서 `START_UTC_VALUE`, `END_UTC_VALUE`를 1번의 실제 값으로 바꾼다.
-
-```text
-resource.type="cloud_run_revision"
-resource.labels.service_name="gemma-rtx-vllm-codelab"
-logName:"run.googleapis.com%2Frequests"
-httpRequest.requestUrl:"/v1/chat/completions"
-timestamp>="START_UTC_VALUE"
-timestamp<="END_UTC_VALUE"
-```
-
-`지난 1주` 같은 상대 기간에 의존하지 않는다. 쿼리 자체에 절대 시각을 넣고 다음 항목이 보이게 캡처한다.
-
-- 쿼리의 서비스명·URL 경로·시작·종료 시각
-- 결과 건수
-- 요청 시각
-- POST와 HTTP 200
-- 요청별 latency
-
-같은 결과는 `gcloud`로 먼저 검증할 수 있다. `.env` 전체를 불러오지 않고 `PROJECT_ID`만 읽는다.
-
-```bash
-PROJECT_ID=$(grep '^PROJECT_ID=' .env | cut -d= -f2-)
-
-gcloud logging read "
-resource.type=\"cloud_run_revision\"
-resource.labels.service_name=\"gemma-rtx-vllm-codelab\"
-logName:\"run.googleapis.com%2Frequests\"
-httpRequest.requestUrl:\"/v1/chat/completions\"
-timestamp>=\"${START_UTC}\"
-timestamp<=\"${END_UTC}\"
-" \
-  --project "$PROJECT_ID" \
-  --limit 300 \
-  --order asc \
-  --format='table(timestamp,httpRequest.status,httpRequest.latency)'
-```
-
-기존 1차 A1·A2만 다시 확인할 때는 `2026-08-01T19:40:00Z`~`19:47:00Z`를 사용하며 기대값은 37건이다. 새 A1~A4 재측정은 이 과거 시각이나 37건을 사용하지 않는다.
-
-#### 6. 선택 — 배포 설정 화면
-
-파일명: `proof-06-revision-config.png`
-
-```bash
-gcloud run services describe gemma-rtx-vllm-codelab \
-  --project "$PROJECT_ID" \
-  --region europe-west4 \
-  --format='yaml(
-    status.latestReadyRevisionName,
-    status.traffic,
-    spec.template.metadata.annotations,
-    spec.template.spec.containerConcurrency,
-    spec.template.spec.containers[0].resources
-  )'
-```
-
-리비전, 트래픽 100%, 동시성 16, GPU 1개, CPU 20, 메모리 80GiB가 보이는 터미널 영역만 캡처한다.
-
-#### 7. 문서에 넣기 전 최종 검수
-
-- [ ] 이미지가 실행 완료 후 촬영됐는가?
-- [ ] 모든 Metrics 차트가 같은 `START_UTC`~`OBS_END_UTC` 관측 범위인가?
-- [ ] Logs는 실제 요청 구간인 `START_UTC`~`END_UTC`만 조회했는가?
-- [ ] 서비스 필터가 `gemma-rtx-vllm-codelab`인가?
-- [ ] 터미널 결과 JSON과 Logs 요청 수가 설명 가능한가?
-- [ ] GPU 차트 제목·축·범례가 실제로 보이는가?
-- [ ] 도움말·툴팁·다른 탭·AI 작업 패널을 잘라냈는가?
-- [ ] 액세스 토큰·이메일·결제 정보가 노출되지 않았는가?
-- [ ] 문서에서 일반 링크가 아니라 이미지로 직접 표시했는가?
-
-최종 파일을 만든 뒤 문서에는 다음 형식으로 넣는다.
-
-```markdown
-![요청 수·지연·동시성](./screenshots/proof-02-request-load.png)
-![GPU 사용률](./screenshots/proof-03-gpu-utilization.png)
-![GPU 메모리와 인스턴스 수](./screenshots/proof-04-gpu-memory-instance.png)
-![Cloud Run 요청 로그](./screenshots/proof-05-request-logs.png)
-```
-
-Cloud Run 화면만으로는 클라이언트가 첫 토큰을 받은 시점인 TTFT를 복원할 수 없다. Metrics와 Logs는 서버 측 요청·지연·GPU 부하의 증거이고, TTFT·tok/s·goodput은 보완한 측정기의 JSON과 터미널 캡처로 증명한다. 따라서 `proof-01-terminal-a1-a4.png`가 빠지면 완전한 성능 인증으로 보지 않는다.
 
 </details>
 
 ---
 
-## 재현 부록 D. 트러블슈팅과 운영 상태
+## 재현 부록 D. 런타임 로그 주의사항
 
 <details>
-<summary><strong>12. 로그에서 확인된 주의사항</strong></summary>
+<summary><strong>8. FP8 KV cache 경고</strong></summary>
 
 ```
 WARNING [kv_cache.py:147] Using uncalibrated q_scale 1.0 and/or prob_scale 1.0 with fp8 attention.
@@ -763,46 +1179,11 @@ WARNING [kv_cache.py:108] Using KV cache scaling factor 1.0 for fp8_e4m3.
 WARNING [kv_cache.py:94]  Checkpoint does not provide a q scaling factor. Setting it to k_scale.
 ```
 
-`KV_CACHE_DTYPE=fp8`을 bf16 체크포인트에 적용하면 스케일링 팩터가 없어 **1.0으로 고정**된다. 메모리는 줄지만 정확도 저하 가능성이 로그로 명시된다. §8이 "실제 품질 평가는 별도로 해야 한다"고 적은 부분의 구체적 근거다.
+`KV_CACHE_DTYPE=fp8`을 bf16 체크포인트에 적용하면 스케일링 팩터가 없어 **1.0으로 고정**된다. 메모리는 줄지만 정확도 저하 가능성이 있으므로, 성능과 별도로 출력 품질을 평가해야 한다.
 
 그 밖에 `ulimit of 25000` 경고(`Too many open files` 위험)와 `num_gpu_blocks_override=16`(프로파일링 단계의 임시 오버라이드)이 함께 남는다.
 
 </details>
-
----
-
-<details>
-<summary><strong>13. 재현용 명령과 운영 상태</strong></summary>
-
-### 재현용 명령 요약
-
-```bash
-# 사전: gcloud components install beta --quiet
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com \
-  artifactregistry.googleapis.com iam.googleapis.com compute.googleapis.com \
-  vpcaccess.googleapis.com storage.googleapis.com
-
-# §5 — -D 없이 (서버사이드 복사)
-gcloud storage cp -r "gs://vertex-model-garden-public-us/gemma4/gemma-4-31B-it" "$GCS_MODEL_LOCATION"
-
-# §8 — GPU 할당량 1인 기본 프로젝트 기준
-export CLOUD_RUN_MAX_INSTANCES=1
-```
-
-### 운영 체크리스트 실행 결과
-
-- [x]  목표 리전에 RTX PRO 6000 GPU와 필요한 quota가 있는가? → `europe-west4` 가용, **할당량 1**
-- [x]  GCS 버킷과 Cloud Run 서비스가 같은 리전에 있는가? → 둘 다 `europe-west4`
-- [x]  비공개 Cloud Run 호출자에게만 Invoker 권한을 부여했는가? → `--no-allow-unauthenticated`, ID 토큰 호출로 검증
-- [x]  cold start, 첫 토큰 지연, 처리량, GPU 메모리를 측정했는가? → 4분 23초 / 0.411s / 38.5 tok/s / KV 57.09 GiB
-- [ ]  서비스 계정 권한을 최소화했는가? → 원문대로 `roles/storage.admin` 유지 (실습 범위)
-- [ ]  최대 인스턴스·타임아웃·예산 알림을 설정했는가? → max-instances 1, timeout 3600s. 예산 알림 미설정
-- [ ]  검증 후 GPU 서비스와 모델 캐시를 삭제했는가? → §12 미실행
-
-> **잔여 비용 주의**: 서비스는 min-instances 0이라 유휴 시 GPU 과금은 없지만, **GCS에 58.28 GiB가 남아 있다**(`europe-west4` 표준 스토리지 기준 월 $1 남짓). 더 쓸 일이 없으면 §12를 실행한다.
-
-</details>
-
 ---
 
 ## 참고 자료

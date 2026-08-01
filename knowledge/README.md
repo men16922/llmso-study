@@ -18,7 +18,7 @@ knowledge/
 ├── 04-kickoff-checklist.md   ★ 시작 전 실행 체크리스트
 ├── 05-week1-prep.md          ★ 1주차 CH1~2 예습 노트
 │
-├── subpages/                 ★ 노션 서브페이지·실측 기록 11종 정리
+├── subpages/                 ★ 노션 서브페이지·실측 기록 12종 정리
 │   ├── README.md             인덱스 · 주제 지도 · 읽는 순서
 │   ├── gpu-setup-docker-k8s.md         PC→Docker→K8s GPU 설정 (OCI 훅, Device Plugin 내부)
 │   ├── gpu-setup-windows-wsl2.md       ★ 위 실습의 Windows+WSL2 실행판 (RTX 4080 Laptop)

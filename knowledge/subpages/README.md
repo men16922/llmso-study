@@ -12,6 +12,7 @@
 | [gpu-setup-windows-wsl2.md](./gpu-setup-windows-wsl2.md) ★ | (위 문서의 재구성) | 같은 실습을 **Windows 11 + WSL2 + RTX 4080 Laptop(12GB)** 에서 바로 따라 하는 판. `/dev/nvidia0` 대신 `/dev/dxg`가 나오는 이유와 **어디서부터 깨지는지** |
 | [gpu-setup-docker-k8s-lab-report-wsl2.md](./gpu-setup-docker-k8s-lab-report-wsl2.md) ★ | (직접 실측) | WSL2에서 Docker·K3s·DCGM까지 실행한 증빙. 원문과 다른 결과와 트러블슈팅을 기록 |
 | [vllm-gpu-serving-baseline-runbook-wsl2.md](./vllm-gpu-serving-baseline-runbook-wsl2.md) ★ | (후속 실험) | 위 GPU 환경에 vLLM을 올려 **TTFT·처리량·goodput**을 재현 가능하게 측정하는 실행 런북 |
+| [cloudrun-gemma4-vllm-author-notes.md](./cloudrun-gemma4-vllm-author-notes.md) | (개인 운영 메모) | Cloud Run Gemma 4 실습의 재촬영 절차·검수표·비용 및 리소스 정리 상태 |
 | [gpu-interconnect-bandwidth.md](./gpu-interconnect-bandwidth.md) | [노션](https://gasidaseo.notion.site/GPU-Network-1-GPU-Interconnect-Bandwidth-38750aec5edf80428383e33957b728cf) | 메모리 대역폭 병목(**메모리 장벽 4.7배**)과 NVLink/NVSwitch/PCIe 토폴로지 |
 | [hami-gpu-virtualization.md](./hami-gpu-virtualization.md) | 🛁 [노션](https://gasidaseo.notion.site/GPU-HAMi-39750aec5edf8030871ff0b3bcff0389) | SW 기반 GPU 가상화. **VRAM 격리는 되지만 compute 격리는 안 됐다**는 실습 결론 |
 | [nccl-communication.md](./nccl-communication.md) | [노션](https://app.notion.com/p/gasidaseo/NCCL-GPU-Cluster-Communication-Model-3aa50aec5edf807c89b1d273875d1f07) | 분산 학습의 **Ring AllReduce(ReduceScatter + AllGather)** 단계별 추적 |

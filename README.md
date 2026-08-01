@@ -14,14 +14,14 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소�
 
 ```
 .
-├── knowledge/           스터디 자료 정리 (문서 26개)
+├── knowledge/           스터디 자료 정리 (문서 27개)
 │   ├── 00-study-overview.md      커리큘럼 · 교재 CH1~10 매핑
 │   ├── 01-environment-setup.md   GPU 실습 환경
 │   ├── 02-assignments.md         과제 규정 · 마감표
 │   ├── 03-study-rules.md         저작권 · 슬랙/ZOOM · 질문법
 │   ├── 04-kickoff-checklist.md   시작 전 실행 체크리스트
 │   ├── 05-week1-prep.md          1주차 CH1~2 예습 노트
-│   ├── subpages/                 노션 서브페이지·실측 기록 11종 정리
+│   ├── subpages/                 노션 서브페이지·실측 기록 12종 정리
 │   └── references/               외부 자료 인덱스
 │       ├── priority-guide.md     ★ 중요/선택 등급 분류
 │       ├── deep-dives.md         ★ 핵심 자료 14종 심층 분석
@@ -29,7 +29,7 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소�
 │
 ├── articles/            실습 수행 기록과 분석 글
 │   └── Run inference of Gemma 4 model on Cloud Run.md
-├── index/               PageIndex 호환 트리 인덱스 (818 노드)
+├── index/               PageIndex 호환 트리 인덱스 (817 노드)
 │   ├── USAGE.md         ★ 도구 사용 가이드
 │   └── README.md        검토 과정 · 실측 결과
 ├── labs/                재현 가능한 실습 자산

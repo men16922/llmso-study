@@ -132,14 +132,14 @@ model: "gpt-4o-2024-11-20"
 
 ## 3. 생성된 인덱스
 
-`python3 tools/build_pageindex.py` 로 생성 · 재생성합니다. (총 **818 노드**, 약 552 KB)
+`python3 tools/build_pageindex.py` 로 생성 · 재생성합니다. (총 **817 노드**, 약 552 KB)
 
 | 파일 | 대상 | 노드 | 트리 출처 |
 |---|---|---|---|
 | [`inference-engineering-2026_structure.json`](./inference-engineering-2026_structure.json) ★ | 259p PDF | 146 | PDF 내장 TOC + **LLM 한국어 요약** |
 | [`gpu-enabled-platforms-on-kubernetes-v2-2026_structure.json`](./gpu-enabled-platforms-on-kubernetes-v2-2026_structure.json) | 202p PDF | 86 | 사이드카 (`tools/toc/`) |
 | [`nhn-cloud-factoryx-gpu-whitepaper-2026_structure.json`](./nhn-cloud-factoryx-gpu-whitepaper-2026_structure.json) | 66p PDF | 54 | PDF 내장 TOC |
-| [`knowledge_structure.json`](./knowledge_structure.json) | repo 내 md **35개** (루트 README 포함) | 532 | 마크다운 헤딩 |
+| [`knowledge_structure.json`](./knowledge_structure.json) | repo 내 md **36개** (루트 README 포함) | 531 | 마크다운 헤딩 |
 
 ### 진짜 PageIndex와 다른 점 (정직하게)
 
