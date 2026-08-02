@@ -18,19 +18,19 @@ knowledge/
 ├── 04-kickoff-checklist.md   ★ 시작 전 실행 체크리스트
 ├── 05-week1-prep.md          ★ 1주차 CH1~2 예습 노트
 │
-├── subpages/                 ★ 노션 서브페이지·실측 기록 12종 정리
+├── subpages/                 ★ 노션 서브페이지·실측 기록 11종 정리
 │   ├── README.md             인덱스 · 주제 지도 · 읽는 순서
 │   ├── gpu-setup-docker-k8s.md         PC→Docker→K8s GPU 설정 (OCI 훅, Device Plugin 내부)
 │   ├── gpu-setup-windows-wsl2.md       ★ 위 실습의 Windows+WSL2 실행판 (RTX 4080 Laptop)
-│   ├── gpu-setup-docker-k8s-lab-report-wsl2.md  ★ WSL2 실측 결과와 트러블슈팅
-│   ├── vllm-gpu-serving-baseline-runbook-wsl2.md ★ 실제 vLLM 서빙·성능 측정 런북
+│   ├── vllm-gpu-serving-baseline-runbook-wsl2.md ★ vLLM 서빙 런북 + 실측 결과
 │   ├── gpu-interconnect-bandwidth.md   메모리 장벽, NVLink/NVSwitch/PCIe
 │   ├── hami-gpu-virtualization.md      SW GPU 가상화 HAMi
 │   ├── nccl-communication.md           Ring AllReduce 단계별 추적
 │   ├── nvidia-ai-infrastructure.md     NVIDIA 인프라 6계층 지도
 │   ├── ai-factory-ops-lab.md           가짜 GPU로 하는 플랫폼 운영 실습
 │   ├── genai-on-eks-workshop-notes.md  6주차 예습 (EKS + vLLM + Ray)
-│   └── aws-interconnect.md             AWS EFA / SRD / ENI
+│   ├── aws-interconnect.md             AWS EFA / SRD / ENI
+│   └── cloudrun-gemma4-vllm-author-notes.md  Cloud Run 실습 운영 메모
 │
 └── references/               ★ 모든 외부 자료의 단일 인덱스
     ├── README.md             전체 링크 표 + 주차별 자료 매핑

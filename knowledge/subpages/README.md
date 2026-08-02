@@ -10,8 +10,8 @@
 |---|---|---|
 | [gpu-setup-docker-k8s.md](./gpu-setup-docker-k8s.md) | 🛣️ [노션](https://gasidaseo.notion.site/PC-GPU-by-Docker-K8S-39750aec5edf806d8070d580fac38917) | 로컬 PC → 컨테이너 → K8s 단계별 GPU 인식/실행 실습. **OCI 훅·Device Plugin 내부 동작**까지 |
 | [gpu-setup-windows-wsl2.md](./gpu-setup-windows-wsl2.md) ★ | (위 문서의 재구성) | 같은 실습을 **Windows 11 + WSL2 + RTX 4080 Laptop(12GB)** 에서 바로 따라 하는 판. `/dev/nvidia0` 대신 `/dev/dxg`가 나오는 이유와 **어디서부터 깨지는지** |
-| [gpu-setup-docker-k8s-lab-report-wsl2.md](./gpu-setup-docker-k8s-lab-report-wsl2.md) ★ | (직접 실측) | WSL2에서 Docker·K3s·DCGM까지 실행한 증빙. 원문과 다른 결과와 트러블슈팅을 기록 |
-| [vllm-gpu-serving-baseline-runbook-wsl2.md](./vllm-gpu-serving-baseline-runbook-wsl2.md) ★ | (후속 실험) | 위 GPU 환경에 vLLM을 올려 **TTFT·처리량·goodput**을 재현 가능하게 측정하는 실행 런북 |
+| [articles/gpu-setup-docker-k8s-lab-report-wsl2.md](../../articles/gpu-setup-docker-k8s-lab-report-wsl2.md) ★ | (직접 실측) | WSL2에서 Docker·K3s·DCGM까지 실행한 증빙. 원문과 다른 결과와 트러블슈팅을 기록. **실습 기록이라 `articles/`로 옮겼습니다** |
+| [vllm-gpu-serving-baseline-runbook-wsl2.md](./vllm-gpu-serving-baseline-runbook-wsl2.md) ★ | (후속 실험·**측정 완료**) | 위 GPU 환경에 vLLM을 올려 **TTFT·처리량·goodput**을 측정한 런북 + 결과. 1.5B는 동시성 16까지 goodput 100%(1691 tok/s), 7B AWQ는 ×0.68. 병목은 TGP 105W |
 | [cloudrun-gemma4-vllm-author-notes.md](./cloudrun-gemma4-vllm-author-notes.md) | (개인 운영 메모) | Cloud Run Gemma 4 실습의 재촬영 절차·검수표·비용 및 리소스 정리 상태 |
 | [gpu-interconnect-bandwidth.md](./gpu-interconnect-bandwidth.md) | [노션](https://gasidaseo.notion.site/GPU-Network-1-GPU-Interconnect-Bandwidth-38750aec5edf80428383e33957b728cf) | 메모리 대역폭 병목(**메모리 장벽 4.7배**)과 NVLink/NVSwitch/PCIe 토폴로지 |
 | [hami-gpu-virtualization.md](./hami-gpu-virtualization.md) | 🛁 [노션](https://gasidaseo.notion.site/GPU-HAMi-39750aec5edf8030871ff0b3bcff0389) | SW 기반 GPU 가상화. **VRAM 격리는 되지만 compute 격리는 안 됐다**는 실습 결론 |
@@ -65,7 +65,7 @@ GPU 인터커넥트      gpu-interconnect-bandwidth  ·  nccl-communication  · 
 
 1. **[gpu-setup-docker-k8s](./gpu-setup-docker-k8s.md)** — GPU가 컨테이너/K8s에 어떻게 노출되는지 (기초)
    - Windows 랩탑에서 **직접 실행**하려면 → [gpu-setup-windows-wsl2](./gpu-setup-windows-wsl2.md)
-   - 완료 후 실제 결과와 차이를 확인하려면 → [WSL2 실측 보고서](./gpu-setup-docker-k8s-lab-report-wsl2.md)
+   - 완료 후 실제 결과와 차이를 확인하려면 → [WSL2 실측 보고서](../../articles/gpu-setup-docker-k8s-lab-report-wsl2.md)
 2. **[WSL2·K3s vLLM GPU 서빙 기준선 런북](./vllm-gpu-serving-baseline-runbook-wsl2.md)** — 실제 모델의 TTFT·처리량·goodput 측정
 3. **[Gemma 4 Cloud Run GPU 실습](../../articles/Run%20inference%20of%20Gemma%204%20model%20on%20Cloud%20Run.md)** — 같은 지표를 31B·서버리스 GPU 환경에서 비교
 4. **[gpu-interconnect-bandwidth](./gpu-interconnect-bandwidth.md)** — 왜 메모리·인터커넥트가 병목인지 (교재 CH5의 배경)

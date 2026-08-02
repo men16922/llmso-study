@@ -21,15 +21,17 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소�
 │   ├── 03-study-rules.md         저작권 · 슬랙/ZOOM · 질문법
 │   ├── 04-kickoff-checklist.md   시작 전 실행 체크리스트
 │   ├── 05-week1-prep.md          1주차 CH1~2 예습 노트
-│   ├── subpages/                 노션 서브페이지·실측 기록 12종 정리
+│   ├── subpages/                 노션 서브페이지·실측 기록 11종 정리
 │   └── references/               외부 자료 인덱스
 │       ├── priority-guide.md     ★ 중요/선택 등급 분류
 │       ├── deep-dives.md         ★ 핵심 자료 14종 심층 분석
 │       └── pdf/                  다운로드된 PDF 3종 (41.6 MB · 527p)
 │
 ├── articles/            실습 수행 기록과 분석 글
-│   └── Run inference of Gemma 4 model on Cloud Run.md
-├── index/               PageIndex 호환 트리 인덱스 (817 노드)
+│   ├── gpu-setup-docker-k8s-lab-report-wsl2.md   WSL2 GPU 실측 결과와 트러블슈팅
+│   ├── Run inference of Gemma 4 model on Cloud Run.md
+│   └── screenshots/              글별 증빙 이미지
+├── index/               PageIndex 호환 트리 인덱스 (824 노드)
 │   ├── USAGE.md         ★ 도구 사용 가이드
 │   └── README.md        검토 과정 · 실측 결과
 ├── labs/                재현 가능한 실습 자산

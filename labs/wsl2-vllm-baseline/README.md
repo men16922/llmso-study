@@ -1,6 +1,6 @@
 # WSL2·K3s vLLM 서빙 기준선 실험
 
-[`gpu-setup-docker-k8s-lab-report-wsl2.md`](../../knowledge/subpages/gpu-setup-docker-k8s-lab-report-wsl2.md)에서 확인한 GPU 인프라 위에 실제 모델 서버를 올리고, 입력·출력 길이와 동시성에 따른 성능 변화를 측정합니다.
+[`gpu-setup-docker-k8s-lab-report-wsl2.md`](../../articles/gpu-setup-docker-k8s-lab-report-wsl2.md)에서 확인한 GPU 인프라 위에 실제 모델 서버를 올리고, 입력·출력 길이와 동시성에 따른 성능 변화를 측정합니다.
 
 사람이 따라갈 실행 순서와 결과 기록 양식은 [`WSL2·K3s vLLM GPU 서빙 기준선 런북`](../../knowledge/subpages/vllm-gpu-serving-baseline-runbook-wsl2.md)에 있습니다. 이 디렉터리는 런북에서 호출하는 스크립트와 Kubernetes 매니페스트의 원본입니다.
 
@@ -64,6 +64,7 @@ curl -fsS http://localhost:8000/v1/models
 
 ```bash
 python3 labs/wsl2-vllm-baseline/benchmark.py \
+  --base-url http://127.0.0.1:8000 \
   --concurrency 1,4 \
   --requests-per-level 2 \
   --output labs/wsl2-vllm-baseline/results/smoke.json
@@ -73,6 +74,7 @@ python3 labs/wsl2-vllm-baseline/benchmark.py \
 
 ```bash
 python3 labs/wsl2-vllm-baseline/benchmark.py \
+  --base-url http://127.0.0.1:8000 \
   --concurrency 1,4,8,16 \
   --requests-per-level 8 \
   --ttft-slo 2 \
@@ -125,6 +127,15 @@ kubectl rollout status deployment/vllm-baseline \
 
 OOM이 발생하면 `--gpu-memory-utilization`을 올리기보다 `--max-model-len`과 `--max-num-seqs`를 먼저 낮추고, 실패한 설정도 결과에 남깁니다. 모델을 바꾼 결과는 기준선 JSON과 섞지 말고 별도 파일로 저장합니다.
 
+**실측 결과(2026-08-02): 기본 설정 그대로 OOM 없이 떴습니다.** 낮출 필요가 없었습니다.
+
+```
+Available KV cache memory: 3.71 GiB
+GPU KV cache size: 69,488 tokens
+```
+
+`max-model-len 4096` × `max-num-seqs 16` = 최대 65,536 토큰이므로 최악의 경우도 감당합니다. 처리량은 1.5B 대비 **×0.64~0.73**으로, 파라미터 4.7배 증가분을 AWQ 4bit + Marlin 커널이 대부분 흡수했습니다.
+
 ## 6. 종료와 정리
 
 ```bash
@@ -140,7 +151,22 @@ namespace를 삭제하면 PVC의 모델 캐시도 함께 삭제됩니다. 다시
 - mock OpenAI 스트리밍 서버 기반 단위 테스트 통과
 - Kubernetes 리소스 5종 client-side dry-run 통과
 - Prometheus 3.13.1 `promtool check rules` 통과: 3개 규칙
-- 실제 NVIDIA GPU·vLLM 결과: WSL2 RTX 환경에서 실행 필요
+- **실제 NVIDIA GPU·vLLM 결과: 2026-08-02 WSL2 + RTX 4080 Laptop에서 측정 완료.** 해석은 [런북 §7](../../knowledge/subpages/vllm-gpu-serving-baseline-runbook-wsl2.md)에 있습니다.
+
+| 결과 파일 | 내용 |
+|---|---|
+| [`results/smoke.json`](./results/smoke.json) | 스모크 (동시성 1·4) |
+| [`results/baseline.json`](./results/baseline.json) | **1.5B 기준선** — 120/120 성공, 동시성 16까지 goodput 100%, decode c=16에서 1691 tok/s |
+| [`results/baseline-7b-awq.json`](./results/baseline-7b-awq.json) | **7B AWQ** — 120/120 성공, 12GB에서 OOM 없음(KV cache 3.71GiB / 69,488토큰). 처리량은 1.5B의 **×0.64~0.73** |
+| [`results/sustained-7b-awq-2400.json`](./results/sustained-7b-awq-2400.json) | 7B 장시간 부하 2400요청 — 전부 성공했으나 **goodput 99.2%**. 탈락 18건이 한 wave에 몰린 일시 정지이며, 정황상 같은 PC의 화면 캡처와 CPU를 다툰 결과입니다 (런북 §8.4) |
+
+> ⚠️ **측정과 화면 캡처를 같은 머신에서 겹치지 마세요.** 8 vCPU 환경에서 헤드리스 브라우저 렌더링이 끼어들면 클라이언트 수신이 밀려 goodput이 깎입니다. goodput은 서빙 스택만의 성질이 아니라 측정 환경 전체의 성질입니다.
+
+## ⚠️ Windows에서 실행할 때 — `--base-url`에 `127.0.0.1`을 쓰세요
+
+기본값 `http://localhost:8000`을 Windows에서 그대로 쓰면 **모든 요청에 약 2.07초가 더해집니다.** `localhost`가 IPv6 `::1`로 먼저 해석되는데 `kubectl port-forward --address 0.0.0.0`은 IPv4에만 바인딩하기 때문이며, 연결 단계에서 생기는 지연이라 TTFT·E2E·goodput이 한꺼번에 오염됩니다.
+
+측정값이 시나리오·동시성과 무관하게 2초대로 고정돼 보이면 이 문제입니다. 근거는 [런북 §8.1](../../knowledge/subpages/vllm-gpu-serving-baseline-runbook-wsl2.md)에 있습니다.
 
 ## 참고
 

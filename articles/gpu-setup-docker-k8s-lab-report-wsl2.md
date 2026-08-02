@@ -2,8 +2,8 @@
 
 | 구분 | 내용 |
 |---|---|
-| 원본 실습 | [`gpu-setup-docker-k8s.md`](./gpu-setup-docker-k8s.md) — Ubuntu 24.04 Server **베어메탈** 기준 |
-| WSL2 안내서 | [`gpu-setup-windows-wsl2.md`](./gpu-setup-windows-wsl2.md) — Windows 11 + WSL2 |
+| 원본 실습 | [`gpu-setup-docker-k8s.md`](../knowledge/subpages/gpu-setup-docker-k8s.md) — Ubuntu 24.04 Server **베어메탈** 기준 |
+| WSL2 안내서 | [`gpu-setup-windows-wsl2.md`](../knowledge/subpages/gpu-setup-windows-wsl2.md) — Windows 11 + WSL2 |
 | 실행 일자 | **2026-07-29 ~ 07-30** |
 
 > 위 두 문서를 끝까지 실행한 뒤, 명령과 출력을 가공하지 않고 남긴 실습 기록입니다. 절차를 다시 설명하기보다 **재현 결과와 증빙**을 보여주는 데 초점을 맞췄습니다.
@@ -521,15 +521,15 @@
 
 	### Prometheus 수집·부하 반영·알림 규칙
 
-	![Prometheus targets — dcgm-exporter UP](./assets/gpu-setup-wsl2/proof-01-prometheus-dcgm-target.jpg)
+	![Prometheus targets — dcgm-exporter UP](./screenshots/gpu-setup-wsl2/proof-01-prometheus-dcgm-target.jpg)
 
 	> 그림 5-1. (실습 인증) Prometheus Target health 화면. `serviceMonitor/monitoring/dcgm-exporter/0`이 `1/1 up`, 엔드포인트 `http://10.42.0.125:9400/metrics`, 스크레이프 2ms. Helm의 `serviceMonitor.enabled=true`가 실제 수집으로 이어진 것을 확인.
 
-	![DCGM_FI_DEV_GPU_UTIL 100% under load](./assets/gpu-setup-wsl2/proof-02-prometheus-gpu-util-under-load.jpg)
+	![DCGM_FI_DEV_GPU_UTIL 100% under load](./screenshots/gpu-setup-wsl2/proof-02-prometheus-gpu-util-under-load.jpg)
 
 	> 그림 5-2. (실습 인증) `DCGM_FI_DEV_GPU_UTIL` 15분 그래프. 20:40에 부하 파드를 띄운 직후 0 → 100으로 상승. 범례의 라벨에 `exported_pod="gpu-burn"`, `exported_container="burn"`, `exported_namespace="default"`가 붙어 있어 **DCGM Exporter가 GPU 사용량을 특정 쿠버네티스 파드에 귀속**시킨 것을 확인 (로그의 `Kubernetes metrics collection enabled!`가 이것). 20:33의 24% 봉우리는 `nvidia-smi` 폴링 등 짧은 조회 부하.
 
-	![Prometheus alerts — gpu.rules](./assets/gpu-setup-wsl2/proof-03-prometheus-gpu-alert-rules.jpg)
+	![Prometheus alerts — gpu.rules](./screenshots/gpu-setup-wsl2/proof-03-prometheus-gpu-alert-rules.jpg)
 
 	> 그림 5-3. (실습 인증) Prometheus Alerts 화면. 원문의 PrometheusRule 3종(`GpuXidError`, `HighGpuTemperature`, `HighGpuMemoryUsage`)이 `gpu.rules` 그룹으로 로드되어 `INACTIVE (3)` 상태. 규칙 파일 경로까지 표시되어 Operator가 ConfigMap으로 마운트한 것을 확인.
 
@@ -537,13 +537,13 @@
 
 	문서가 안내한 Grafana 대시보드 ID **12239**(NVIDIA DCGM Exporter Dashboard)를 임포트했습니다.
 
-	![Grafana DCGM dashboard under load](./assets/gpu-setup-wsl2/proof-04-grafana-dcgm-dashboard.jpg)
+	![Grafana DCGM dashboard under load](./screenshots/gpu-setup-wsl2/proof-04-grafana-dcgm-dashboard.jpg)
 
 	> 그림 5-4. (실습 인증) 대시보드 상단. 05:40에 부하 파드를 띄운 시점이 모든 패널에서 동시에 꺾입니다 — GPU Temperature 45℃ → **78℃**, GPU Power Usage 20W대 → **105W 플래토**(Mean 101W / Max 105W), GPU SM Clocks Mean 1.57GHz. 유휴 구간(노란 계열)의 톱니 모양은 `nvidia-smi` 폴링 등 순간 조회 부하입니다. 우측 게이지는 GPU Avg. Temp 56.9℃.
 	>
 	> ※ `GPU Power Total 2.91 kW`는 대시보드가 구간 전력을 합산해 표시하는 값이며 순간 전력이 아닙니다 (실제 상한은 105W).
 
-	![Grafana GPU Utilization 100% and empty Tensor Core panel](./assets/gpu-setup-wsl2/proof-05-grafana-tensor-core-empty.jpg)
+	![Grafana GPU Utilization 100% and empty Tensor Core panel](./screenshots/gpu-setup-wsl2/proof-05-grafana-tensor-core-empty.jpg)
 
 	> 그림 5-5. (실습 인증) `GPU Utilization`은 0% → **100%**(Mean 95.8% / Max 100%)로 정상 표시되지만, 바로 아래 **`Tensor Core Utilization` 패널은 비어 있습니다.** 이 패널이 참조하는 `DCGM_FI_PROF_PIPE_TENSOR_ACTIVE`가 앞선 로그의 `Skipping line 20 ... metric not enabled`처럼 수집되지 않기 때문입니다. 대시보드와 패널은 정상으로 보여도 데이터가 없을 수 있다는 "프로파일링 메트릭 미지원"의 한계를 확인했습니다.
 
@@ -802,15 +802,15 @@
 - **랩탑 측정은 전력 상한을 함께 기록해야 합니다.** 발열 스로틀링과 TGP 제한은 증상이 비슷하지만 원인이 다릅니다.
 - **가상화 계층에서는 관측성의 공백이 드러나지 않을 수 있습니다.** `GpuXidError` 규칙은 문법상 정상이고 로드도 되지만 참조 메트릭이 없어 절대 발화하지 않습니다. Grafana 대시보드 12239도 정상 임포트되고 `Tensor Core Utilization` 패널까지 그려지지만 **데이터만 비어 있습니다**(그림 5-5). "규칙이 있다"·"패널이 있다"와 "값이 온다"는 다른 문제이며, 이것이 6주차 EKS 실습과 대비할 핵심 주제입니다.
 - **환경 유지 자체가 실습의 일부입니다.** WSL 세션 유지, `mount --make-rshared /`, port-forward — 문서에 없던 세 가지가 실제로는 진행을 막는 요인이었습니다.
-- **다음 단계는 실제 모델 서빙입니다.** [`WSL2·K3s vLLM GPU 서빙 기준선 런북`](./vllm-gpu-serving-baseline-runbook-wsl2.md)을 따라 같은 환경에서 TTFT·처리량·goodput을 측정합니다. 실행 파일은 [`labs/wsl2-vllm-baseline/`](../../labs/wsl2-vllm-baseline/)에 분리해 두었습니다.
+- **다음 단계인 실제 모델 서빙까지 측정을 마쳤습니다.** [`WSL2·K3s vLLM GPU 서빙 기준선 런북`](../knowledge/subpages/vllm-gpu-serving-baseline-runbook-wsl2.md)에서 같은 환경에 vLLM을 올려 TTFT·처리량·goodput을 측정했습니다. Qwen2.5-1.5B는 **동시성 16까지 goodput 100%**(TTFT p95 0.066초, 1691 tok/s), 7B AWQ도 12GB에서 OOM 없이 돌아 **처리량이 ×0.68**에 그쳤습니다. 이 문서의 두 결론이 그대로 이어집니다 — ① 병목은 발열이 아니라 **TGP 105W 상한**이었고(두 모델 모두 약 104W, SM 클럭만 하락), ② 여기서 지적한 `GpuXidError`의 조용한 실패를 `absent_over_time` 규칙으로 바꾸자 **실제로 발화**했습니다. Grafana 12239의 `Tensor Core Utilization` 빈 패널도 **실제 LLM 부하에서 재확인**됐습니다. 실행 파일은 [`labs/wsl2-vllm-baseline/`](../labs/wsl2-vllm-baseline/)에 있습니다.
 
 ---
 
 ## 출처와 주의
 
 - 실습 구조·개념 설명: 노션 서브페이지 [(따라하며 확인하는) PC에 GPU 설정 및 사용 by Docker / K8S](https://gasidaseo.notion.site/PC-GPU-by-Docker-K8S-39750aec5edf806d8070d580fac38917) (멤버 전용)
-- 원문 요약본: [`gpu-setup-docker-k8s.md`](./gpu-setup-docker-k8s.md) / WSL2 판: [`gpu-setup-windows-wsl2.md`](./gpu-setup-windows-wsl2.md)
-- 참고 자료: [GPU-Enabled Platforms on Kubernetes](../references/pdfs.md) CH1 Foundations
+- 원문 요약본: [`gpu-setup-docker-k8s.md`](../knowledge/subpages/gpu-setup-docker-k8s.md) / WSL2 판: [`gpu-setup-windows-wsl2.md`](../knowledge/subpages/gpu-setup-windows-wsl2.md)
+- 참고 자료: [GPU-Enabled Platforms on Kubernetes](../knowledge/references/pdfs.md) CH1 Foundations
 - 이 문서의 모든 명령 출력·스크린샷은 2026-07-29~30 본인 환경 실측입니다.
 
-> 원문 노션은 외부 공개·전파 금지입니다. 이 문서는 개인 학습용 기록이며 그대로 외부에 공개하지 마세요. → [`03-study-rules.md`](../03-study-rules.md)
+> 원문 노션은 외부 공개·전파 금지입니다. 이 문서는 개인 학습용 기록이며 그대로 외부에 공개하지 마세요. → [`03-study-rules.md`](../knowledge/03-study-rules.md)
