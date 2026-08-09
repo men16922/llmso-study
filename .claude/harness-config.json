@@ -1,0 +1,19 @@
+{
+  "$comment": "Per-repo harness config. The plugin skills (sync/checkpoint/tidy-docs/overnight-report/overnight-seed) read this to learn doc filenames, gate command, engine, and line budgets. harness_root is pinned because this machine has a second overnight-harness copy under ~/.codex whose path sorts after ~/.claude, so auto-resolution would pick the Codex install instead of the registered Claude one.",
+  "project_name": "llmso-study",
+  "harness_root": "/Users/men1692/.claude/plugins/cache/overnight-harness/overnight-harness/1.2.0",
+  "docs": {
+    "brief": "docs/AGENT_BRIEF.md",
+    "status": "docs/STATUS.md",
+    "plan": "docs/NEXT_PLAN.md",
+    "log": "docs/PROGRESS_LOG.md",
+    "completed": "docs/COMPLETED_SUMMARY.md",
+    "decisions": "docs/DECISIONS.md"
+  },
+  "archive_dir": "docs/archive",
+  "gate": "make check",
+  "smoke": "make smoke-local",
+  "budgets": { "brief": 60, "status": 120, "plan": 120, "log": 120 },
+  "engine": "claude",
+  "engine_choices": ["claude", "codex", "opencode", "agy"]
+}

@@ -24,3 +24,7 @@ logs/
 
 # 요약 캐시 (재실행 시 LLM 호출 절약, 용량이 커서 제외)
 index/.summary_cache.json
+scripts/overnight/logs/
+scripts/overnight/STOP
+scripts/overnight/DONE
+docs/test/history/*-overnight-review-checklist.md

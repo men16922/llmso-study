@@ -1,0 +1,43 @@
+# Agent Brief
+
+Last Updated: 2026-08-09
+
+세션 시작용 압축 컨텍스트(≤60줄). 상세는 필요할 때만 링크 문서를 여세요.
+
+> ▶ NEXT SESSION: 미커밋분 커밋 후, `articles/vLLM 배칭·큐 실습 시나리오 (CH3·CH4).md`의 B1~B4를 WSL2 머신에서 실행. 첫 동작: 0-1의 `wsl -d Ubuntu -u root -- sleep infinity` 창을 띄우고 `kubectl apply -f labs/wsl2-vllm-baseline/k8s/vllm-baseline.yaml`.
+
+## Snapshot
+
+CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 총 7주) 자료 정리 저장소. 애플리케이션이 아니라 **한국어 학습 문서 모음 + 문서·PDF 탐색용 로컬 인덱싱 도구**입니다. 런타임도 배포도 없고, 검증은 "문서와 인덱스가 서로 어긋나지 않았는가"가 전부입니다. 현재 1주차(CH1·CH2) 완료, 과제 제출 완료. 2주차(CH3·CH4)는 2026-08-09 20:30.
+
+핵심 설계는 **인덱스 파이프라인의 역할 분리**입니다 — 트리는 `build_pageindex.py`가 LLM 없이 결정론적으로 만들고, `summary`만 `enrich_summaries.py`가 한국어로 교체합니다. 근거는 `index/README.md` §2 실측 기록.
+
+## Active Work
+
+Authority: `docs/NEXT_PLAN.md`.
+
+1. 과제용 글 작성 — 마감은 **매주 일요일 09:00**, 미공유 1회 = 제명. 2주차는 실습 시나리오가 준비돼 있고 측정만 남음.
+2. 주차별 예습 노트 작성 (매주 모임 전). 1·2주차 완료, 3주차(08-16 CH5·CH6)부터 남음.
+
+## Read Order
+
+1. 현재 상태: `docs/STATUS.md`
+2. 다음 작업: `docs/NEXT_PLAN.md`
+3. 최근 기록: `docs/PROGRESS_LOG.md`
+4. (저장소 자체 규칙) `CLAUDE.md` — 깨지기 쉬운 지점·콘텐츠 정책
+
+## Commands
+
+- 검증 게이트: `make check`  <!-- harness-config.gate와 일치 -->
+- 빠른 확인: `make smoke-local` (링크만)
+- 개념 위치 찾기: `python3 tools/search_index.py "KV cache"`
+- 마크다운 수정 후: `make index-md`
+
+## Guardrails
+
+- **이 저장소는 비공개 유지.** 스터디 규칙상 외부 공개·전파 금지(`knowledge/03-study-rules.md`). 공개 원격 푸시·외부 서비스 업로드는 **반드시 사전 확인**.
+- **`make index-pdf` / `build_pageindex.py` 직접 실행 금지** — PDF까지 재생성하면 LLM 한국어 요약이 발췌로 되돌아갑니다. 마크다운만 고쳤으면 `make index-md`.
+- `enrich_summaries.py`는 API 키가 아니라 **Claude Code 구독 사용량**을 씁니다. 반드시 `--dry-run` → `--limit 5` → 실제 순서로.
+- `labs/`의 벤치마크를 **실제 엔드포인트에 돌리면 비용**이 발생합니다. 무인 루프에서는 금지(단위 테스트만 허용).
+- **모든 문서는 한국어로 작성합니다.**
+- 스터디 내용의 사실관계·쪽수 인용 검증은 원문 대조가 필요하므로 `[manual]`입니다.
