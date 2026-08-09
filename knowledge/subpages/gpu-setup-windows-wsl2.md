@@ -3,7 +3,7 @@
 원문 실습: [`gpu-setup-docker-k8s.md`](./gpu-setup-docker-k8s.md) — Ubuntu 24.04 Server **베어메탈** 기준
 이 문서: 같은 실습을 **Windows 11 + WSL2 + GeForce RTX 4080 Laptop (12GB)** 에서 바로 따라 할 수 있게 옮긴 것
 
-실행 결과: [`gpu-setup-docker-k8s-lab-report-wsl2.md`](../../articles/gpu-setup-docker-k8s-lab-report-wsl2.md) — Docker·K3s·DCGM 실측 증빙과 트러블슈팅
+실행 결과: [`WSL2를 로컬 GPU Kubernetes 개발 환경으로 사용하기.md`](../../articles/WSL2%EB%A5%BC%20%EB%A1%9C%EC%BB%AC%20GPU%20Kubernetes%20%EA%B0%9C%EB%B0%9C%20%ED%99%98%EA%B2%BD%EC%9C%BC%EB%A1%9C%20%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0.md) — Docker·K3s·DCGM 실측 증빙과 트러블슈팅
 다음 실험: [`vllm-gpu-serving-baseline-runbook-wsl2.md`](./vllm-gpu-serving-baseline-runbook-wsl2.md) — K3s에 실제 vLLM을 올려 TTFT·처리량·goodput 측정
 
 > ⚠️ **원문은 WSL을 명시적으로 비권장합니다.** GPU-PV(Paravirtualization) 구조라 PCIe 패스스루가 아니고 기능 제한이 있기 때문입니다. 그럼에도 이 문서를 쓰는 이유는 ① 1~5단계는 WSL2에서 그대로 재현되고 ② **어디서 깨지는지가 오히려 GPU 노출 구조를 이해하는 좋은 재료**이기 때문입니다. 재현 불가 항목은 [§9](#9-원문-대비-재현-불가-항목)에 모아뒀습니다.

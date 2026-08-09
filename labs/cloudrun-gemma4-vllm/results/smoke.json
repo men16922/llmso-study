@@ -1,0 +1,66 @@
+{
+  "meta": {
+    "created_at": "2026-08-01T21:04:57.208012+00:00",
+    "project": "<PROJECT_ID>",
+    "region": "europe-west4",
+    "service": "gemma-rtx-vllm-codelab",
+    "url": "<SERVICE_URL>",
+    "model": "google/gemma-4-31B-it",
+    "experiment": "smoke",
+    "ttft_definition": "요청 시작부터 첫 content 또는 reasoning_content 조각까지",
+    "throughput_definition": "성공 요청의 completion_tokens 합계 / 벽시계 시간",
+    "goodput_definition": "TTFT와 E2E SLO를 모두 만족한 요청 비율",
+    "ttft_slo_s": 2.0,
+    "e2e_slo_s": 30.0,
+    "goodput_target_pct": 95.0,
+    "enable_thinking": false
+  },
+  "warmup": {
+    "experiment": "warmup",
+    "scenario": "cold-start-observation",
+    "concurrency": 1,
+    "request_id": 0,
+    "ok": true,
+    "status": 200,
+    "ttft_s": 244.80159158299648,
+    "e2e_s": 244.902979915998,
+    "output_tokens": 5,
+    "tokens_exact": true,
+    "error": null
+  },
+  "derived": {},
+  "summaries": [
+    {
+      "experiment": "smoke",
+      "scenario": "short",
+      "concurrency": 1,
+      "requests": 1,
+      "successes": 1,
+      "failures": 0,
+      "ttft_p50_s": 0.40975445899675833,
+      "ttft_p95_s": 0.40975445899675833,
+      "e2e_p50_s": 1.1886320839985274,
+      "e2e_p95_s": 1.1886320839985274,
+      "output_tokens": 32,
+      "output_tok_per_s": 26.798409703262973,
+      "goodput_pct": 100.0,
+      "exact_usage_requests": 1,
+      "wall_s": 1.1941007080022246
+    }
+  ],
+  "requests": [
+    {
+      "experiment": "smoke",
+      "scenario": "short",
+      "concurrency": 1,
+      "request_id": 0,
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.40975445899675833,
+      "e2e_s": 1.1886320839985274,
+      "output_tokens": 32,
+      "tokens_exact": true,
+      "error": null
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import threading
 import time
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
 import benchmark
 
@@ -87,6 +88,36 @@ class BenchmarkTest(unittest.TestCase):
         self.assertEqual(summary["successes"], 4)
         self.assertEqual(summary["output_tokens"], 8)
         self.assertEqual(summary["goodput_pct"], 100)
+
+    def test_unique_prefix_makes_each_prompt_distinct(self):
+        base = benchmark.SCENARIOS["short"]["prompt"]
+
+        # 기본값은 프롬프트를 그대로 쓴다 (기존 측정과의 호환).
+        self.assertEqual(benchmark.build_prompt("short", False), base)
+
+        prompts = {benchmark.build_prompt("short", True) for _ in range(20)}
+        self.assertEqual(len(prompts), 20, "요청마다 프롬프트가 달라야 한다")
+        for prompt in prompts:
+            self.assertTrue(prompt.startswith("request-id="))
+            self.assertTrue(prompt.endswith(base), "본문은 유지되어야 한다")
+
+    def test_unique_prefix_flows_through_cli(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output = f"{temp_dir}/result.json"
+            exit_code = benchmark.main(
+                [
+                    "--base-url", self.base_url,
+                    "--scenarios", "short",
+                    "--concurrency", "1",
+                    "--requests-per-level", "2",
+                    "--warmup", "0",
+                    "--unique-prefix",
+                    "--output", output,
+                ]
+            )
+            self.assertEqual(exit_code, 0)
+            payload = json.loads(Path(output).read_text(encoding="utf-8"))
+            self.assertTrue(payload["meta"]["unique_prefix"])
 
     def test_percentile_interpolates(self):
         self.assertEqual(benchmark.percentile([1, 2, 3, 4], 0.5), 2.5)

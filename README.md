@@ -21,6 +21,7 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소�
 │   ├── 03-study-rules.md         저작권 · 슬랙/ZOOM · 질문법
 │   ├── 04-kickoff-checklist.md   시작 전 실행 체크리스트
 │   ├── 05-week1-prep.md          1주차 CH1~2 예습 노트
+│   ├── 06-week2-prep.md          2주차 CH3~4 예습 노트
 │   ├── subpages/                 노션 서브페이지·실측 기록 11종 정리
 │   └── references/               외부 자료 인덱스
 │       ├── priority-guide.md     ★ 중요/선택 등급 분류
@@ -28,7 +29,7 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소�
 │       └── pdf/                  다운로드된 PDF 3종 (41.6 MB · 527p)
 │
 ├── articles/            실습 수행 기록과 분석 글
-│   ├── gpu-setup-docker-k8s-lab-report-wsl2.md   WSL2 GPU 실측 결과와 트러블슈팅
+│   ├── WSL2를 로컬 GPU Kubernetes 개발 환경으로 사용하기.md   WSL2 GPU 실측 결과와 트러블슈팅
 │   ├── Run inference of Gemma 4 model on Cloud Run.md
 │   └── screenshots/              글별 증빙 이미지
 ├── index/               PageIndex 호환 트리 인덱스 (824 노드)
@@ -46,6 +47,7 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 7주) 자료 정리 저장소�
 |---|---|
 | **시작 전 준비** | [`knowledge/04-kickoff-checklist.md`](./knowledge/04-kickoff-checklist.md) |
 | **1주차 예습** | [`knowledge/05-week1-prep.md`](./knowledge/05-week1-prep.md) |
+| **2주차 예습** | [`knowledge/06-week2-prep.md`](./knowledge/06-week2-prep.md) |
 | **WSL2에서 LLM 서빙 측정** | [`knowledge/subpages/vllm-gpu-serving-baseline-runbook-wsl2.md`](./knowledge/subpages/vllm-gpu-serving-baseline-runbook-wsl2.md) |
 | **Cloud Run에서 31B 모델 측정** | [`articles/Run inference of Gemma 4 model on Cloud Run.md`](./articles/Run%20inference%20of%20Gemma%204%20model%20on%20Cloud%20Run.md) |
 | 스터디 전반 파악 | [`knowledge/README.md`](./knowledge/README.md) |

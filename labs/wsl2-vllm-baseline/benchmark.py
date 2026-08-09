@@ -14,6 +14,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -103,6 +104,19 @@ def estimate_tokens(text: str) -> int:
     return max(0, len(text.strip().split()))
 
 
+def build_prompt(scenario_name: str, unique_prefix: bool) -> str:
+    """시나리오 프롬프트를 만든다.
+
+    unique_prefix=True면 앞에 요청마다 다른 식별자를 붙여 prefix cache 적중을 막는다.
+    모든 요청이 같은 프롬프트면 두 번째 요청부터 prefill이 캐시로 해결되어 TTFT가
+    실제보다 좋게 나온다 — 배칭·동시성을 재는 실험에서는 이 효과를 제거해야 한다.
+    """
+    prompt = SCENARIOS[scenario_name]["prompt"]
+    if not unique_prefix:
+        return prompt
+    return f"request-id={uuid.uuid4().hex}\n{prompt}"
+
+
 def run_request(
     *,
     base_url: str,
@@ -112,11 +126,14 @@ def run_request(
     concurrency: int,
     request_id: int,
     timeout_s: float,
+    unique_prefix: bool = False,
 ) -> RequestResult:
     scenario = SCENARIOS[scenario_name]
     body = {
         "model": model,
-        "messages": [{"role": "user", "content": scenario["prompt"]}],
+        "messages": [
+            {"role": "user", "content": build_prompt(scenario_name, unique_prefix)}
+        ],
         "max_tokens": scenario["max_tokens"],
         "temperature": 0,
         "stream": True,
@@ -246,6 +263,7 @@ def run_group(
     concurrency: int,
     request_count: int,
     timeout_s: float,
+    unique_prefix: bool = False,
 ) -> tuple[list[RequestResult], float]:
     started = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
@@ -259,6 +277,7 @@ def run_group(
                 concurrency=concurrency,
                 request_id=request_id,
                 timeout_s=timeout_s,
+                unique_prefix=unique_prefix,
             )
             for request_id in range(request_count)
         ]
@@ -309,6 +328,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout", type=float, default=180)
     parser.add_argument("--ttft-slo", type=float, default=2.0)
     parser.add_argument("--e2e-slo", type=float, default=30.0)
+    parser.add_argument(
+        "--unique-prefix",
+        action="store_true",
+        help="요청마다 프롬프트 앞에 고유 식별자를 붙여 prefix cache 적중을 막는다",
+    )
     parser.add_argument("--output", type=Path)
     return parser
 
@@ -343,6 +367,7 @@ def main(argv: list[str] | None = None) -> int:
                 concurrency=1,
                 request_id=-(warmup_id + 1),
                 timeout_s=args.timeout,
+                unique_prefix=args.unique_prefix,
             )
             if not warmup.ok:
                 print(f"{scenario_name} warmup 실패: {warmup.error}", file=sys.stderr)
@@ -358,6 +383,7 @@ def main(argv: list[str] | None = None) -> int:
                 concurrency=concurrency,
                 request_count=count,
                 timeout_s=args.timeout,
+                unique_prefix=args.unique_prefix,
             )
             all_results.extend(results)
             summaries.append(
@@ -375,6 +401,7 @@ def main(argv: list[str] | None = None) -> int:
             "warmup": args.warmup,
             "ttft_slo_s": args.ttft_slo,
             "e2e_slo_s": args.e2e_slo,
+            "unique_prefix": args.unique_prefix,
             "goodput_definition": "TTFT와 E2E SLO를 모두 만족한 요청 비율",
         },
         "summaries": summaries,

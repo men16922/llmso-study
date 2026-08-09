@@ -3,7 +3,7 @@
 > **상태:** **측정 완료** (2026-08-02, RTX 4080 Laptop) — 결과는 아래 [7. 측정 결과](#7-측정-결과)<br>
 > **대상 환경:** Windows 11 + WSL2 + NVIDIA GPU + K3s<br>
 > **실행 자산:** [`labs/wsl2-vllm-baseline/`](../../labs/wsl2-vllm-baseline/)<br>
-> **선행 기록:** [`WSL2 GPU 인프라 실측 보고서`](../../articles/gpu-setup-docker-k8s-lab-report-wsl2.md)
+> **선행 기록:** [`WSL2 GPU 인프라 실측 보고서`](../../articles/WSL2%EB%A5%BC%20%EB%A1%9C%EC%BB%AC%20GPU%20Kubernetes%20%EA%B0%9C%EB%B0%9C%20%ED%99%98%EA%B2%BD%EC%9C%BC%EB%A1%9C%20%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0.md)
 
 이 문서는 GPU 인프라를 다시 설명하지 않습니다. 앞선 실습에서 확인한 K3s GPU 환경에 실제 vLLM 서버를 올리고, **TTFT·E2E 지연·출력 처리량·goodput**을 같은 조건으로 반복 측정하기 위한 실행 기록지입니다.
 

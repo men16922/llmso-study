@@ -1,6 +1,6 @@
 # WSL2·K3s vLLM 서빙 기준선 실험
 
-[`gpu-setup-docker-k8s-lab-report-wsl2.md`](../../articles/gpu-setup-docker-k8s-lab-report-wsl2.md)에서 확인한 GPU 인프라 위에 실제 모델 서버를 올리고, 입력·출력 길이와 동시성에 따른 성능 변화를 측정합니다.
+[`WSL2를 로컬 GPU Kubernetes 개발 환경으로 사용하기.md`](../../articles/WSL2%EB%A5%BC%20%EB%A1%9C%EC%BB%AC%20GPU%20Kubernetes%20%EA%B0%9C%EB%B0%9C%20%ED%99%98%EA%B2%BD%EC%9C%BC%EB%A1%9C%20%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0.md)에서 확인한 GPU 인프라 위에 실제 모델 서버를 올리고, 입력·출력 길이와 동시성에 따른 성능 변화를 측정합니다.
 
 사람이 따라갈 실행 순서와 결과 기록 양식은 [`WSL2·K3s vLLM GPU 서빙 기준선 런북`](../../knowledge/subpages/vllm-gpu-serving-baseline-runbook-wsl2.md)에 있습니다. 이 디렉터리는 런북에서 호출하는 스크립트와 Kubernetes 매니페스트의 원본입니다.
 

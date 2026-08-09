@@ -55,14 +55,22 @@ spec:
               --host 0.0.0.0
               --port 8000
               --dtype auto
-              --max-model-len 4096
-              --gpu-memory-utilization 0.85
-              --max-num-seqs 16
+              --max-model-len "$MAX_MODEL_LEN"
+              --gpu-memory-utilization "$GPU_MEMORY_UTILIZATION"
+              --max-num-seqs "$MAX_NUM_SEQS"
           env:
             - name: MODEL_ID
               value: Qwen/Qwen2.5-1.5B-Instruct
             - name: SERVED_MODEL_NAME
               value: qwen2.5-1.5b
+            # 아래 3개는 실습 중 `kubectl set env`로 바꿔가며 롤아웃한다.
+            # 예: kubectl -n llm-serving-lab set env deploy/vllm-baseline MAX_NUM_SEQS=64
+            - name: MAX_NUM_SEQS
+              value: "16"
+            - name: MAX_MODEL_LEN
+              value: "4096"
+            - name: GPU_MEMORY_UTILIZATION
+              value: "0.85"
           ports:
             - name: http
               containerPort: 8000
