@@ -4,7 +4,9 @@ Last Updated: 2026-08-09
 
 세션 시작용 압축 컨텍스트(≤60줄). 상세는 필요할 때만 링크 문서를 여세요.
 
-> ▶ NEXT SESSION: 미커밋분 커밋 후, `articles/vLLM 배칭·큐 실습 시나리오 (CH3·CH4).md`의 B1~B4를 WSL2 머신에서 실행. 첫 동작: 0-1의 `wsl -d Ubuntu -u root -- sleep infinity` 창을 띄우고 `kubectl apply -f labs/wsl2-vllm-baseline/k8s/vllm-baseline.yaml`.
+> ▶ NEXT SESSION: **WSL2 머신에서 세션 1(B1·B2) 실행.** 도구는 전부 완성돼 있어 실행·기록만 하면 됩니다. 첫 동작: ① 0-1의 `wsl -d Ubuntu -u root -- sleep infinity` 창을 띄우고 ② `docker pull nvcr.io/nvidia/tritonserver:24.12-py3 &`와 `docker pull rayproject/ray-llm:2.44.1-py311-cu124 &`를 백그라운드로 걸고 ③ `cd labs/wsl2-vllm-baseline && source redeploy.sh`. 시나리오는 `articles/vLLM 배칭·큐 실습 시나리오 (CH3·CH4).md`.
+>
+> (부수 작업) `study/Ch3.md`가 0바이트라 재복사 필요 — CH3 원문 대조는 아직 못 했습니다.
 
 ## Snapshot
 
@@ -16,7 +18,7 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 총 7주) 자료 정리 저장
 
 Authority: `docs/NEXT_PLAN.md`.
 
-1. 과제용 글 작성 — 마감은 **매주 일요일 09:00**, 미공유 1회 = 제명. 2주차는 실습 시나리오가 준비돼 있고 측정만 남음.
+1. 과제용 글 작성 — 마감은 **매주 일요일 09:00**, 미공유 1회 = 제명. 2주차는 시나리오·랩 도구가 전부 준비돼 **측정만 남음**(6.5~8시간·네 세션).
 2. 주차별 예습 노트 작성 (매주 모임 전). 1·2주차 완료, 3주차(08-16 CH5·CH6)부터 남음.
 
 ## Read Order
@@ -35,7 +37,8 @@ Authority: `docs/NEXT_PLAN.md`.
 
 ## Guardrails
 
-- **이 저장소는 비공개 유지.** 스터디 규칙상 외부 공개·전파 금지(`knowledge/03-study-rules.md`). 공개 원격 푸시·외부 서비스 업로드는 **반드시 사전 확인**.
+- **이 저장소는 비공개 유지.** 스터디 규칙상 외부 공개·전파 금지(`knowledge/03-study-rules.md`). 공개 원격 푸시·외부 서비스 업로드는 **반드시 사전 확인**. (`origin`은 비공개 확인됨)
+- **`study/`는 커밋하지 않습니다.** 노션 멤버 전용 원문의 로컬 사본입니다. `.gitignore`와 `tools/build_pageindex.py`의 `MD_SKIP_DIRS` 양쪽에 들어 있습니다 — 인덱스는 커밋되므로 거기 발췌가 들어가면 사실상 저장소 전재가 됩니다.
 - **`make index-pdf` / `build_pageindex.py` 직접 실행 금지** — PDF까지 재생성하면 LLM 한국어 요약이 발췌로 되돌아갑니다. 마크다운만 고쳤으면 `make index-md`.
 - `enrich_summaries.py`는 API 키가 아니라 **Claude Code 구독 사용량**을 씁니다. 반드시 `--dry-run` → `--limit 5` → 실제 순서로.
 - `labs/`의 벤치마크를 **실제 엔드포인트에 돌리면 비용**이 발생합니다. 무인 루프에서는 금지(단위 테스트만 허용).

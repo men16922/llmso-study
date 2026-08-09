@@ -4,6 +4,27 @@ Last Updated: 2026-08-09
 
 최근 증분 요약만 유지합니다 (최신 3~5건, ≤120줄). 오래된 항목은 `/tidy-docs`로 `docs/archive/progress-YYYY-MM.md`에 보관합니다.
 
+## 2026-08-09 (2) — 2주차 실습 도구 일체 완성, 시나리오를 B1·B2·C1·C2·C3로 확장
+
+- **Status**: 게이트 green (`make check` = 문서 3종 + labs 테스트 **86건**, 오프라인·약 2초). 커밋·푸시 완료 (`6a01681`·`011379c`·`eae3406`).
+- **Changed**
+  - **근거 확보**: 교재 공식 저장소(`orca3/llm-model-inference`) ch03·ch04를 직접 읽고, 노션 CH4 원문(`study/`, gitignore)과 본인의 「7주 실행 계획」을 대조. 시나리오의 챕터 태그 오류 2건과 B4 판단 기준 오류를 정정.
+  - **실습 도구 완성** — 노트북에서는 실행·기록만 하면 됨:
+    - `benchmark.py --api book` (교재 ch03 서버 어댑터) + ITL/TPOT 지표
+    - `summarize_results.py` — `--all` / `--pareto` / `--formula` / `--delta`
+    - `redeploy.sh` — 롤아웃 실패 감지 · `/v1/models` 폴링 · 타임라인 기록
+    - `labs/triton-dynamic-batching/` 5종 + `labs/rayserve-on-k8s/` 2종
+  - **시나리오 확장**: C1(교재 자작 서버 배칭 4단계) · C2(Triton dynamic batching) · C3(RayService, CH4 도전과제) 추가. B3~B5는 다음 편으로 이월.
+  - `study/`(멤버 전용 노션 원문)를 `.gitignore` + `MD_SKIP_DIRS` 양쪽에서 제외 — 인덱스가 커밋되므로 발췌가 들어가면 사실상 저장소 전재.
+- **Verified**
+  - `make check` exit 0. 51(wsl2) + 6(cloudrun) + 19(triton) + 10(rayserve) = 86건.
+  - `summarize_results.py`를 합성 B1 데이터로 종단 실행 — 표 3종·파레토·공식 검증 모두 기대대로 출력.
+  - 코드 읽기로 찾은 함정 3개가 테스트로 고정됨: 프롬프트 에코 보정 · TTFT 없는 엔드포인트의 goodput 판정 · 네 엔드포인트 동일 계수법.
+  - `ManifestTest`가 C3의 통제 변수 4개(모델·max_model_len·gpu_memory_utilization·max_num_seqs)를 B1과 동일하게 감시.
+  - **미검증**: 실제 GPU 실행은 한 번도 안 함(도구는 전부 mock·순수 로직 테스트). vLLM v0.23.0 메트릭 이름, Triton 이미지 동작, KubeRay 배포는 전부 노트북에서 확인 필요.
+- **Blockers**: 없음. 단 `study/Ch3.md`가 0바이트 — 재복사 필요.
+- **Next**: WSL2에서 세션 1(B1·B2) 실행. 시작 시 Triton·ray-llm 이미지 풀과 C1 venv 설치를 백그라운드로.
+
 ## 2026-08-09 — 하네스 설치 + 2주차 예습 노트 + CH3·CH4 실습 시나리오
 
 - **Status**: 게이트 green (`make check` = 문서 3종 + labs 테스트 6건, 약 2초). 전부 미커밋.
