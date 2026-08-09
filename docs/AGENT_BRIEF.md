@@ -4,9 +4,9 @@ Last Updated: 2026-08-09
 
 세션 시작용 압축 컨텍스트(≤60줄). 상세는 필요할 때만 링크 문서를 여세요.
 
-> ▶ NEXT SESSION: **WSL2 머신에서 세션 1(B1·B2) 실행.** 도구는 전부 완성돼 있어 실행·기록만 하면 됩니다. 첫 동작: ① 0-1의 `wsl -d Ubuntu -u root -- sleep infinity` 창을 띄우고 ② `docker pull nvcr.io/nvidia/tritonserver:24.12-py3 &`와 `docker pull rayproject/ray-llm:2.44.1-py311-cu124 &`를 백그라운드로 걸고 ③ `cd labs/wsl2-vllm-baseline && source redeploy.sh`. 시나리오는 `articles/vLLM 배칭·큐 실습 시나리오 (CH3·CH4).md`.
+> ▶ NEXT SESSION: **WSL2 머신에서 세션 1(B1·B2) 실행.** 도구는 전부 완성돼 있어 실행·기록만 하면 됩니다. 첫 동작: ① 0-1의 `wsl -d Ubuntu -u root -- sleep infinity` 창을 띄우고 ② `docker pull nvcr.io/nvidia/tritonserver:24.12-py3 &`와 `docker pull rayproject/ray-llm:2.44.1-py311-cu124 &`를 백그라운드로 걸고 ③ `cd labs/wsl2-vllm-baseline && source redeploy.sh`. 시나리오는 4편으로 쪼갰습니다 — 허브 `articles/vLLM 배칭·큐 실습 시나리오 (CH3·CH4).md`, 세션 1은 `articles/2주차-01 배치 슬롯과 큐.md`.
 >
-> (부수 작업) `study/Ch3.md`가 0바이트라 재복사 필요 — CH3 원문 대조는 아직 못 했습니다.
+> `study/`에 노션 원문(Ch1~Ch4, LLM기초)이 들어와 있습니다 — **커밋 대상 아님**(gitignore + 인덱스 제외).
 
 ## Snapshot
 

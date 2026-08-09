@@ -182,6 +182,68 @@ class BookApiTest(unittest.TestCase):
             "TTFT가 없는 엔드포인트를 전부 SLO 위반으로 세면 안 된다",
         )
 
+    def test_prompts_per_request_sends_a_list(self):
+        """교재 서버의 배칭 축은 요청당 프롬프트 수다 (동시 요청 수가 아니라)."""
+        result = benchmark.run_book_request(
+            base_url=self.base_url,
+            endpoint="/generate",
+            scenario_name="short",
+            concurrency=1,
+            request_id=0,
+            timeout_s=5,
+            prompts_per_request=4,
+        )
+        self.assertTrue(result.ok, result.error)
+        # 프롬프트 4개 → 생성분 4개(각 3단어). 에코된 프롬프트 4벌은 빠져야 한다.
+        self.assertEqual(result.output_tokens, 12)
+
+    def test_prompt_echo_subtracted_once_per_response(self):
+        """에코 보정은 응답 개수만큼 빼야 한다 — 한 번만 빼면 과대계상된다."""
+        one = benchmark.run_book_request(
+            base_url=self.base_url, endpoint="/generate", scenario_name="short",
+            concurrency=1, request_id=0, timeout_s=5, prompts_per_request=1,
+        )
+        four = benchmark.run_book_request(
+            base_url=self.base_url, endpoint="/generate", scenario_name="short",
+            concurrency=1, request_id=1, timeout_s=5, prompts_per_request=4,
+        )
+        self.assertEqual(four.output_tokens, one.output_tokens * 4)
+
+    def test_single_prompt_endpoint_ignores_the_list(self):
+        """/generate_stream은 프롬프트를 하나만 받는다 — 여러 개를 실을 수 없다."""
+        result = benchmark.run_book_request(
+            base_url=self.base_url,
+            endpoint="/generate_stream",
+            scenario_name="short",
+            concurrency=1,
+            request_id=0,
+            timeout_s=5,
+            prompts_per_request=4,
+        )
+        self.assertTrue(result.ok, result.error)
+        self.assertEqual(result.output_tokens, 3)
+
+    def test_zero_prompts_is_rejected(self):
+        with self.assertRaises(ValueError):
+            benchmark.run_book_request(
+                base_url=self.base_url, endpoint="/generate", scenario_name="short",
+                concurrency=1, request_id=0, timeout_s=5, prompts_per_request=0,
+            )
+
+    def test_prompts_per_request_recorded_in_meta(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output = f"{temp_dir}/result.json"
+            exit_code = benchmark.main([
+                "--api", "book", "--endpoint", "/generate",
+                "--base-url", self.base_url, "--scenarios", "short",
+                "--concurrency", "1", "--requests-per-level", "2",
+                "--warmup", "0", "--prompts-per-request", "4",
+                "--output", output,
+            ])
+            self.assertEqual(exit_code, 0)
+            payload = json.loads(Path(output).read_text(encoding="utf-8"))
+            self.assertEqual(payload["meta"]["prompts_per_request"], 4)
+
     def test_unknown_endpoint_is_rejected(self):
         with self.assertRaises(ValueError):
             benchmark.run_book_request(

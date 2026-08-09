@@ -182,6 +182,7 @@ def run_request(
     unique_prefix: bool = False,
     api: str = "openai",
     endpoint: str | None = None,
+    prompts_per_request: int = 1,
 ) -> RequestResult:
     """API 방식에 따라 실제 요청 함수로 분기한다.
 
@@ -197,6 +198,7 @@ def run_request(
             request_id=request_id,
             timeout_s=timeout_s,
             unique_prefix=unique_prefix,
+            prompts_per_request=prompts_per_request,
         )
     return run_openai_request(
         base_url=base_url,
@@ -219,18 +221,34 @@ def run_book_request(
     request_id: int,
     timeout_s: float,
     unique_prefix: bool = False,
+    prompts_per_request: int = 1,
 ) -> RequestResult:
     """교재 ch03 서버에 요청 하나를 보낸다.
 
     OpenAI 경로와 달리 usage가 없으므로 출력 토큰 수는 estimate_tokens()로 센다.
     네 엔드포인트가 모두 같은 방식으로 세므로 **상대 비교는 유효**하지만, vLLM
     서버의 tok/s와 절대값을 직접 비교하면 안 된다.
+
+    ★ prompts_per_request — 교재 서버의 배칭 축은 "동시 요청 수"가 아니다.
+      `/generate`는 요청 하나에 담긴 프롬프트들을 WorkloadManager의 batch_size(=4)
+      단위로 묶는다. 그리고 main.py의 핸들러가 `async def` 안에서 동기 호출을 하므로
+      uvicorn 이벤트 루프가 막혀 **요청 간 배칭은 구조적으로 일어나지 않는다.**
+      따라서 배칭을 재려면 한 요청에 프롬프트를 여러 개 실어야 한다.
     """
     if endpoint not in BOOK_ENDPOINTS:
         raise ValueError(f"알 수 없는 교재 엔드포인트: {endpoint}")
+    if prompts_per_request < 1:
+        raise ValueError("prompts_per_request는 1 이상이어야 합니다.")
     spec = BOOK_ENDPOINTS[endpoint]
-    prompt = build_prompt(scenario_name, unique_prefix)
-    body = {"prompts": [prompt]} if spec["list_input"] else {"prompt": prompt}
+    prompts = [
+        build_prompt(scenario_name, unique_prefix) for _ in range(prompts_per_request)
+    ]
+    prompt = prompts[0]
+    if spec["list_input"]:
+        body: dict[str, Any] = {"prompts": prompts}
+    else:
+        # 단일 프롬프트만 받는 엔드포인트는 여러 개를 실을 수 없다.
+        body = {"prompt": prompt}
     request = urllib.request.Request(
         api_url(base_url, endpoint),
         data=json.dumps(body, ensure_ascii=False).encode("utf-8"),
@@ -261,14 +279,25 @@ def run_book_request(
             else:
                 payload = json.load(response)
                 value = payload.get(spec["result_key"])
-                if isinstance(value, list):
-                    value = value[0] if value else ""
-                parts.append(str(value or ""))
+                # 리스트 응답이면 **전부** 센다. 요청 하나에 프롬프트 N개를 실었으면
+                # 생성분도 N개이고, 처리량은 그 합이어야 한다.
+                items = value if isinstance(value, list) else [value]
+                parts.extend(str(item or "") for item in items)
         ended = time.perf_counter()
         text = "".join(parts)
-        output_tokens = estimate_tokens(text)
-        if spec["echoes_prompt"]:
-            output_tokens = max(0, output_tokens - estimate_tokens(prompt))
+        if spec["streaming"]:
+            # parts가 토큰 조각이므로 이어 붙인 뒤 세야 한다 (조각 단위로 세면
+            # subword가 각각 한 단어로 잡혀 과대계상된다).
+            output_tokens = estimate_tokens(text)
+        else:
+            # parts가 응답 하나씩이므로 **개별로 세서 더한다.** 이어 붙여서 세면
+            # 앞 응답의 마지막 단어와 다음 응답의 첫 단어가 붙어 하나로 세어진다.
+            output_tokens = sum(estimate_tokens(part) for part in parts)
+            if spec["echoes_prompt"]:
+                # 응답 하나마다 프롬프트가 한 벌씩 붙어 나온다.
+                output_tokens = max(
+                    0, output_tokens - estimate_tokens(prompt) * len(parts)
+                )
         ok = 200 <= status < 300 and bool(text.strip())
         return RequestResult(
             scenario=scenario_name,
@@ -460,6 +489,7 @@ def run_group(
     unique_prefix: bool = False,
     api: str = "openai",
     endpoint: str | None = None,
+    prompts_per_request: int = 1,
 ) -> tuple[list[RequestResult], float]:
     started = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
@@ -476,6 +506,7 @@ def run_group(
                 unique_prefix=unique_prefix,
                 api=api,
                 endpoint=endpoint,
+                prompts_per_request=prompts_per_request,
             )
             for request_id in range(request_count)
         ]
@@ -539,6 +570,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ttft-slo", type=float, default=2.0)
     parser.add_argument("--e2e-slo", type=float, default=30.0)
     parser.add_argument(
+        "--prompts-per-request",
+        type=int,
+        default=1,
+        help="--api book 전용. 요청 하나에 실을 프롬프트 수 — 교재 서버의 실제 배칭 축",
+    )
+    parser.add_argument(
         "--unique-prefix",
         action="store_true",
         help="요청마다 프롬프트 앞에 고유 식별자를 붙여 prefix cache 적중을 막는다",
@@ -592,6 +629,7 @@ def main(argv: list[str] | None = None) -> int:
                 unique_prefix=args.unique_prefix,
                 api=args.api,
                 endpoint=endpoint,
+                prompts_per_request=args.prompts_per_request,
             )
             if not warmup.ok:
                 print(f"{scenario_name} warmup 실패: {warmup.error}", file=sys.stderr)
@@ -610,6 +648,7 @@ def main(argv: list[str] | None = None) -> int:
                 unique_prefix=args.unique_prefix,
                 api=args.api,
                 endpoint=endpoint,
+                prompts_per_request=args.prompts_per_request,
             )
             all_results.extend(results)
             summaries.append(
@@ -631,6 +670,7 @@ def main(argv: list[str] | None = None) -> int:
             "ttft_slo_s": args.ttft_slo,
             "e2e_slo_s": args.e2e_slo,
             "unique_prefix": args.unique_prefix,
+            "prompts_per_request": args.prompts_per_request,
             "goodput_definition": "TTFT와 E2E SLO를 모두 만족한 요청 비율",
         },
         "summaries": summaries,

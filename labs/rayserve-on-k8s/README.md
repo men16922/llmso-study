@@ -3,7 +3,7 @@
 CH4 도전과제(`로컬 PC에 kind(k8s)로 RayService 배포`)를 **배칭 축에 붙여서** 수행한다.
 kind 대신 이미 있는 K3s를 쓴다.
 
-실습 시나리오는 [`articles/vLLM 배칭·큐 실습 시나리오 (CH3·CH4).md`](../../articles/vLLM%20%EB%B0%B0%EC%B9%AD%C2%B7%ED%81%90%20%EC%8B%A4%EC%8A%B5%20%EC%8B%9C%EB%82%98%EB%A6%AC%EC%98%A4%20%28CH3%C2%B7CH4%29.md)의 **C3** 절이다.
+실습 시나리오는 [`articles/2주차-03 dynamic batching과 그 위의 계층.md`](../../articles/2%EC%A3%BC%EC%B0%A8-03%20dynamic%20batching%EA%B3%BC%20%EA%B7%B8%20%EC%9C%84%EC%9D%98%20%EA%B3%84%EC%B8%B5.md)의 **C3** 절이다. 시리즈 목차는 [허브](../../articles/vLLM%20%EB%B0%B0%EC%B9%AD%C2%B7%ED%81%90%20%EC%8B%A4%EC%8A%B5%20%EC%8B%9C%EB%82%98%EB%A6%AC%EC%98%A4%20%28CH3%C2%B7CH4%29.md).
 
 ## 왜 따라하기가 아닌가 — 접점 두 개
 
