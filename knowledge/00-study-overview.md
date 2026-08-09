@@ -51,5 +51,6 @@ CH9~10  현장 적용      Qwen3-14B 실전 최적화 → 멀티모달·multi-Lo
 - 실습 환경 준비 → [01-environment-setup.md](./01-environment-setup.md)
 - 과제 규정 → [02-assignments.md](./02-assignments.md)
 - 저작권 정책 · 슬랙/ZOOM 준비 · 질문하는 법 → [03-study-rules.md](./03-study-rules.md)
+- 주차별 예습 노트 → [05-week1-prep.md](./05-week1-prep.md) (CH1~2) · [06-week2-prep.md](./06-week2-prep.md) (CH3~4)
 - 서브페이지 실습 가이드 정리 → [subpages/](./subpages/)
 - **모든 자료·링크·PDF** → [references/](./references/)
