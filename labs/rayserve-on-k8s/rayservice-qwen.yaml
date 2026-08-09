@@ -1,0 +1,109 @@
+# RayService — B1과 **같은 모델**을 Ray Serve LLM으로 감싼다.
+#
+# 공식 가이드(ray-service.llm-serve.yaml)는 Qwen2.5-7B-Instruct-AWQ를 쓰지만,
+# 이 실습의 목적은 "모델 성능"이 아니라 **오케스트레이션 계층의 비용**이므로
+# B1에서 직접 vLLM으로 잰 것과 동일한 Qwen2.5-1.5B-Instruct로 맞춘다.
+# 모델이 다르면 B1과 나란히 놓을 수 없다 — 통제 변수의 문제다.
+#
+# 공식 예제 대비 조정한 부분
+#   - 모델: Qwen2.5-7B-Instruct-AWQ → Qwen/Qwen2.5-1.5B-Instruct  (★ B1과 동일)
+#   - nvidia.com/gpu: 4 → 1, num-gpus "4" → "1"                    (물리 GPU 1장)
+#   - max_replicas: 4 → 1                                          (레플리카 없음)
+#   - gpu_memory_utilization: 0.85, max_model_len: 4096            (★ B1과 동일)
+#   - worker CPU/메모리 축소                                        (WSL2 8 vCPU / 23Gi)
+#   - HUGGING_FACE_HUB_TOKEN 불필요 (gated 모델이 아님)
+apiVersion: ray.io/v1
+kind: RayService
+metadata:
+  name: vllm-service
+  namespace: llm-serving-lab
+spec:
+  serveConfigV2: |
+    applications:
+      - name: llm
+        route_prefix: /
+        import_path: ray.serve.llm:build_openai_app
+        args:
+          llm_configs:
+            - model_loading_config:
+                model_id: qwen2.5-1.5b
+                model_source: Qwen/Qwen2.5-1.5B-Instruct
+              engine_kwargs:
+                # ★ B1의 vllm-baseline.yaml과 같은 값이어야 비교가 성립한다
+                max_model_len: 4096
+                gpu_memory_utilization: 0.85
+                max_num_seqs: 16
+                dtype: auto
+              deployment_config:
+                autoscaling_config:
+                  min_replicas: 1
+                  max_replicas: 1
+              accelerator_type: null
+  rayClusterConfig:
+    headGroupSpec:
+      rayStartParams:
+        dashboard-host: "0.0.0.0"
+        num-gpus: "0"
+      template:
+        spec:
+          containers:
+            - name: ray-head
+              image: rayproject/ray-llm:2.44.1-py311-cu124
+              resources:
+                limits:
+                  cpu: "2"
+                  memory: 8Gi
+                requests:
+                  cpu: "1"
+                  memory: 4Gi
+              ports:
+                - containerPort: 6379
+                  name: gcs
+                - containerPort: 8265
+                  name: dashboard
+                - containerPort: 10001
+                  name: client
+                - containerPort: 8000
+                  name: serve
+    workerGroupSpecs:
+      - groupName: gpu-group
+        replicas: 1
+        minReplicas: 1
+        maxReplicas: 1
+        rayStartParams:
+          num-gpus: "1"
+        template:
+          spec:
+            # WSL2 K3s에서 GPU 파드는 nvidia 런타임을 명시해야 한다
+            # (articles/WSL2를 로컬 GPU Kubernetes 개발 환경으로 사용하기.md §3 참조)
+            runtimeClassName: nvidia
+            containers:
+              - name: llm
+                image: rayproject/ray-llm:2.44.1-py311-cu124
+                resources:
+                  limits:
+                    cpu: "6"
+                    memory: 16Gi
+                    nvidia.com/gpu: 1
+                  requests:
+                    cpu: "4"
+                    memory: 12Gi
+                    nvidia.com/gpu: 1
+---
+# Ray Serve HTTP 엔드포인트 — B1과 같은 방식으로 port-forward해서 벤치마크한다.
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-service-serve
+  namespace: llm-serving-lab
+spec:
+  selector:
+    ray.io/node-type: head
+    ray.io/serve: "true"
+  ports:
+    - name: serve
+      port: 8000
+      targetPort: 8000
+    - name: dashboard
+      port: 8265
+      targetPort: 8265

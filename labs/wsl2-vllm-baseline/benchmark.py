@@ -46,6 +46,41 @@ SCENARIOS = {
 }
 
 
+# 교재(orca3/llm-model-inference) ch03/single_model_llm_serving 서버의 엔드포인트.
+# OpenAI 호환이 아니라 스키마가 각기 다르므로 여기에 선언해 두고 분기한다.
+#
+#   streaming      — SSE(`data: {"token": ...}`)로 받는가. False면 TTFT를 잴 수 없다.
+#   list_input     — 요청 본문이 {"prompts": [...]}인가 {"prompt": "..."}인가.
+#   result_key     — 비스트리밍 응답에서 생성 텍스트를 꺼낼 키.
+#   echoes_prompt  — 응답에 프롬프트가 그대로 포함되는가 (아래 주석 참조).
+#   batching       — 이 엔드포인트가 대표하는 배칭 방식 (결과 해석용 라벨).
+BOOK_ENDPOINTS = {
+    "/basic_generate": {
+        "streaming": False, "list_input": False, "result_key": "generated_text",
+        "echoes_prompt": True, "batching": "none",
+    },
+    "/generate": {
+        "streaming": False, "list_input": True, "result_key": "generated_texts",
+        "echoes_prompt": True, "batching": "static",
+    },
+    "/generate_stream": {
+        "streaming": True, "list_input": False, "result_key": None,
+        "echoes_prompt": False, "batching": "continuous-naive",
+    },
+    "/generate_vllm": {
+        "streaming": False, "list_input": True, "result_key": "generated_texts",
+        "echoes_prompt": False, "batching": "continuous-vllm",
+    },
+}
+
+# `echoes_prompt`가 필요한 이유:
+#   ModelWorker.generate()는 batch_decode(outputs)를 그대로 반환하는데, outputs는
+#   [프롬프트 토큰 + 생성 토큰] 전체다. 즉 /basic_generate·/generate의 응답에는
+#   프롬프트가 그대로 붙어 나온다. 그대로 세면 처리량이 프롬프트 길이만큼 부풀려져
+#   /generate_vllm(생성분만 반환)과의 비교가 무의미해진다.
+#   그래서 이 엔드포인트들은 프롬프트 몫을 빼고 센다.
+
+
 @dataclasses.dataclass
 class RequestResult:
     scenario: str
@@ -58,6 +93,10 @@ class RequestResult:
     output_tokens: int
     tokens_exact: bool
     error: str | None = None
+    # ITL(inter-token latency) = 첫 토큰 이후 토큰 하나당 평균 간격.
+    # 스터디 공통 벤치마크 규칙의 핵심 지표(TPOT)에 해당한다. ITL 10ms = 사용자당 100 TPS.
+    # 스트리밍이 아니면 잴 수 없으므로 None이다.
+    itl_s: float | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return dataclasses.asdict(self)
@@ -104,6 +143,20 @@ def estimate_tokens(text: str) -> int:
     return max(0, len(text.strip().split()))
 
 
+def compute_itl(
+    first_token_at: float | None, last_token_at: float | None, token_events: int
+) -> float | None:
+    """첫 토큰 이후 토큰 하나당 평균 간격(초).
+
+    토큰 이벤트가 2개 미만이면 간격 자체가 없으므로 None을 돌려준다.
+    usage 기반 토큰 수가 아니라 **실제로 받은 스트림 이벤트 수**로 나눈다 —
+    시간 간격을 만든 것은 이벤트이지 서버가 세어 준 토큰이 아니기 때문이다.
+    """
+    if first_token_at is None or last_token_at is None or token_events < 2:
+        return None
+    return (last_token_at - first_token_at) / (token_events - 1)
+
+
 def build_prompt(scenario_name: str, unique_prefix: bool) -> str:
     """시나리오 프롬프트를 만든다.
 
@@ -118,6 +171,135 @@ def build_prompt(scenario_name: str, unique_prefix: bool) -> str:
 
 
 def run_request(
+    *,
+    base_url: str,
+    api_key: str | None = None,
+    model: str = "",
+    scenario_name: str,
+    concurrency: int,
+    request_id: int,
+    timeout_s: float,
+    unique_prefix: bool = False,
+    api: str = "openai",
+    endpoint: str | None = None,
+) -> RequestResult:
+    """API 방식에 따라 실제 요청 함수로 분기한다.
+
+    api="openai" — vLLM 등 OpenAI 호환 서버의 /v1/chat/completions (기본값)
+    api="book"   — 교재 ch03 서버. endpoint로 BOOK_ENDPOINTS 중 하나를 지정한다.
+    """
+    if api == "book":
+        return run_book_request(
+            base_url=base_url,
+            endpoint=endpoint or "/generate_stream",
+            scenario_name=scenario_name,
+            concurrency=concurrency,
+            request_id=request_id,
+            timeout_s=timeout_s,
+            unique_prefix=unique_prefix,
+        )
+    return run_openai_request(
+        base_url=base_url,
+        api_key=api_key,
+        model=model,
+        scenario_name=scenario_name,
+        concurrency=concurrency,
+        request_id=request_id,
+        timeout_s=timeout_s,
+        unique_prefix=unique_prefix,
+    )
+
+
+def run_book_request(
+    *,
+    base_url: str,
+    endpoint: str,
+    scenario_name: str,
+    concurrency: int,
+    request_id: int,
+    timeout_s: float,
+    unique_prefix: bool = False,
+) -> RequestResult:
+    """교재 ch03 서버에 요청 하나를 보낸다.
+
+    OpenAI 경로와 달리 usage가 없으므로 출력 토큰 수는 estimate_tokens()로 센다.
+    네 엔드포인트가 모두 같은 방식으로 세므로 **상대 비교는 유효**하지만, vLLM
+    서버의 tok/s와 절대값을 직접 비교하면 안 된다.
+    """
+    if endpoint not in BOOK_ENDPOINTS:
+        raise ValueError(f"알 수 없는 교재 엔드포인트: {endpoint}")
+    spec = BOOK_ENDPOINTS[endpoint]
+    prompt = build_prompt(scenario_name, unique_prefix)
+    body = {"prompts": [prompt]} if spec["list_input"] else {"prompt": prompt}
+    request = urllib.request.Request(
+        api_url(base_url, endpoint),
+        data=json.dumps(body, ensure_ascii=False).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    started = time.perf_counter()
+    first_token_at: float | None = None
+    last_token_at: float | None = None
+    parts: list[str] = []
+    status = 0
+
+    try:
+        with urllib.request.urlopen(request, timeout=timeout_s) as response:
+            status = response.status
+            if spec["streaming"]:
+                # 교재 서버는 [DONE] 센티널 없이 스트림을 그냥 닫는다.
+                for raw_line in response:
+                    line = raw_line.decode("utf-8").strip()
+                    if not line.startswith("data:"):
+                        continue
+                    token = json.loads(line[5:].strip()).get("token")
+                    if token:
+                        last_token_at = time.perf_counter()
+                        if first_token_at is None:
+                            first_token_at = last_token_at
+                        parts.append(str(token))
+            else:
+                payload = json.load(response)
+                value = payload.get(spec["result_key"])
+                if isinstance(value, list):
+                    value = value[0] if value else ""
+                parts.append(str(value or ""))
+        ended = time.perf_counter()
+        text = "".join(parts)
+        output_tokens = estimate_tokens(text)
+        if spec["echoes_prompt"]:
+            output_tokens = max(0, output_tokens - estimate_tokens(prompt))
+        ok = 200 <= status < 300 and bool(text.strip())
+        return RequestResult(
+            scenario=scenario_name,
+            concurrency=concurrency,
+            request_id=request_id,
+            ok=ok,
+            status=status,
+            # 비스트리밍 엔드포인트는 TTFT가 정의되지 않는다 — None으로 남긴다.
+            ttft_s=(first_token_at - started) if first_token_at else None,
+            e2e_s=ended - started,
+            output_tokens=output_tokens,
+            tokens_exact=False,
+            error=None if ok else "응답에서 생성 텍스트를 받지 못했습니다.",
+            itl_s=compute_itl(first_token_at, last_token_at, len(parts)),
+        )
+    except urllib.error.HTTPError as exc:
+        ended = time.perf_counter()
+        detail = exc.read(500).decode("utf-8", errors="replace")
+        return RequestResult(
+            scenario_name, concurrency, request_id, False, exc.code,
+            None, ended - started, 0, False, detail,
+        )
+    except Exception as exc:  # 네트워크·타임아웃을 결과 파일에 남긴다.
+        ended = time.perf_counter()
+        return RequestResult(
+            scenario_name, concurrency, request_id, False, status,
+            None, ended - started, 0, False, f"{type(exc).__name__}: {exc}",
+        )
+
+
+def run_openai_request(
     *,
     base_url: str,
     api_key: str | None,
@@ -147,6 +329,7 @@ def run_request(
     )
     started = time.perf_counter()
     first_token_at: float | None = None
+    last_token_at: float | None = None
     output_parts: list[str] = []
     output_tokens: int | None = None
     status = 0
@@ -168,8 +351,9 @@ def run_request(
                 for choice in event.get("choices", []):
                     content = choice.get("delta", {}).get("content")
                     if content:
+                        last_token_at = time.perf_counter()
                         if first_token_at is None:
-                            first_token_at = time.perf_counter()
+                            first_token_at = last_token_at
                         output_parts.append(str(content))
         ended = time.perf_counter()
         exact = output_tokens is not None
@@ -186,6 +370,7 @@ def run_request(
             output_tokens=output_tokens,
             tokens_exact=exact,
             error=None if first_token_at else "스트림에서 출력 토큰을 받지 못했습니다.",
+            itl_s=compute_itl(first_token_at, last_token_at, len(output_parts)),
         )
     except urllib.error.HTTPError as exc:
         ended = time.perf_counter()
@@ -226,14 +411,18 @@ def summarize_group(
 ) -> dict[str, Any]:
     successful = [result for result in results if result.ok]
     ttfts = [result.ttft_s for result in successful if result.ttft_s is not None]
+    itls = [result.itl_s for result in successful if result.itl_s is not None]
     e2es = [result.e2e_s for result in successful]
+    # 비스트리밍 엔드포인트(교재 /generate 등)는 TTFT가 정의되지 않는다. 그런 결과를
+    # 전부 SLO 위반으로 세면 goodput이 0%로 나와 비교가 무의미해지므로, TTFT가 없으면
+    # E2E SLO만으로 판정한다. OpenAI 경로의 성공 결과는 항상 TTFT를 가지므로 영향 없다.
     good = [
         result
         for result in successful
-        if result.ttft_s is not None
-        and result.ttft_s <= ttft_slo_s
+        if (result.ttft_s is None or result.ttft_s <= ttft_slo_s)
         and result.e2e_s <= e2e_slo_s
     ]
+    itl_p50 = percentile(itls, 0.50)
     total_tokens = sum(result.output_tokens for result in successful)
     return {
         "scenario": results[0].scenario,
@@ -243,6 +432,10 @@ def summarize_group(
         "failures": len(results) - len(successful),
         "ttft_p50_s": percentile(ttfts, 0.50),
         "ttft_p95_s": percentile(ttfts, 0.95),
+        "itl_p50_s": itl_p50,
+        "itl_p95_s": percentile(itls, 0.95),
+        # ITL 10ms = 사용자당 100 TPS. 스터디 규칙의 "perceived TPS"가 이것이다.
+        "perceived_tps": (1 / itl_p50) if itl_p50 else None,
         "e2e_p50_s": percentile(e2es, 0.50),
         "e2e_p95_s": percentile(e2es, 0.95),
         "e2e_mean_s": statistics.fmean(e2es) if e2es else None,
@@ -250,6 +443,7 @@ def summarize_group(
         "output_tok_per_s": total_tokens / wall_s if wall_s > 0 else None,
         "goodput_pct": len(good) / len(results) * 100 if results else 0,
         "exact_usage_requests": sum(result.tokens_exact for result in successful),
+        "ttft_measured": bool(ttfts),
         "wall_s": wall_s,
     }
 
@@ -257,13 +451,15 @@ def summarize_group(
 def run_group(
     *,
     base_url: str,
-    api_key: str | None,
-    model: str,
+    api_key: str | None = None,
+    model: str = "",
     scenario_name: str,
     concurrency: int,
     request_count: int,
     timeout_s: float,
     unique_prefix: bool = False,
+    api: str = "openai",
+    endpoint: str | None = None,
 ) -> tuple[list[RequestResult], float]:
     started = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
@@ -278,6 +474,8 @@ def run_group(
                 request_id=request_id,
                 timeout_s=timeout_s,
                 unique_prefix=unique_prefix,
+                api=api,
+                endpoint=endpoint,
             )
             for request_id in range(request_count)
         ]
@@ -318,6 +516,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--api-key")
     parser.add_argument("--model", help="생략하면 /v1/models의 첫 모델을 사용")
     parser.add_argument(
+        "--api",
+        choices=("openai", "book"),
+        default="openai",
+        help="openai=vLLM 등 호환 서버(기본), book=교재 ch03 single_model_llm_serving",
+    )
+    parser.add_argument(
+        "--endpoint",
+        choices=tuple(BOOK_ENDPOINTS),
+        help=f"--api book에서 쓸 엔드포인트 (기본 /generate_stream). "
+             f"선택지: {', '.join(BOOK_ENDPOINTS)}",
+    )
+    parser.add_argument(
         "--scenarios",
         default="short,prefill,decode",
         help="short,prefill,decode 중 쉼표 구분",
@@ -348,13 +558,25 @@ def main(argv: list[str] | None = None) -> int:
         print("요청 수는 1 이상, warmup은 0 이상이어야 합니다.", file=sys.stderr)
         return 2
 
-    try:
-        model = args.model or discover_model(args.base_url, args.api_key, args.timeout)
-    except Exception as exc:
-        print(f"모델 서버 확인 실패: {exc}", file=sys.stderr)
-        return 1
+    endpoint = args.endpoint
+    if args.api == "book":
+        # 교재 서버에는 /v1/models가 없다. 모델명은 기록용 라벨로만 쓴다.
+        endpoint = endpoint or "/generate_stream"
+        model = args.model or f"book{endpoint}"
+    else:
+        if endpoint:
+            print("--endpoint는 --api book에서만 씁니다.", file=sys.stderr)
+            return 2
+        try:
+            model = args.model or discover_model(
+                args.base_url, args.api_key, args.timeout
+            )
+        except Exception as exc:
+            print(f"모델 서버 확인 실패: {exc}", file=sys.stderr)
+            return 1
 
-    print(f"model={model} base_url={args.base_url}")
+    print(f"api={args.api} model={model} base_url={args.base_url}"
+          + (f" endpoint={endpoint}" if endpoint else ""))
     all_results: list[RequestResult] = []
     summaries: list[dict[str, Any]] = []
     for scenario_name in scenario_names:
@@ -368,6 +590,8 @@ def main(argv: list[str] | None = None) -> int:
                 request_id=-(warmup_id + 1),
                 timeout_s=args.timeout,
                 unique_prefix=args.unique_prefix,
+                api=args.api,
+                endpoint=endpoint,
             )
             if not warmup.ok:
                 print(f"{scenario_name} warmup 실패: {warmup.error}", file=sys.stderr)
@@ -384,6 +608,8 @@ def main(argv: list[str] | None = None) -> int:
                 request_count=count,
                 timeout_s=args.timeout,
                 unique_prefix=args.unique_prefix,
+                api=args.api,
+                endpoint=endpoint,
             )
             all_results.extend(results)
             summaries.append(
@@ -394,6 +620,9 @@ def main(argv: list[str] | None = None) -> int:
         "meta": {
             "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
             "base_url": args.base_url,
+            "api": args.api,
+            "endpoint": endpoint,
+            "batching": BOOK_ENDPOINTS[endpoint]["batching"] if endpoint else None,
             "model": model,
             "scenarios": scenario_names,
             "concurrency": args.concurrency,

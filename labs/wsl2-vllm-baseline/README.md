@@ -84,6 +84,65 @@ python3 labs/wsl2-vllm-baseline/benchmark.py \
 
 결과 JSON에는 집계값과 요청별 원시 측정값이 함께 저장됩니다. `exact_usage_requests`가 성공 요청 수보다 작으면 서버가 스트리밍 usage를 주지 않아 출력 토큰 수 일부를 공백 기준으로 추정했다는 뜻입니다.
 
+`itl_p50_s`(토큰 간 간격)와 `perceived_tps`(= 1/ITL)는 스터디 공통 지표의 TPOT에 해당합니다. 스트리밍이 아닌 응답에서는 잴 수 없어 `null`입니다.
+
+## 2-1. 배치 슬롯 스윕 — `redeploy.sh`
+
+슬롯 값을 바꿔가며 재려면 매번 ① env 설정 ② 롤아웃 대기 ③ 포트포워딩 재기동 ④ **실제 응답 확인**이 필요합니다. `sleep`으로 때우면 파드가 준비되기 전에 벤치마크가 시작돼 조용히 실패하고, 롤아웃 실패(예: 슬롯을 키워 KV cache 부족)를 안 잡으면 죽은 엔드포인트에 대고 재서 쓰레기 데이터를 만듭니다.
+
+```bash
+cd labs/wsl2-vllm-baseline
+source redeploy.sh
+
+for SLOTS in 1 16 64; do
+  redeploy MAX_NUM_SEQS=$SLOTS || continue     # 기동 실패는 건너뛴다
+  mark "slots=$SLOTS 시작"                      # results/b1-timeline.txt에 시각 기록
+  python3 benchmark.py --scenarios short --concurrency 1,2,4,8,16,32,64 \
+    --requests-per-level 100 --unique-prefix \
+    --ttft-slo 0.5 --e2e-slo 10 --output results/b1-slots-$SLOTS-short.json
+done
+```
+
+`confirm_slots`로 파드 로그에서 값이 실제로 반영됐는지 확인할 수 있습니다.
+
+## 2-2. 교재 서버 측정 — `--api book`
+
+교재(`orca3/llm-model-inference`) `ch03/single_model_llm_serving`은 OpenAI 호환이 아니라 스키마가 다릅니다. `--api book`이 요청 본문 생성과 SSE 파싱만 분기하고 백분위·goodput 로직은 그대로 씁니다.
+
+```bash
+python3 benchmark.py --api book --endpoint /generate_stream \
+  --scenarios short --concurrency 1,2,4,8,16,32 --requests-per-level 50 \
+  --output results/c1-generate_stream.json
+```
+
+| 엔드포인트 | 배칭 | TTFT |
+|---|---|---|
+| `/basic_generate` | 없음 | ✗ |
+| `/generate` | static | ✗ |
+| `/generate_stream` | naive continuous | ✅ |
+| `/generate_vllm` | vLLM continuous | ✗ |
+
+세 가지가 자동으로 보정됩니다 — ① `/generate`·`/basic_generate`가 **프롬프트를 그대로 되돌려주므로** 그 몫을 빼고 셈 ② TTFT가 없는 엔드포인트는 **E2E SLO만으로** goodput 판정 ③ 네 엔드포인트가 **같은 방식으로** 토큰을 셈. 세 보정 모두 `test_benchmark.py`의 `BookApiTest`가 검증합니다.
+
+⚠️ 절대값을 `--api openai` 결과와 직접 비교하지 마세요. usage가 없어 토큰 수가 추정값입니다.
+
+## 2-3. 표 만들기 — `summarize_results.py`
+
+결과 JSON에서 마크다운 표를 바로 뽑습니다. 손으로 옮기면 반드시 어딘가 틀립니다.
+
+```bash
+# 표 3종(처리량·TTFT p95·goodput)을 한 번에
+python3 summarize_results.py results/b1-slots-*-short.json \
+  --label-regex 'slots-(\d+)' --label-format 'slots={}' --all
+
+# 파레토 — 처리량 vs TTFT p95, SLO 충족 영역과 최적 경계 표시
+python3 summarize_results.py results/b1-slots-*-short.json \
+  --label-regex 'slots-(\d+)' --label-format 'slots={}' --pareto --ttft-slo 0.5
+
+# 교재 서버는 라벨이 meta.endpoint에서 자동으로 붙는다
+python3 summarize_results.py results/c1-*.json --metric output_tok_per_s
+```
+
 ## 3. GPU·서버 메트릭 함께 보기
 
 매니페스트의 `ServiceMonitor`는 vLLM `/metrics`를 15초마다 수집합니다. 벤치마크를 실행하는 동안 다음 PromQL을 나란히 확인합니다.

@@ -22,8 +22,10 @@ check-index:                        ## index/*.json 스키마만 검사
 	@$(PY) scripts/check_docs.py --only index
 
 check-labs:                         ## labs/ 벤치마크 스크립트 단위 테스트 (mock HTTP, 오프라인)
-	@cd labs/wsl2-vllm-baseline && $(PY) -m pytest -q test_benchmark.py
+	@cd labs/wsl2-vllm-baseline && $(PY) -m pytest -q test_benchmark.py test_summarize_results.py
 	@cd labs/cloudrun-gemma4-vllm && $(PY) -m pytest -q test_benchmark_a1_a4.py
+	@cd labs/triton-dynamic-batching && $(PY) -m pytest -q test_triton_lab.py
+	@cd labs/rayserve-on-k8s && $(PY) -m pytest -q test_rayserve_lab.py
 
 smoke-local: check-links            ## 빠른 확인 — 링크만 (몇 초)
 	@echo "smoke 통과"

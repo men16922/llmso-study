@@ -15,6 +15,12 @@ venv/
 # 루트 한정 — labs/*/results/ 의 벤치마크 결과는 문서가 링크하므로 커밋합니다
 /results/
 
+# 스터디 노션 원문 로컬 사본 (멤버 전용 자료)
+# 저장소는 비공개지만, 원문 그대로의 전재는 스터디 규칙상 금지입니다
+# (knowledge/03-study-rules.md). 읽기용으로만 두고 커밋하지 않습니다.
+# tools/build_pageindex.py의 MD_SKIP_DIRS에도 같은 이유로 들어가 있습니다.
+study/
+
 # 임시
 *.tmp
 *.log
