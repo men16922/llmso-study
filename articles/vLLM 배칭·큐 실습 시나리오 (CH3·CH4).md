@@ -3,7 +3,7 @@
 > **이 문서는 실습 시나리오입니다.** 순서대로 실행하고 표의 빈칸을 채우면, 그대로 2주차 과제 글의 뼈대가 됩니다.
 > 측정이 끝난 뒤 "관측" 절의 빈칸을 채우고 "해석"을 쓰면 완성입니다.
 
-**이번 편은 B1 · B2 · C1 세 실험입니다.** B3~B5는 분량상 [다음 편으로 미룹니다](#다음-편으로-미루는-것) — 설계는 이 문서 뒤쪽에 그대로 보존해 두었습니다.
+**이번 편은 B1 · B2 · C1 · C2 네 실험입니다.** B3~B5는 분량상 [다음 편으로 미룹니다](#다음-편으로-미루는-것) — 설계는 이 문서 뒤쪽에 그대로 보존해 두었습니다.
 
 ---
 
@@ -16,8 +16,18 @@
 | **B1** | 동시 요청을 계속 늘리면 처리량은 계속 오르는가? **어디서 멈추는가?** | CH3 배칭 |
 | **B2** | 그 순간 서버 안에서는 무슨 일이 일어나는가? | CH3 큐·동시성 |
 | **C1** | 그 배칭을 **직접 짜면** 어디까지 가고, vLLM과 무엇이 다른가? | CH3 시스템 설계 (교재 코드) |
+| **C2** | **dynamic batching은 언제 쓰나?** 그리고 왜 LLM에는 안 맞나 | CH3 Triton (교재 코드) |
 
-> **챕터 대응에 대한 주의.** 교재 CH3는 "배칭"을 **시스템 설계** 층위에서, CH6는 같은 주제를 **최적화** 층위(continuous batching·chunked prefill·prefix caching)에서 다룹니다. B1·B2는 두 층위에 걸쳐 있고, C1이 CH3 쪽에 정확히 대응합니다. 다음 편의 B3(KV cache 상한)는 엄밀히는 **CH5** 주제입니다.
+**네 실험이 합쳐서 배칭 4종을 전부 실측합니다.** 예습 노트 §1의 표가 이 글에서 숫자로 채워집니다.
+
+| 배칭 방식 | 어디서 재는가 |
+|---|---|
+| 배칭 없음 | C1 `/basic_generate` |
+| **static** | C1 `/generate` |
+| **dynamic** | **C2 Triton `dynamic_batching`** |
+| **continuous** | B1·B2 (vLLM), C1 `/generate_stream`(자작)·`/generate_vllm` |
+
+> **챕터 대응에 대한 주의.** 교재 CH3는 "배칭"을 **시스템 설계** 층위에서, CH6는 같은 주제를 **최적화** 층위(continuous batching·chunked prefill·prefix caching)에서 다룹니다. B1·B2는 두 층위에 걸쳐 있고, C1·C2가 CH3 쪽에 정확히 대응합니다. 다음 편의 B3(KV cache 상한)는 엄밀히는 **CH5** 주제입니다.
 
 **선행 관측이 하나 있습니다.** 1주차 Cloud Run 실습(`google/gemma-4-31B-it`, `MAX_NUM_SEQS=8`)에서 이런 결과가 나왔습니다.
 
@@ -41,6 +51,7 @@
 | 관측 | kube-prometheus-stack + DCGM Exporter, ServiceMonitor `vllm-baseline` (15s) |
 | 벤치마크 | `labs/wsl2-vllm-baseline/benchmark.py` |
 | **C1 추가** | 교재 저장소 `orca3/llm-model-inference` (WSL2 안에 클론), `ch03/single_model_llm_serving` |
+| **C2 추가** | Docker + `nvcr.io/nvidia/tritonserver:24.12-py3` (~17GB), `ch03/multi_model_serving` |
 
 ### 소요 시간
 
@@ -49,9 +60,25 @@
 | 0. 준비 | 20분 |
 | B1 | **60~80분** (롤아웃 3회 × 모델 로딩 포함) |
 | B2 | 20분 |
-| C1 | 100~120분 (설치 40 + 어댑터 40 + 측정 40, 설치는 B1과 병행 가능) |
+| C1 | 100~120분 (설치 40 + 어댑터 40 + 측정 40) |
+| C2 | 60~70분 (ONNX export 20 + 측정 40) + **이미지 풀 30~40분은 백그라운드** |
 
-**총 3~4시간.** 한 자리에 다 하지 말고 **B1·B2 세션 / C1 세션**으로 나누세요. B1·B2만으로도 글 한 편의 뼈대가 서므로, 먼저 그 안전판을 확보한 뒤 C1에 들어갑니다.
+**총 4.5~5.5시간.** 한 자리에 다 하지 말고 **세 세션**으로 나누세요.
+
+| 세션 | 내용 | 왜 이 순서인가 |
+|---|---|---|
+| 1 | 0. 준비 → B1 → B2 | 이것만으로도 글의 뼈대가 섬 — **안전판 먼저** |
+| 2 | C1 | 설치·어댑터에서 시간이 새기 쉬움 |
+| 3 | C2 | 앞의 결론(패딩 낭비)이 있어야 C2의 마무리가 선다 |
+
+**세션 1을 시작할 때 아래 둘을 백그라운드로 걸어두세요.** 대기 시간이 사라집니다.
+
+```bash
+docker pull nvcr.io/nvidia/tritonserver:24.12-py3 &          # C2용, ~17GB
+# 다른 창에서 C1 venv 설치 (C1-0 참조) — 단, 서버 기동은 B1이 끝난 뒤
+```
+
+**포트 충돌 주의**: vLLM(port-forward)과 교재 C1 서버가 둘 다 `8000`을 씁니다. **B1·B2와 C1은 동시에 못 돌립니다.** Triton은 `8009/8010/8011`이라 충돌 없습니다.
 
 ---
 
@@ -465,8 +492,256 @@ done
 ```bash
 deactivate
 pkill -f "python main.py"
+# k3s 복구는 C2까지 끝난 뒤에 — C2도 GPU를 쓴다
+```
+
+---
+
+## C2. dynamic batching은 언제 쓰나 — Triton으로 마지막 칸 채우기 ★
+
+> 1주차 예습 노트에 남겨둔 질문입니다: *"continuous batching이 static보다 항상 낫다면, **dynamic batching은 언제 쓰나?** (힌트: **LLM이 아닌 모델**)"*
+
+B1·B2·C1까지로 배칭 없음 / static / continuous는 다 쟀습니다. **dynamic만 비어 있습니다.** 그리고 그건 vLLM으로는 잴 수 없습니다 — vLLM에 dynamic batching 모드가 없으니까요. 교재 CH3가 Triton을 가져오는 자리가 정확히 여기입니다.
+
+### 가설
+
+1. `max_queue_delay`를 키우면 **평균 배치 크기와 처리량이 오르고, p95 지연이 나빠진다.** 기다림을 팔아 처리량을 사는 것.
+2. **동시성이 낮으면 delay는 순손실이다.** 기다려도 묶을 요청이 없으니 지연만 늘어난다 → dynamic의 효과는 **도착률에 의존**한다.
+3. **이 방식이 LLM에 안 맞는 이유**는 배치를 통째로 묶어 통째로 내보내기 때문이다. mobilenet은 모든 요청의 연산량이 정확히 같아 성립하지만, LLM은 출력 길이가 제각각이라 배치가 **가장 긴 요청에 인질로 잡힌다.** (C1에서 본 패딩 낭비가 그 증거)
+
+### C2-0. 준비
+
+```bash
+# GPU 확보 — C1 서버와 k3s vLLM 둘 다 내려간 상태여야 한다
+pkill -f "python main.py" || true
+kubectl -n llm-serving-lab scale deploy/vllm-baseline --replicas=0
+nvidia-smi
+
+cd ~/llm-model-inference/ch03/multi_model_serving
+docker images | grep tritonserver     # 세션 1에서 풀어둔 이미지 확인
+```
+
+### C2-1. 배치 축이 열린 모델 만들기 ★ 이게 진짜 장벽입니다
+
+저장소에 들어 있는 `densenet_onnx`로는 **dynamic batching을 켤 수 없습니다.** `config.pbtxt`를 보면 이유가 나옵니다.
+
+```protobuf
+max_batch_size : 0                       # ← 배칭 자체가 꺼져 있음
+dims: [ 3, 224, 224 ]
+reshape { shape: [ 1, 3, 224, 224 ] }    # ← 배치 차원 1을 억지로 끼워 넣는 중
+```
+
+이 ONNX는 **배치 축이 1로 고정**이라 `max_batch_size`를 켜면 모델이 거부합니다. `reshape`가 그 우회 흔적입니다.
+
+`models.json`에 이미 있는 **`mobilenet_v2`를 배치 축이 열린 상태로 직접 export**합니다.
+
+```python
+# export_mobilenet_onnx.py
+import torch, torchvision
+
+model = torchvision.models.mobilenet_v2(weights="DEFAULT").eval()
+dummy = torch.randn(1, 3, 224, 224)
+
+torch.onnx.export(
+    model, dummy, "model.onnx",
+    input_names=["input"], output_names=["output"],
+    dynamic_axes={"input": {0: "batch"}, "output": {0: "batch"}},   # ★ 배치 축을 연다
+    opset_version=17,
+)
+```
+
+```bash
+mkdir -p model_dir/mobilenet_v2/1
+python3 export_mobilenet_onnx.py && mv model.onnx model_dir/mobilenet_v2/1/
+```
+
+> **이 한 줄(`dynamic_axes`)이 실험 전체를 가능하게 합니다.** 글에 꼭 남기세요 — "배칭을 지원하려면 모델이 먼저 배치를 받아들여야 한다"는, 서빙 계층만 봐서는 안 보이는 제약입니다.
+
+### C2-2. config 생성기
+
+`max_batch_size > 0`이면 `dims`에서 **배치 차원을 빼고** 씁니다(Triton이 앞에 붙임). 네 구성을 오가야 하므로 생성기를 만듭니다.
+
+```bash
+# write_config.sh
+write_config() {   # write_config off | <microseconds>
+  local CFG=model_dir/mobilenet_v2/config.pbtxt
+  cat > "$CFG" <<'HEAD'
+name: "mobilenet_v2"
+platform: "onnxruntime_onnx"
+max_batch_size: 8
+input [
+  {
+    name: "input"
+    data_type: TYPE_FP32
+    dims: [ 3, 224, 224 ]
+  }
+]
+output [
+  {
+    name: "output"
+    data_type: TYPE_FP32
+    dims: [ 1000 ]
+  }
+]
+HEAD
+  if [ "$1" != "off" ]; then
+    printf 'dynamic_batching {\n  max_queue_delay_microseconds: %s\n}\n' "$1" >> "$CFG"
+  fi
+}
+```
+
+> **기준선은 `max_batch_size: 0`이 아니라 `off`입니다.** `max_batch_size: 0`으로 두면 모델 시그니처까지 달라져 비교가 깨집니다. `dynamic_batching` **블록만 빼면** 모델은 그대로고 Triton이 요청을 하나씩 실행합니다 — 이게 올바른 대조군입니다.
+
+### C2-3. Triton 기동
+
+`--model-control-mode=explicit`이라 **컨테이너 재시작 없이 unload/load만으로 config를 다시 읽습니다.** 스윕이 빨라지는 이유입니다.
+
+```bash
+write_config 5000
+docker run -d --name triton --gpus all \
+  -p8009:8000 -p8010:8001 -p8011:8002 \
+  -v $(pwd)/model_dir:/models \
+  nvcr.io/nvidia/tritonserver:24.12-py3 \
+  tritonserver --model-repository=/models --model-control-mode=explicit
+
+curl -s -X POST localhost:8009/v2/repository/models/mobilenet_v2/load
+curl -s localhost:8009/v2/models/mobilenet_v2/config | python3 -m json.tool | head -30
+```
+
+마지막 줄로 **실제 적용된 config를 확인**하세요. 파일을 고쳤는데 반영이 안 된 경우를 여기서 잡습니다.
+
+### C2-4. 부하 생성기
+
+```python
+# triton_load.py
+import concurrent.futures, sys, threading, time
+import numpy as np, tritonclient.http as httpclient
+
+URL, MODEL = "localhost:8009", "mobilenet_v2"
+IMG = np.random.rand(3, 224, 224).astype(np.float32)
+_tl = threading.local()
+
+def client():                       # 스레드마다 하나 — 생성 비용이 지연에 섞이지 않게
+    if not hasattr(_tl, "c"):
+        _tl.c = httpclient.InferenceServerClient(url=URL)
+    return _tl.c
+
+def one(_):
+    t = httpclient.InferInput("input", IMG.shape, "FP32")
+    t.set_data_from_numpy(IMG)
+    started = time.perf_counter()
+    client().infer(MODEL, inputs=[t],
+                   outputs=[httpclient.InferRequestedOutput("output")])
+    return time.perf_counter() - started
+
+def run(concurrency, n):
+    with concurrent.futures.ThreadPoolExecutor(concurrency) as ex:
+        list(ex.map(one, range(20)))            # warmup
+        started = time.perf_counter()
+        lat = sorted(ex.map(one, range(n)))
+        wall = time.perf_counter() - started
+    return {"concurrency": concurrency, "inf_per_s": n / wall,
+            "p50_ms": lat[len(lat) // 2] * 1000,
+            "p95_ms": lat[int(len(lat) * 0.95)] * 1000}
+
+if __name__ == "__main__":
+    for c in (int(x) for x in sys.argv[1].split(",")):
+        print(run(c, int(sys.argv[2])))
+```
+
+### C2-5. 평균 배치 크기 재기 ★ 이 실험의 핵심 지표
+
+Triton은 `:8011/metrics`에 Prometheus 메트릭을 냅니다. 그중 둘을 나누면 **실제 배치가 몇 개씩 묶였는지가 직접** 나옵니다.
+
+```
+평균 배치 크기 = nv_inference_request_success / nv_inference_exec_count
+```
+
+요청 수 ÷ 실행 횟수입니다. dynamic batching이 동작하면 이 값이 1.0에서 위로 올라갑니다. **"동작하는 것 같다"가 아니라 숫자로 증명되는 지점**입니다.
+
+```bash
+# batch_stats.sh — 측정 전후로 찍어 차분한다
+curl -s localhost:8011/metrics | grep -E \
+  'nv_inference_(request_success|exec_count|queue_duration_us|compute_infer_duration_us)\{' \
+  | grep mobilenet_v2
+```
+
+`nv_inference_queue_duration_us`가 **큐에서 기다린 총 시간**입니다 — `max_queue_delay`가 실제로 얼마나 쓰였는지 여기서 보입니다.
+
+### C2-6. 스윕
+
+```bash
+source write_config.sh
+
+for DELAY in off 0 1000 5000 20000; do
+  write_config $DELAY
+  curl -s -X POST localhost:8009/v2/repository/models/mobilenet_v2/unload >/dev/null
+  curl -s -X POST localhost:8009/v2/repository/models/mobilenet_v2/load   >/dev/null
+  sleep 2
+
+  echo "=== delay=$DELAY ==="
+  bash batch_stats.sh > /tmp/before.txt
+  python3 triton_load.py 1,8,32 300
+  bash batch_stats.sh > /tmp/after.txt
+  diff /tmp/before.txt /tmp/after.txt        # 차분으로 이 구간의 배치 크기 계산
+done
+```
+
+> unload/load로 config가 반영되지 않으면 컨테이너를 재시작하세요(`docker restart triton`). 그래도 되지만 매번 20~30초가 더 듭니다.
+
+### 관측 — 채울 표
+
+**동시성 8 기준**
+
+| `max_queue_delay` | 평균 배치 크기 | 처리량 (inf/s) | p50 (ms) | p95 (ms) | 큐 대기 평균 (ms) |
+|---|---|---|---|---|---|
+| (dynamic 끔) | 1.00 | | | | |
+| 0 μs | | | | | |
+| 1,000 μs (1ms) | | | | | |
+| 5,000 μs (5ms) | | | | | |
+| 20,000 μs (20ms) | | | | | |
+
+**도착률 의존성** — 같은 delay(5ms)를 동시성만 바꿔가며
+
+| 동시성 | 평균 배치 크기 | 처리량 (inf/s) | p95 (ms) | dynamic 끔 대비 p95 |
+|---|---|---|---|---|
+| 1 | | | | |
+| 8 | | | | |
+| 32 | | | | |
+
+### 판단 기준
+
+- ✅ **가설 1**: delay ↑ → 평균 배치 크기 ↑, 처리량 ↑, p95 ↑. 세 값이 같이 움직여야 합니다.
+- ✅ **가설 2 ★ 이게 질문의 답입니다**: **동시성 1에서는 평균 배치 크기가 1.00에 머물고 p95만 delay만큼 늘어납니다.** 기다렸는데 아무도 안 온 것 — 순손실입니다. 그래서 dynamic batching의 delay는 **예상 도착률에 맞춰 정해야** 하고, 트래픽이 들쭉날쭉하면 그 자체가 약점이 됩니다.
+- 💡 **`delay=0`인데 평균 배치 크기가 1보다 크면**: 기다리지 않아도 **이미 큐에 쌓여 있던 것**만으로 묶인 것입니다. 부하가 충분히 높으면 delay 없이도 dynamic이 동작한다는 뜻이고, 뒤집으면 delay는 **부하가 낮을 때를 위한 장치**입니다.
+- ⚠️ **평균 배치 크기가 계속 1.00이면**: config가 반영되지 않았습니다. `curl localhost:8009/v2/models/mobilenet_v2/config`로 실제 값을 확인하세요.
+- ⚠️ **`load`가 실패하면**: `dims`에 배치 차원을 넣었거나(빼야 함) ONNX의 배치 축이 안 열린 것입니다. `docker logs triton`에 이유가 나옵니다.
+
+### 보너스 — 모델 스와핑 (여유가 있으면)
+
+`manager.py:11`의 `max_models: int = 2`가 LRU 캐시 상한입니다. Triton의 explicit 모드 load/unload와 붙여 **모델 3개를 번갈아 요청하면 매번 스와핑이 일어나는** 상황을 만들 수 있습니다. 스와핑 지연을 재면 "GPU에 안 올라간 모델은 첫 요청이 비싸다"가 숫자로 나옵니다 — 5주차 multi-LoRA의 복선입니다.
+
+### 정리
+
+```bash
+docker rm -f triton
 kubectl -n llm-serving-lab scale deploy/vllm-baseline --replicas=1   # k3s 복구
 ```
+
+---
+
+## 종합 — 배칭 4종을 한 표에
+
+네 실험이 끝나면 예습 노트 §1의 표가 실측으로 채워집니다. **이게 글의 결론 절입니다.**
+
+| 방식 | 어디서 쟀나 | 대기 전략 | 처리량 | 지연 | 언제 쓰나 |
+|---|---|---|---|---|---|
+| 배칭 없음 | C1 `/basic_generate` | — | | | 디버깅·초저지연 단일 요청 |
+| static | C1 `/generate` | 배치가 **찰 때까지** | | | 오프라인 배치 작업 |
+| dynamic | C2 Triton | **시간 상한까지** | | | **요청당 연산량이 균일한 모델** (CV·임베딩) |
+| continuous | B1·B2 vLLM, C1 `/generate_stream` | 기다리지 않음, **슬롯 단위로 교체** | | | **출력 길이가 제각각인 LLM** |
+
+마지막 열의 대비가 이 글이 답하려던 것입니다. dynamic은 **"요청들이 같은 시간 걸린다"를 전제로** 배치를 통째로 묶었다 통째로 내보냅니다. mobilenet에서는 성립합니다(C2). LLM에서는 배치가 가장 긴 요청에 인질로 잡히고, 그 대가가 C1에서 본 패딩 낭비입니다. **continuous batching은 그 전제를 버려서 문제를 푼 것**입니다.
 
 ---
 
@@ -488,10 +763,12 @@ kubectl -n llm-serving-lab scale deploy/vllm-baseline --replicas=1   # k3s 복�
 
 | 주제 | 교재 위치 | 이 글에서 |
 |---|---|---|
-| **NVIDIA Triton, 멀티모델 서빙** (LRU 모델 캐시, on-demand 로딩) | CH3 후반 · `ch03/multi_model_serving` | 다루지 않음 — LLM 서빙 맥락과 거리가 있어 제외 |
+| **멀티모델 서빙** (LRU 모델 캐시, on-demand 로딩, 스와핑 지연) | CH3 후반 · `ch03/multi_model_serving` | C2 보너스에서 맛만 봄 — 본격적으로는 다루지 않음 |
 | **에이전틱 시스템, RAG, CAG** | CH4 전반 · `ch04/KnowledgeAgent` | 다루지 않음 — 별도 편에서 로컬 vLLM 백엔드로 재구성 예정 |
 | **클라우드 벤더 / build-or-buy** | CH4 후반 · `ch04/{bedrock,jumpstart,dlc}` | 다루지 않음 — 계정·비용 발생, 6주차와 중복 |
 | **엔터프라이즈 서빙 아키텍처** | CH4 | 다루지 않음 |
+
+> **Triton은 C2에서 다룹니다.** 단, 이 글이 쓰는 것은 Triton의 **dynamic batching과 explicit 모델 관리**뿐이고, 앙상블·BLS·TensorRT-LLM 백엔드 같은 나머지 기능은 건드리지 않습니다.
 
 ---
 
@@ -501,8 +778,9 @@ kubectl -n llm-serving-lab scale deploy/vllm-baseline --replicas=1   # k3s 복�
 2. **B1** — 슬롯 수를 바꿔가며 붕괴점이 따라 움직이는지 확인 (표 3개 + 파레토 곡선)
 3. **B2** — 서버 내부에서 무슨 일이 일어나는지 (Grafana 그림 1장) ★
 4. **C1** — 그럼 그 배칭을 직접 짜면? 교재 코드로 배칭 없음 → static → continuous → vLLM (표 3개) ★
-5. **종합** — 스케줄링 설계가 버는 것과, 거기서 vLLM까지 남는 격차의 정체
-6. **한계와 다음** — 다루지 않은 CH3·CH4 + 6·7주차로 넘길 것들
+5. **C2** — 남은 한 칸: dynamic batching. Triton으로 "기다림을 팔아 처리량을 산다"를 재고, 동시성 1에서 순손실이 되는 것까지 (표 2개) ★
+6. **종합** — 배칭 4종 한 표. dynamic이 전제하는 "요청들이 같은 시간 걸린다"가 LLM에서 깨지고, continuous가 그 전제를 버려서 문제를 푼 것
+7. **한계와 다음** — 다루지 않은 CH3·CH4 + 6·7주차로 넘길 것들
 
 ---
 
@@ -519,6 +797,11 @@ kubectl -n llm-serving-lab scale deploy/vllm-baseline --replicas=1   # k3s 복�
 | **C1** 교재 서버가 기동 중 OOM | k3s 파드가 VRAM 점유 | `kubectl scale deploy/vllm-baseline --replicas=0` |
 | **C1** `/generate`가 동시 요청에 뒤섞인 응답 | `execute_batch`의 큐 경합 | 버그가 아니라 **관측 결과**. 그대로 기록 |
 | **C1** `pip install vllm==0.9.0.1` 실패 | CUDA·torch 버전 충돌 | 새 venv에서 `requirements.txt` 순서 그대로 설치 |
+| **C2** 모델 `load`가 400/500 | `dims`에 배치 차원을 넣었거나 ONNX 배치 축이 고정 | `dims`에서 배치 차원 제거, `dynamic_axes`로 재-export. `docker logs triton` 확인 |
+| **C2** 평균 배치 크기가 계속 1.00 | config 미반영 | `curl localhost:8009/v2/models/mobilenet_v2/config`로 실제 값 확인 → 안 되면 `docker restart triton` |
+| **C2** `docker: permission denied` | WSL2에서 docker 그룹 미등록 | `sudo usermod -aG docker $USER` 후 셸 재시작 |
+| **C2** 이미지 풀이 디스크 부족 | 17GB + 기존 이미지 | `docker system prune -a`, WSL2 가상디스크 여유 확인 |
+| **C2** `--gpus all`에서 기동 실패 | WSL2 nvidia-container-toolkit 미설정 | 우선 `--gpus`를 빼고 CPU로 진행 — 절대값은 낮아지지만 **delay 축의 경향은 그대로** 나옴 |
 
 ---
 
@@ -602,4 +885,5 @@ done
 - 환경 구축: [`WSL2를 로컬 GPU Kubernetes 개발 환경으로 사용하기.md`](./WSL2%EB%A5%BC%20%EB%A1%9C%EC%BB%AC%20GPU%20Kubernetes%20%EA%B0%9C%EB%B0%9C%20%ED%99%98%EA%B2%BD%EC%9C%BC%EB%A1%9C%20%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0.md)
 - 기준선 측정: [`labs/wsl2-vllm-baseline/`](../labs/wsl2-vllm-baseline/README.md)
 - 2주차 예습 노트: [`knowledge/06-week2-prep.md`](../knowledge/06-week2-prep.md)
-- 교재 공식 코드: `orca3/llm-model-inference` — CH3 `ch03/single_model_llm_serving`(C1이 쓰는 것) · `ch03/multi_model_serving`, CH4 `ch04/KnowledgeAgent` · `ch04/{bedrock,jumpstart,dlc,dlc_customization}`
+- 교재 공식 코드: `orca3/llm-model-inference` — CH3 `ch03/single_model_llm_serving`(C1) · `ch03/multi_model_serving`(C2), CH4 `ch04/KnowledgeAgent` · `ch04/{bedrock,jumpstart,dlc,dlc_customization}`
+- Triton 모델 설정 문법(`max_batch_size`, `dynamic_batching`): [Model Configuration](https://github.com/triton-inference-server/server/blob/main/docs/user_guide/model_configuration.md)

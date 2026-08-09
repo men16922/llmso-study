@@ -10,12 +10,14 @@ Last Updated: 2026-08-09
 
 - [x] [manual] `knowledge/06-week2-prep.md` 작성 — 완료 (2026-08-09). PDF 해당 구간을 직접 추출해 읽고 작성했고, 인용 쪽수는 물리 페이지 기준으로 `search_index.py` 출력과 일치. 교재의 Triton·RAG·에이전틱은 이 PDF가 다루지 않아 "어긋날 수 있는 지점" 표로 명시.
 - [ ] [manual] 모임(오늘 20:30) 후 — 노트의 "스터디 중 확인할 질문" 5개가 강의에서 채워졌는지 확인하고, 안 채워진 것은 과제 소재로 이월.
-- [ ] [manual] **2주차 과제 — 시나리오 B1·B2·C1 실행 후 글 작성.** 마감 **2026-08-16 09:00**. 시나리오는 `articles/vLLM 배칭·큐 실습 시나리오 (CH3·CH4).md`에 완성돼 있고 랩 코드도 준비됨(`--unique-prefix`, env 파라미터화). WSL2 머신에서 **3~4시간**, 두 세션 권장. Done: B1 표 3개 + 파레토 곡선 + B2 Grafana 스크린샷 + C1 표 3개가 채워지고 해석이 붙음.
-  - 핵심 가설: 처리량 포화점과 TTFT 붕괴점이 `max-num-seqs`를 따라 이동한다 (1주차 Cloud Run에서 슬롯 8, 동시성 16에 goodput 50%로 관측)
-  - **순서 고정**: B1·B2를 먼저 끝내 글의 안전판을 확보한 뒤 C1. C1은 설치·어댑터에서 시간이 새기 쉬움
+- [ ] [manual] **2주차 과제 — 시나리오 B1·B2·C1·C2 실행 후 글 작성.** 마감 **2026-08-16 09:00**. 시나리오는 `articles/vLLM 배칭·큐 실습 시나리오 (CH3·CH4).md`에 완성돼 있고 랩 코드도 준비됨(`--unique-prefix`, env 파라미터화). WSL2 머신에서 **4.5~5.5시간, 세 세션**. Done: B1 표 3개 + 파레토 곡선 + B2 Grafana 스크린샷 + C1 표 3개 + C2 표 2개 + 배칭 4종 종합표가 채워지고 해석이 붙음.
+  - 글의 축: **배칭 4종(없음/static/dynamic/continuous)을 전부 실측해 예습 노트 §1 표를 숫자로 채운다.** dynamic이 전제하는 "요청들이 같은 시간 걸린다"가 LLM에서 깨지는 것이 결론
+  - **세션 순서 고정**: ① B1·B2 (안전판) → ② C1 → ③ C2. 세션 ① 시작 시 `docker pull nvcr.io/nvidia/tritonserver:24.12-py3`(~17GB)와 C1 venv 설치를 백그라운드로 걸어둘 것
+  - ⚠️ **포트 충돌**: vLLM port-forward와 교재 C1 서버가 둘 다 8000. B1·B2와 C1은 동시 실행 불가. Triton은 8009/8010/8011로 충돌 없음
   - B3~B5는 다음 편으로 이월 (시나리오 문서 뒤쪽에 설계 보존). B1의 `results/b1-timeline.txt`가 B4의 입력이므로 **반드시 남길 것**
 - [ ] [manual] **C1 선행 작업 2건** (WSL2에서, 착수 전 확인) — ① 교재 저장소 `orca3/llm-model-inference` 클론 + `ch03/single_model_llm_serving` venv 설치(`vllm==0.9.0.1`, 8~10GB·30~40분) ② `model_worker.py:48`의 `max_new_tokens=50`을 20으로 맞춰 엔드포인트 간 출력 토큰 수 정렬. 이 정렬을 빠뜨리면 처리량 비교가 2.5배 왜곡됨.
 - [ ] [manual] `benchmark.py`에 `--api book` 모드 추가 — 교재 서버는 OpenAI 호환이 아님(`{"prompts":[...]}` / SSE `{"token":...}`). `run_request()`만 분기하고 백분위·goodput 로직은 재사용. 비스트리밍 엔드포인트는 TTFT 미정의로 처리. 40분.
+- [ ] [manual] **C2 선행 작업 — `mobilenet_v2`를 배치 축 열린 ONNX로 export.** 저장소의 `densenet_onnx`는 `max_batch_size: 0` + `reshape`로 배치 축이 1에 고정돼 있어 **dynamic batching을 켤 수 없음**. `torch.onnx.export(..., dynamic_axes={"input": {0: "batch"}, "output": {0: "batch"}})`로 새로 뽑아야 함. 스크립트는 시나리오 C2-1에 있음. 20분.
 
 ## Priority 1 — 게이트 두껍게 만들기
 
