@@ -822,6 +822,14 @@ flowchart TD
 
 ---
 
+## 다음 편
+
+이 글에서 확인한 것은 GPU가 컨테이너와 쿠버네티스에서 **보이는가**까지다. 다음 편에서는 이 환경 위에 vLLM을 올려 **그 GPU가 실제로 얼마나 일하는가**를 측정한다.
+
+> [Continuous Batching이 처리량을 높이는 방식](./Continuous%20Batching%EC%9D%B4%20%EC%B2%98%EB%A6%AC%EB%9F%89%EC%9D%84%20%EB%86%92%EC%9D%B4%EB%8A%94%20%EB%B0%A9%EC%8B%9D.md) — vLLM의 `max-num-seqs`를 1 → 16 → 64로 바꿔가며 측정. 같은 GPU에서 출력 처리량이 약 **113 → 2,627 tok/s**로 증가했다.
+
+---
+
 ## Reference
 
 - [(따라하며 확인하는) PC에 GPU 설정 및 사용 by Docker / K8S](https://app.notion.com/p/39750aec5edf806d8070d580fac38917?pvs=21)
