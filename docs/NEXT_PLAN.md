@@ -1,6 +1,13 @@
 # Next Plan
 
-Last Updated: 2026-08-09
+Last Updated: 2026-08-15
+
+> ⚠️ **2026-08-15 범위 축소 결정.** 08-09 이후 6일간 측정이 진행되지 않았고 마감(08-16 09:00)까지
+> 하루가 채 안 남았습니다. 원래 계획(6.5~8시간·네 세션)은 들어가지 않으므로 **세션 1(B1·B2)만 수행하고
+> C1·C2·C3는 다음 편으로 통째 이월**합니다. 근거는 시나리오 자체가 남긴 안전판입니다 —
+> *"B1·B2만으로도 글 한 편이 선다"*(`articles/2주차-01`). 시나리오 머리말의 잘라내기 순서
+> (C3-4 → C1의 `bs` 축 → C2의 20ms)만으로는 부족해 한 단계 더 잘랐습니다.
+> C1의 `async def` 발견은 **측정 없이 코드 읽기만으로 쓸 수 있으므로 "다음 편 예고"로 한 문단 넣습니다.**
 
 열린 작업만 담는 롤링 플랜입니다. 완료 이력은 `docs/COMPLETED_SUMMARY.md`.
 
@@ -10,7 +17,11 @@ Last Updated: 2026-08-09
 
 - [x] [manual] `knowledge/06-week2-prep.md` 작성 — 완료 (2026-08-09). PDF 해당 구간을 직접 추출해 읽고 작성했고, 인용 쪽수는 물리 페이지 기준으로 `search_index.py` 출력과 일치. 교재의 Triton·RAG·에이전틱은 이 PDF가 다루지 않아 "어긋날 수 있는 지점" 표로 명시.
 - [ ] [manual] 모임(오늘 20:30) 후 — 노트의 "스터디 중 확인할 질문" 5개가 강의에서 채워졌는지 확인하고, 안 채워진 것은 과제 소재로 이월.
-- [ ] [manual] **2주차 과제 — 시나리오 B1·B2·C1·C2·C3 실행 후 글 작성.** 마감 **2026-08-16 09:00**. 시나리오는 **4편으로 분할**(허브 + 00 준비 / 01 B1·B2 / 02 C1 / 03 C2·C3), 랩 코드 전부 준비 완료. WSL2 머신에서 **6.5~8시간, 네 세션**. Done: B1 표 4개 + 파레토 + 공식 검증 + B2 Grafana 스크린샷 + C1 표 3개 + C2 표 2개 + C3 표 3개 + 배칭 4종 종합표가 채워지고 해석이 붙음.
+- [/] [manual] **2주차 과제 — 글 작성 완료, 제출 대기.** 마감 **2026-08-16 09:00**.
+  - [x] B1·B2 전 구간 실측 (2026-08-15). `short`·`decode` × slots 1/16/64 + B2 큐 부하. 결과 8종 + 타임라인 + 환경 기록 + 메트릭 목록이 `labs/wsl2-vllm-baseline/results/`에.
+  - [x] 표 4개 + 파레토 + 지연 공식 검증 + 서버 측 큐 궤적까지 채우고 해석 작성 → `articles/Continuous Batching이 처리량을 높이는 방식.md` (8단계 템플릿 전부 + 한계 6개 + 재현 부록)
+  - [ ] **사람 검토 후 제출** ← 남은 것
+  - [ ] (선택) **Grafana 스크린샷 1장.** B2 구간 `2026-08-15 02:15:47~02:21:49 UTC`가 Prometheus에 남아 있어 사후 촬영 가능. 조회 명령은 글의 재현 부록에 있음. 글은 수치·궤적으로 대체해 뒀으므로 **없어도 제출 가능**.
   - ⚠️ **분량이 큼.** 잘라내는 순서를 시나리오 머리말에 명시해 뒀음: C3-4 → C1의 `bs` 축 → C2의 20ms 지점 (각각의 핵심 결론은 남음)
   - **C3 = CH4 도전과제(RayService)**. 따라하기가 되지 않게 두 접점으로 붙임 — ① B1(직접 vLLM) ↔ C3(Ray Serve로 감싼 vLLM) 계층 오버헤드 ② C2(Triton `dynamic_batching`) ↔ C3(`@serve.batch`) 같은 두 노브
   - **GPU·8000 포트가 하나뿐**이라 B1·B2 / C1 / C2 / C3는 서로 배타적. 세션 전환 시 앞의 것을 반드시 내릴 것
@@ -29,6 +40,7 @@ Last Updated: 2026-08-09
   - `summarize_results.py --delta` — 두 구성의 차이·차이% 열 (C3 계층 오버헤드용)
   - `labs/triton-dynamic-batching/` — `export_mobilenet_onnx.py` · `make_config.py` · `triton_load.py` · `triton_metrics.py` · `sweep.sh` + 테스트 19건
   - `labs/rayserve-on-k8s/` — `rayservice-qwen.yaml`(B1과 동일 조건, `ManifestTest`가 통제 변수 감시) · `mobilenet_serve.py`(`@serve.batch`) + 테스트 10건
+- [ ] [auto] **`Makefile`의 `PY`를 이 머신에서 쓸 수 있게 만들기.** WSL의 `python3`(3.14)에 **pip 자체가 없어** `make check-labs`가 그대로 실패합니다. 2026-08-15에는 Windows Python 3.12에 `pytest`·`pyyaml`을 설치해 91건을 확인했습니다. Done: 이 머신에서 `make check`가 문서+labs 91건까지 한 번에 통과.
 - [ ] [manual] **C1 선행 — WSL2에서 환경 준비.** ① 교재 저장소 `orca3/llm-model-inference` 클론 + `ch03/single_model_llm_serving` venv 설치(`vllm==0.9.0.1`, 8~10GB·30~40분) ② `model_worker.py:48`의 `max_new_tokens=50`을 20으로 맞춰 엔드포인트 간 출력 토큰 수 정렬. 이 정렬을 빠뜨리면 처리량 비교가 2.5배 왜곡됨.
 - [ ] [manual] **C2 선행 — Triton 이미지 풀 + ONNX export.** 저장소의 `densenet_onnx`는 `max_batch_size: 0` + `reshape`로 배치 축이 1에 고정돼 **dynamic batching을 켤 수 없음**. `export_mobilenet_onnx.py --verify`로 배치 축 열린 mobilenet_v2를 뽑아야 함. 이미지 풀(~17GB)은 세션 1에서 백그라운드로.
 

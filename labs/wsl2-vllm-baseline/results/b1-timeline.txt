@@ -1,0 +1,15 @@
+=== slots=16 short 시작 01:35:42 UTC ===
+=== slots=16 short 종료 01:37:20 UTC ===
+=== slots=1 short 시작 01:38:28 UTC ===
+=== slots=1 short 종료 01:43:37 UTC ===
+=== slots=64 short 시작 01:45:05 UTC ===
+=== slots=64 short 종료 01:46:40 UTC ===
+=== slots=1 decode 시작 01:48:48 UTC ===
+=== slots=1 decode 종료 01:55:46 UTC ===
+=== slots=16 decode 시작 01:57:02 UTC ===
+=== slots=16 decode 종료 01:59:49 UTC ===
+=== slots=64 decode 시작 02:01:16 UTC ===
+=== slots=64 decode 시작(재개) 02:06:51 UTC ===
+=== slots=64 decode 종료 02:09:34 UTC ===
+=== B2 시작 02:15:47 UTC ===
+=== B2 종료 02:21:49 UTC ===

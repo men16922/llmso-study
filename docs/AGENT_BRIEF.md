@@ -1,16 +1,18 @@
 # Agent Brief
 
-Last Updated: 2026-08-09
+Last Updated: 2026-08-15
 
 세션 시작용 압축 컨텍스트(≤60줄). 상세는 필요할 때만 링크 문서를 여세요.
 
-> ▶ NEXT SESSION: **WSL2 머신에서 세션 1(B1·B2) 실행.** 도구는 전부 완성돼 있어 실행·기록만 하면 됩니다. 첫 동작: ① 0-1의 `wsl -d Ubuntu -u root -- sleep infinity` 창을 띄우고 ② `docker pull nvcr.io/nvidia/tritonserver:24.12-py3 &`와 `docker pull rayproject/ray-llm:2.44.1-py311-cu124 &`를 백그라운드로 걸고 ③ `cd labs/wsl2-vllm-baseline && source redeploy.sh`. 시나리오는 4편으로 쪼갰습니다 — 허브 `articles/vLLM 배칭·큐 실습 시나리오 (CH3·CH4).md`, 세션 1은 `articles/2주차-01 배치 슬롯과 큐.md`.
+> ▶ NEXT SESSION: **2주차 과제 글을 사람이 검토하고 제출.** 마감 **2026-08-16 09:00**. 글은 `articles/Continuous Batching이 처리량을 높이는 방식.md`에 완성돼 있고 B1·B2 측정도 전부 끝났습니다(`labs/wsl2-vllm-baseline/results/`). 남은 선택 작업은 **Grafana 스크린샷 1장** — B2 구간(`2026-08-15 02:15:47~02:21:49 UTC`)이 Prometheus에 남아 있어 사후에 찍을 수 있습니다(글의 부록에 조회 명령 있음). 그다음은 **3주차(CH5·CH6) 예습 노트**, 모임 08-16 20:30.
 >
-> `study/`에 노션 원문(Ch1~Ch4, LLM기초)이 들어와 있습니다 — **커밋 대상 아님**(gitignore + 인덱스 제외).
+> ⚠️ 이 머신에서 **백그라운드 태스크가 반복 강제 종료**됩니다. 긴 측정은 포그라운드로 돌리고, `0-1` keeper(`wsl -d Ubuntu -u root -- sleep infinity`)는 **사람이 별도 PowerShell 창에서** 띄우세요 — 죽으면 WSL 유휴 poweroff로 k3s 파드가 내려갑니다.
+>
+> `study/`(노션 원문)는 **현재 체크아웃에 없습니다.** 필요하면 다시 복사하세요 — 커밋 대상 아님(gitignore + 인덱스 제외).
 
 ## Snapshot
 
-CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 총 7주) 자료 정리 저장소. 애플리케이션이 아니라 **한국어 학습 문서 모음 + 문서·PDF 탐색용 로컬 인덱싱 도구**입니다. 런타임도 배포도 없고, 검증은 "문서와 인덱스가 서로 어긋나지 않았는가"가 전부입니다. 현재 1주차(CH1·CH2) 완료, 과제 제출 완료. 2주차(CH3·CH4)는 2026-08-09 20:30.
+CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 총 7주) 자료 정리 저장소. 한국어 학습 문서 모음 + 문서·PDF 탐색용 로컬 인덱싱 도구 + **WSL2 GPU 실측용 랩 4종**입니다. 게이트는 오프라인·결정론적("문서와 인덱스가 어긋나지 않았는가" + labs 단위 테스트 91건)이고, **실제 GPU 측정은 게이트 밖**입니다. 현재 1주차 완료·제출 완료, **2주차 B1·B2 측정 완료 + 글 작성 완료(제출 대기)**.
 
 핵심 설계는 **인덱스 파이프라인의 역할 분리**입니다 — 트리는 `build_pageindex.py`가 LLM 없이 결정론적으로 만들고, `summary`만 `enrich_summaries.py`가 한국어로 교체합니다. 근거는 `index/README.md` §2 실측 기록.
 
@@ -18,8 +20,9 @@ CloudNet@ **LLMSO 스터디**(2026-08-02 ~ 09-13, 총 7주) 자료 정리 저장
 
 Authority: `docs/NEXT_PLAN.md`.
 
-1. 과제용 글 작성 — 마감은 **매주 일요일 09:00**, 미공유 1회 = 제명. 2주차는 시나리오·랩 도구가 전부 준비돼 **측정만 남음**(6.5~8시간·네 세션).
+1. 과제용 글 작성 — 마감은 **매주 일요일 09:00**, 미공유 1회 = 제명. **2주차 글은 완성됨 — 검토·제출만 남음.**
 2. 주차별 예습 노트 작성 (매주 모임 전). 1·2주차 완료, 3주차(08-16 CH5·CH6)부터 남음.
+3. C1·C2·C3(교재 자작 배칭 · Triton dynamic batching · Ray Serve)는 시간 부족으로 **다음 편 이월** — 설계·도구는 이미 완성돼 있음.
 
 ## Read Order
 

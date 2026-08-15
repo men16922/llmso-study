@@ -7,6 +7,9 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+# pytest 캐시 — 안의 README.md가 마크다운 인덱스에 섞여 들어간다
+# (tools/build_pageindex.py의 MD_SKIP_DIRS에도 같은 이유로 들어가 있음)
+.pytest_cache/
 
 # Claude Code 로컬 설정 (권한 등, 머신마다 다름)
 .claude/settings.local.json

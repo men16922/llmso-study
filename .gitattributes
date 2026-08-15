@@ -1,0 +1,11 @@
+# 셸 스크립트는 항상 LF로 체크아웃한다.
+#
+# 왜 필요한가 — 이 저장소는 Windows에서 체크아웃하고 WSL2에서 실행합니다.
+# core.autocrlf가 켜진 Windows 환경에서는 .sh가 CRLF로 풀리는데,
+# 그러면 `source redeploy.sh`가 함수를 정의하지 못하고
+# (bash가 `redeploy() {\r`를 파싱하지 못함) 실습 절차 0-5가 통째로 실패합니다.
+# 2026-08-15 세션 1에서 실제로 겪었습니다.
+*.sh text eol=lf
+
+# 벤치마크 결과 JSON도 줄바꿈 때문에 diff가 통째로 바뀌지 않도록 고정합니다.
+*.json text eol=lf
