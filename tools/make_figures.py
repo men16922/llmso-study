@@ -234,7 +234,7 @@ def fig_queue(fname):
     out.append(f'<line class="axis" x1="{ML}" y1="{y0}" x2="{W - MR}" y2="{y0}" stroke-width="1"/>')
     for i in range(0, n, 6):
         out.append(f'<text class="tick muted" x="{xp(i):.1f}" y="{y0 + 20}" text-anchor="middle">{ts[i]}</text>')
-    out.append(f'<text class="lbl muted" x="{(ML + W - MR) / 2:.0f}" y="{H - 14}" text-anchor="middle">B2 시작 이후 경과 (초)</text>')
+    out.append(f'<text class="lbl muted" x="{(ML + W - MR) / 2:.0f}" y="{H - 14}" text-anchor="middle">측정 시작 이후 경과 (초)</text>')
 
     # 슬롯 천장
     y16 = ypos(16)

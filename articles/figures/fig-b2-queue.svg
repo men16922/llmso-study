@@ -57,7 +57,7 @@
 <text class="tick muted" x="463.3" y="432" text-anchor="middle">240</text>
 <text class="tick muted" x="562.7" y="432" text-anchor="middle">300</text>
 <text class="tick muted" x="662.0" y="432" text-anchor="middle">360</text>
-<text class="lbl muted" x="364" y="456" text-anchor="middle">B2 시작 이후 경과 (초)</text>
+<text class="lbl muted" x="364" y="456" text-anchor="middle">측정 시작 이후 경과 (초)</text>
 <line class="axis" x1="66" y1="329.9" x2="662" y2="329.9" stroke-width="1.5" stroke-dasharray="5 4"/>
 <text class="lbl ink2" x="72" y="322.9">max-num-seqs = 16</text>
 <path class="line s0" d="M66.0,412.0 L82.6,391.5 L99.1,391.5 L115.7,391.5 L132.2,391.5 L148.8,391.5 L165.3,391.5 L181.9,391.5 L198.4,391.5 L215.0,391.5 L231.6,391.5 L248.1,391.5 L264.7,391.5 L281.2,391.5 L297.8,391.5 L314.3,391.5 L330.9,391.5 L347.4,391.5 L364.0,391.5 L380.6,391.5 L397.1,391.5 L413.7,391.5 L430.2,391.5 L446.8,391.5 L463.3,396.6 L479.9,329.9 L496.4,329.9 L513.0,329.9 L529.6,335.0 L546.1,335.0 L562.7,329.9 L579.2,329.9 L595.8,329.9 L612.3,329.9 L628.9,329.9 L645.4,329.9 L662.0,329.9"/>
