@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="470" viewBox="0 0 780 470" role="img" aria-label="슬롯이 차면 나머지는 전부 큐로 간다 — 서버 측 관측">
+<style>
+  .surface { fill: #fcfcfb; }
+  .ink     { fill: #0b0b0b; }
+  .ink2    { fill: #52514e; }
+  .muted   { fill: #898781; }
+  .grid    { stroke: #e1e0d9; }
+  .axis    { stroke: #c3c2b7; }
+  .s0 { stroke: #2a78d6; } .f0 { fill: #2a78d6; }
+  .s1 { stroke: #eb6834; } .f1 { fill: #eb6834; }
+  .s2 { stroke: #1baf7a; } .f2 { fill: #1baf7a; }
+  @media (prefers-color-scheme: dark) {
+    .surface { fill: #1a1a19; }
+    .ink     { fill: #ffffff; }
+    .ink2    { fill: #c3c2b7; }
+    .muted   { fill: #898781; }
+    .grid    { stroke: #2c2c2a; }
+    .axis    { stroke: #383835; }
+    .s0 { stroke: #3987e5; } .f0 { fill: #3987e5; }
+    .s1 { stroke: #d95926; } .f1 { fill: #d95926; }
+    .s2 { stroke: #199e70; } .f2 { fill: #199e70; }
+  }
+  text { font-family: system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .tick { font-size: 12px; font-variant-numeric: tabular-nums; }
+  .lbl  { font-size: 13px; }
+  .ttl  { font-size: 17px; font-weight: 600; }
+  .sub  { font-size: 13px; }
+  .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+</style>
+<rect class="surface" width="780" height="470"/>
+<text class="ttl ink" x="66" y="26">슬롯이 차면 나머지는 전부 큐로 간다 — 서버 측 관측</text>
+<text class="sub ink2" x="66" y="46">vLLM 내부 지표 · slots=16 고정 · 동시성 4 → 16 → 64 · 10초 간격</text>
+<circle class="f0" cx="71" cy="66" r="5"/>
+<text class="lbl ink" x="82" y="70">배치에서 실행 중 (running)</text>
+<circle class="f1" cx="252" cy="66" r="5"/>
+<text class="lbl ink" x="263" y="70">큐에서 대기 (waiting)</text>
+<text class="lbl muted" x="66" y="92">요청 수</text>
+<line class="grid" x1="66" y1="412.0" x2="662" y2="412.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="416.0" text-anchor="end">0</text>
+<line class="grid" x1="66" y1="360.7" x2="662" y2="360.7" stroke-width="1"/>
+<text class="tick muted" x="56" y="364.7" text-anchor="end">10</text>
+<line class="grid" x1="66" y1="309.3" x2="662" y2="309.3" stroke-width="1"/>
+<text class="tick muted" x="56" y="313.3" text-anchor="end">20</text>
+<line class="grid" x1="66" y1="258.0" x2="662" y2="258.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="262.0" text-anchor="end">30</text>
+<line class="grid" x1="66" y1="206.7" x2="662" y2="206.7" stroke-width="1"/>
+<text class="tick muted" x="56" y="210.7" text-anchor="end">40</text>
+<line class="grid" x1="66" y1="155.3" x2="662" y2="155.3" stroke-width="1"/>
+<text class="tick muted" x="56" y="159.3" text-anchor="end">50</text>
+<line class="grid" x1="66" y1="104.0" x2="662" y2="104.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="108.0" text-anchor="end">60</text>
+<line class="axis" x1="66" y1="412" x2="662" y2="412" stroke-width="1"/>
+<text class="tick muted" x="66.0" y="432" text-anchor="middle">0</text>
+<text class="tick muted" x="165.3" y="432" text-anchor="middle">60</text>
+<text class="tick muted" x="264.7" y="432" text-anchor="middle">120</text>
+<text class="tick muted" x="364.0" y="432" text-anchor="middle">180</text>
+<text class="tick muted" x="463.3" y="432" text-anchor="middle">240</text>
+<text class="tick muted" x="562.7" y="432" text-anchor="middle">300</text>
+<text class="tick muted" x="662.0" y="432" text-anchor="middle">360</text>
+<text class="lbl muted" x="364" y="456" text-anchor="middle">B2 시작 이후 경과 (초)</text>
+<line class="axis" x1="66" y1="329.9" x2="662" y2="329.9" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text class="lbl ink2" x="72" y="322.9">max-num-seqs = 16</text>
+<path class="line s0" d="M66.0,412.0 L82.6,391.5 L99.1,391.5 L115.7,391.5 L132.2,391.5 L148.8,391.5 L165.3,391.5 L181.9,391.5 L198.4,391.5 L215.0,391.5 L231.6,391.5 L248.1,391.5 L264.7,391.5 L281.2,391.5 L297.8,391.5 L314.3,391.5 L330.9,391.5 L347.4,391.5 L364.0,391.5 L380.6,391.5 L397.1,391.5 L413.7,391.5 L430.2,391.5 L446.8,391.5 L463.3,396.6 L479.9,329.9 L496.4,329.9 L513.0,329.9 L529.6,335.0 L546.1,335.0 L562.7,329.9 L579.2,329.9 L595.8,329.9 L612.3,329.9 L628.9,329.9 L645.4,329.9 L662.0,329.9"/>
+<circle class="f0" cx="674.0" cy="339.9" r="4.5"/>
+<text class="lbl ink" x="684.0" y="344.4">running</text>
+<path class="line s1" d="M66.0,412.0 L82.6,412.0 L99.1,412.0 L115.7,412.0 L132.2,412.0 L148.8,412.0 L165.3,412.0 L181.9,412.0 L198.4,412.0 L215.0,412.0 L231.6,412.0 L248.1,412.0 L264.7,412.0 L281.2,412.0 L297.8,412.0 L314.3,412.0 L330.9,412.0 L347.4,412.0 L364.0,412.0 L380.6,412.0 L397.1,412.0 L413.7,412.0 L430.2,412.0 L446.8,412.0 L463.3,412.0 L479.9,412.0 L496.4,412.0 L513.0,412.0 L529.6,412.0 L546.1,412.0 L562.7,412.0 L579.2,165.6 L595.8,165.6 L612.3,165.6 L628.9,165.6 L645.4,165.6 L662.0,370.9"/>
+<circle class="f1" cx="674.0" cy="360.9" r="4.5"/>
+<text class="lbl ink" x="684.0" y="365.4">waiting</text>
+</svg>

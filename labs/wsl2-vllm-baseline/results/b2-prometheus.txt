@@ -1,0 +1,9 @@
+# B2 구간 서버 측 지표 (Prometheus query_range, step=10s)
+# 구간: 2026-08-15T02:15:47Z ~ 2026-08-15T02:21:49Z
+
+vllm:num_requests_running  (pod=vllm-baseline-66c796bf67-86pl8)
+  0 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 3 16 16 16 15 15 16 16 16 16 16 16 16
+
+vllm:num_requests_waiting  (pod=vllm-baseline-66c796bf67-86pl8)
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 48 48 48 48 48 8
+

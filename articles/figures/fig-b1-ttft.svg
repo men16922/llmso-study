@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="470" viewBox="0 0 780 470" role="img" aria-label="천장을 넘은 요청은 전부 대기로 간다">
+<style>
+  .surface { fill: #fcfcfb; }
+  .ink     { fill: #0b0b0b; }
+  .ink2    { fill: #52514e; }
+  .muted   { fill: #898781; }
+  .grid    { stroke: #e1e0d9; }
+  .axis    { stroke: #c3c2b7; }
+  .s0 { stroke: #2a78d6; } .f0 { fill: #2a78d6; }
+  .s1 { stroke: #eb6834; } .f1 { fill: #eb6834; }
+  .s2 { stroke: #1baf7a; } .f2 { fill: #1baf7a; }
+  @media (prefers-color-scheme: dark) {
+    .surface { fill: #1a1a19; }
+    .ink     { fill: #ffffff; }
+    .ink2    { fill: #c3c2b7; }
+    .muted   { fill: #898781; }
+    .grid    { stroke: #2c2c2a; }
+    .axis    { stroke: #383835; }
+    .s0 { stroke: #3987e5; } .f0 { fill: #3987e5; }
+    .s1 { stroke: #d95926; } .f1 { fill: #d95926; }
+    .s2 { stroke: #199e70; } .f2 { fill: #199e70; }
+  }
+  text { font-family: system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .tick { font-size: 12px; font-variant-numeric: tabular-nums; }
+  .lbl  { font-size: 13px; }
+  .ttl  { font-size: 17px; font-weight: 600; }
+  .sub  { font-size: 13px; }
+  .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+</style>
+<rect class="surface" width="780" height="470"/>
+<text class="ttl ink" x="66" y="26">천장을 넘은 요청은 전부 대기로 간다</text>
+<text class="sub ink2" x="66" y="46">같은 측정의 TTFT p95 (로그 눈금) · 처리량이 평평해지는 지점에서 꺾인다</text>
+<circle class="f0" cx="71" cy="66" r="5"/>
+<text class="lbl ink" x="82" y="70">slots=1</text>
+<circle class="f1" cx="154" cy="66" r="5"/>
+<text class="lbl ink" x="165" y="70">slots=16</text>
+<circle class="f2" cx="245" cy="66" r="5"/>
+<text class="lbl ink" x="256" y="70">slots=64</text>
+<text class="lbl muted" x="66" y="92">TTFT p95 (초, 로그)</text>
+<line class="grid" x1="66" y1="412.0" x2="662" y2="412.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="416.0" text-anchor="end">0.01</text>
+<line class="grid" x1="66" y1="335.0" x2="662" y2="335.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="339.0" text-anchor="end">0.1</text>
+<line class="grid" x1="66" y1="258.0" x2="662" y2="258.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="262.0" text-anchor="end">1</text>
+<line class="grid" x1="66" y1="181.0" x2="662" y2="181.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="185.0" text-anchor="end">10</text>
+<line class="grid" x1="66" y1="104.0" x2="662" y2="104.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="108.0" text-anchor="end">100</text>
+<line class="axis" x1="66" y1="412" x2="662" y2="412" stroke-width="1"/>
+<text class="tick muted" x="66.0" y="432" text-anchor="middle">1</text>
+<text class="tick muted" x="165.3" y="432" text-anchor="middle">2</text>
+<text class="tick muted" x="264.7" y="432" text-anchor="middle">4</text>
+<text class="tick muted" x="364.0" y="432" text-anchor="middle">8</text>
+<text class="tick muted" x="463.3" y="432" text-anchor="middle">16</text>
+<text class="tick muted" x="562.7" y="432" text-anchor="middle">32</text>
+<text class="tick muted" x="662.0" y="432" text-anchor="middle">64</text>
+<text class="lbl muted" x="364" y="456" text-anchor="middle">동시 요청 수</text>
+<line class="axis" x1="66" y1="281.2" x2="662" y2="281.2" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text class="lbl ink2" x="72" y="274.2">TTFT SLO 0.5s</text>
+<path class="line s0" d="M66.0,379.3 L165.3,276.2 L264.7,240.4 L364.0,215.0 L463.3,191.0 L562.7,167.5 L662.0,146.1"/>
+<circle class="f0" cx="66.0" cy="379.3" r="4"/>
+<circle class="f0" cx="165.3" cy="276.2" r="4"/>
+<circle class="f0" cx="264.7" cy="240.4" r="4"/>
+<circle class="f0" cx="364.0" cy="215.0" r="4"/>
+<circle class="f0" cx="463.3" cy="191.0" r="4"/>
+<circle class="f0" cx="562.7" cy="167.5" r="4"/>
+<circle class="f0" cx="662.0" cy="146.1" r="4"/>
+<path class="line s1" d="M66.0,369.1 L165.3,365.3 L264.7,364.5 L364.0,351.3 L463.3,333.5 L562.7,267.8 L662.0,237.9"/>
+<circle class="f1" cx="66.0" cy="369.1" r="4"/>
+<circle class="f1" cx="165.3" cy="365.3" r="4"/>
+<circle class="f1" cx="264.7" cy="364.5" r="4"/>
+<circle class="f1" cx="364.0" cy="351.3" r="4"/>
+<circle class="f1" cx="463.3" cy="333.5" r="4"/>
+<circle class="f1" cx="562.7" cy="267.8" r="4"/>
+<circle class="f1" cx="662.0" cy="237.9" r="4"/>
+<path class="line s2" d="M66.0,385.3 L165.3,370.0 L264.7,368.4 L364.0,352.1 L463.3,334.8 L562.7,312.1 L662.0,297.7"/>
+<circle class="f2" cx="66.0" cy="385.3" r="4"/>
+<circle class="f2" cx="165.3" cy="370.0" r="4"/>
+<circle class="f2" cx="264.7" cy="368.4" r="4"/>
+<circle class="f2" cx="364.0" cy="352.1" r="4"/>
+<circle class="f2" cx="463.3" cy="334.8" r="4"/>
+<circle class="f2" cx="562.7" cy="312.1" r="4"/>
+<circle class="f2" cx="662.0" cy="297.7" r="4"/>
+<circle class="f0" cx="674.0" cy="146.1" r="4.5"/>
+<text class="lbl ink" x="684.0" y="150.6">slots=1</text>
+<circle class="f1" cx="674.0" cy="237.9" r="4.5"/>
+<text class="lbl ink" x="684.0" y="242.4">slots=16</text>
+<circle class="f2" cx="674.0" cy="297.7" r="4.5"/>
+<text class="lbl ink" x="684.0" y="302.2">slots=64</text>
+</svg>
