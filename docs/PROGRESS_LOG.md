@@ -10,6 +10,7 @@ Last Updated: 2026-08-15
   - **B1·B2 전 구간 실측** (모델 `Qwen2.5-1.5B-Instruct`, vLLM v0.23.0, RTX 4080 Laptop 12GB). `short`·`decode` × slots 1/16/64 + B2 큐 부하. 결과 8종을 `labs/wsl2-vllm-baseline/results/`에 커밋.
   - `articles/Continuous Batching이 처리량을 높이는 방식.md` 신규 — 8단계 템플릿 전부 + 한계 6개 + 재현 부록.
   - `.gitattributes` 신규(`*.sh text eol=lf`), `articles/2주차-00`에 함정 3건을 트러블슈팅·본문으로 반영.
+  - **증빙 보강** — 계획의 산출물 중 빠져 있던 *"concurrency 대비 latency·throughput 그래프"*를 채움. `tools/make_figures.py` 신규(표준 라이브러리만, matplotlib 미도입)가 SVG 3종 생성. 색은 검증된 카테고리 슬롯 1~3, light/dark 양쪽 색각 검증 통과. 렌더해서 눈으로 확인 후 라벨 충돌·넘침 3건 수정. 서버 측 원본을 `results/b2-prometheus.{json,txt}`로 내보내고 글에 5-9 「측정 증거」 절 추가.
 - **Verified**
   - `python3 scripts/check_docs.py` → `✓ links / ✓ index / ✓ tools`. `--only md` 인덱스 갱신(802 nodes, 68 docs).
   - labs 테스트 4개 디렉터리 **91 passed**. 단 **이 머신에는 pytest·pip이 없어** Windows Python 3.12에 `pytest`·`pyyaml`을 설치해서 돌렸음(WSL python3.14는 pip 자체가 없음).

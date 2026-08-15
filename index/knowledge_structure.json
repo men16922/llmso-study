@@ -1786,7 +1786,7 @@
       "doc_description": "Next Plan",
       "meta": {
         "type": "markdown",
-        "lines": 70,
+        "lines": 71,
         "index_unit": "line",
         "summary_method": "extractive-first-paragraph",
         "generator": "tools/build_pageindex.py"
@@ -1803,35 +1803,35 @@
               "title": "Priority 0 — 2주차 (CH3·CH4)",
               "node_id": "0208",
               "start_index": 16,
-              "end_index": 46,
+              "end_index": 47,
               "summary": "[x] [manual] knowledge/06-week2-prep.md 작성 — 완료 (2026-08-09). PDF 해당 구간을 직접 추출해 읽고 작성했고, 인용 쪽수는 물리 페이지 기준으로 search_index.py 출력과 일치. 교재의 Triton·RAG·에이전틱은 이 PDF가 다루지 않아 \"어긋날 수 있는 지점\" 표로 명시. [ ] [manual] 모임(오늘 20:30) 후 — 노트의 \"스터디 중 확인할 질문\" 5개가 강의에서 채워졌는지 확인하고, 안 채워진 것은 과제 소재로 이월. …"
             },
             {
               "title": "Priority 1 — 게이트 두껍게 만들기",
               "node_id": "0209",
-              "start_index": 47,
-              "end_index": 52,
+              "start_index": 48,
+              "end_index": 53,
               "summary": "[ ] [auto] meta.summary_method 회귀 검사를 scripts/check_docs.py의 index 검사에 추가. LLM 보강이 끝난 문서가 extractive-*로 되돌아가면 실패해야 함 — 기대값을 저장소에 기록해두고 대조하는 방식. 이게 현재 게이트의 가장 큰 구멍(docs/STATUS.md Open Risks 참조). Done: 되돌린 상태를 만들면 make check-index가 exit 1. …"
             },
             {
               "title": "Priority 2 — 남은 준비물",
               "node_id": "0210",
-              "start_index": 53,
-              "end_index": 56,
+              "start_index": 54,
+              "end_index": 57,
               "summary": "[ ] [manual] AWS GPU 쿼터 증설 신청 (EC2 Running On-Demand G and VT instances, 최소 8 vCPU). 6주차(09-06) EKS 실습용, 목표 시한 2026-08-23. 절차는 knowledge/04-kickoff-checklist.md ⑥."
             },
             {
               "title": "Rules",
               "node_id": "0211",
-              "start_index": 57,
-              "end_index": 62,
+              "start_index": 58,
+              "end_index": 63,
               "summary": "작업 시작 전 docs/AGENT_BRIEF.md → docs/STATUS.md → 이 파일 순으로 읽으세요. 큰 작업의 설계 스냅샷은 docs/plans/YYYY-MM-DD-<topic>.md에 둡니다. 모든 문서는 한국어로. CLAUDE.md의 깨지기 쉬운 지점·콘텐츠 정책을 먼저 확인하세요.",
               "nodes": [
                 {
                   "title": "Automation Tags (무인 루프용)",
                   "node_id": "0212",
-                  "start_index": 63,
-                  "end_index": 70,
+                  "start_index": 64,
+                  "end_index": 71,
                   "summary": "상태 박스([x]/[/]/[ ])와 별개 축으로, 무인 루프가 소비 가능한지를 나타냅니다. [auto] — 로컬·결정론적·오프라인 게이트(make check)로 검증 가능한 항목만. [manual] — 사람의 판단·감각·외부 서비스가 필요. 무인 루프는 건너뜁니다. [blocked] — 의존성 미충족 또는 Blocker 2회 누적(러너가 자동 표시). 사람이 검토 후 해제. 태그 없음 = 무인 실행 대상 아님 (보안 기본값). 러너는 [auto]만 소비합니다."
                 }
               ]
@@ -1845,7 +1845,7 @@
       "doc_description": "Progress Log",
       "meta": {
         "type": "markdown",
-        "lines": 72,
+        "lines": 73,
         "index_unit": "line",
         "summary_method": "extractive-first-paragraph",
         "generator": "tools/build_pageindex.py"
@@ -1862,21 +1862,21 @@
               "title": "2026-08-15 — 2주차 세션 1(B1·B2) 실측 완료 + 과제 글 작성. **첫 실제 GPU 실행**",
               "node_id": "0214",
               "start_index": 5,
-              "end_index": 33,
+              "end_index": 34,
               "summary": "Status: 게이트 green — 문서 3종 + labs 91건(56+6+19+10). 미커밋. 범위 결정: 08-09 이후 6일간 측정이 없었고 마감(08-16 09:00)까지 하루가 안 남아 세션 1만 수행하고 C1·C2·C3는 통째 이월. 근거는 시나리오 자체의 안전판(*\"B1·B2만으로도 글 한 편이 선다\"*). Changed B1·B2 전 구간 실측 (모델 Qwen2.5-1.5B-Instruct, vLLM v0.23.0, RTX 4080 Laptop 12GB). …"
             },
             {
               "title": "2026-08-09 (2) — 2주차 실습 도구 일체 완성, 시나리오를 B1·B2·C1·C2·C3로 확장",
               "node_id": "0215",
-              "start_index": 34,
-              "end_index": 54,
+              "start_index": 35,
+              "end_index": 55,
               "summary": "Status: 게이트 green (make check = 문서 3종 + labs 테스트 86건, 오프라인·약 2초). 커밋·푸시 완료 (6a01681·011379c·eae3406). Changed 근거 확보: 교재 공식 저장소(orca3/llm-model-inference) ch03·ch04를 직접 읽고, 노션 CH4 원문(study/, gitignore)과 본인의 「7주 실행 계획」을 대조. 시나리오의 챕터 태그 오류 2건과 B4 판단 기준 오류를 정정. …"
             },
             {
               "title": "2026-08-09 — 하네스 설치 + 2주차 예습 노트 + CH3·CH4 실습 시나리오",
               "node_id": "0216",
-              "start_index": 55,
-              "end_index": 72,
+              "start_index": 56,
+              "end_index": 73,
               "summary": "Status: 게이트 green (make check = 문서 3종 + labs 테스트 6건, 약 2초). 전부 미커밋. Changed 하네스 설치: harness-init.sh 스캐폴딩 후 게이트를 이 저장소에 맞게 정의. scripts/check_docs.py(링크·인덱스 스키마·파이썬 문법) 신규 + Makefile(check / check-labs / index-md / overnight 타겟). …"
             }
           ]
@@ -1920,7 +1920,7 @@
               "node_id": "0220",
               "start_index": 27,
               "end_index": 37,
-              "summary": "과제 미공유 1회 = 제명. 마감은 매주 일요일 09:00. 다음 마감 2026-08-16 09:00 — 글은 준비됐고 제출만 남음. Grafana 스크린샷 미확보. 사람이 찍어야 합니다. B2 구간(2026-08-15 02:15:47~02:21:49 UTC) 데이터는 Prometheus에 남아 있어 사후 조회가 됩니다(확인함). 글에는 수치·궤적으로 대체해 넣었으므로 없어도 제출 가능합니다. 백그라운드 태스크가 이 환경에서 반복 강제 종료됩니다. …"
+              "summary": "과제 미공유 1회 = 제명. 마감은 매주 일요일 09:00. 다음 마감 2026-08-16 09:00 — 글은 준비됐고 제출만 남음. ~~Grafana 스크린샷 미확보~~ → 해소. 서버 측 원본을 results/b2-prometheus.{json,txt}로 내보내고 tools/make_figures.py가 SVG 3종을 생성합니다. 캡처는 재현·검증이 안 되지만 이 파일들은 다시 그릴 수 있고, b1-timeline.txt의 시각이 있어 사후 재조회도 됩니다. …"
             }
           ]
         }

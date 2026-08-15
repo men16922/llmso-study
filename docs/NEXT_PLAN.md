@@ -20,8 +20,9 @@ Last Updated: 2026-08-15
 - [/] [manual] **2주차 과제 — 글 작성 완료, 제출 대기.** 마감 **2026-08-16 09:00**.
   - [x] B1·B2 전 구간 실측 (2026-08-15). `short`·`decode` × slots 1/16/64 + B2 큐 부하. 결과 8종 + 타임라인 + 환경 기록 + 메트릭 목록이 `labs/wsl2-vllm-baseline/results/`에.
   - [x] 표 4개 + 파레토 + 지연 공식 검증 + 서버 측 큐 궤적까지 채우고 해석 작성 → `articles/Continuous Batching이 처리량을 높이는 방식.md` (8단계 템플릿 전부 + 한계 6개 + 재현 부록)
+  - [x] **증빙 보강** (2026-08-15). 계획의 산출물 중 빠져 있던 *"concurrency 대비 latency·throughput 그래프"*를 채움 — `tools/make_figures.py`(표준 라이브러리만)가 결과 JSON에서 SVG 3종 생성. 서버 측 원본은 `results/b2-prometheus.{json,txt}`. 글에 5-9 「측정 증거」 절 추가.
   - [ ] **사람 검토 후 제출** ← 남은 것
-  - [ ] (선택) **Grafana 스크린샷 1장.** B2 구간 `2026-08-15 02:15:47~02:21:49 UTC`가 Prometheus에 남아 있어 사후 촬영 가능. 조회 명령은 글의 재현 부록에 있음. 글은 수치·궤적으로 대체해 뒀으므로 **없어도 제출 가능**.
+  - [ ] (선택) Grafana 화면 캡처. 없어도 됨 — 같은 데이터를 같은 시간축으로 그린 것이 `fig-b2-queue.svg`.
   - ⚠️ **분량이 큼.** 잘라내는 순서를 시나리오 머리말에 명시해 뒀음: C3-4 → C1의 `bs` 축 → C2의 20ms 지점 (각각의 핵심 결론은 남음)
   - **C3 = CH4 도전과제(RayService)**. 따라하기가 되지 않게 두 접점으로 붙임 — ① B1(직접 vLLM) ↔ C3(Ray Serve로 감싼 vLLM) 계층 오버헤드 ② C2(Triton `dynamic_batching`) ↔ C3(`@serve.batch`) 같은 두 노브
   - **GPU·8000 포트가 하나뿐**이라 B1·B2 / C1 / C2 / C3는 서로 배타적. 세션 전환 시 앞의 것을 반드시 내릴 것

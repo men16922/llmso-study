@@ -27,7 +27,7 @@ Authority: `docs/NEXT_PLAN.md`.
 ## Open Risks
 
 - **과제 미공유 1회 = 제명.** 마감은 매주 일요일 09:00. 다음 마감 2026-08-16 09:00 — **글은 준비됐고 제출만 남음.**
-- **Grafana 스크린샷 미확보.** 사람이 찍어야 합니다. B2 구간(`2026-08-15 02:15:47~02:21:49 UTC`) 데이터는 Prometheus에 남아 있어 **사후 조회가 됩니다**(확인함). 글에는 수치·궤적으로 대체해 넣었으므로 없어도 제출 가능합니다.
+- ~~Grafana 스크린샷 미확보~~ → **해소.** 서버 측 원본을 `results/b2-prometheus.{json,txt}`로 내보내고 `tools/make_figures.py`가 SVG 3종을 생성합니다. 캡처는 재현·검증이 안 되지만 이 파일들은 다시 그릴 수 있고, `b1-timeline.txt`의 시각이 있어 사후 재조회도 됩니다. 굳이 Grafana 화면이 필요하면 `localhost:30002`에서 같은 PromQL로 찍으면 됩니다.
 - **백그라운드 태스크가 이 환경에서 반복 강제 종료됩니다.** 0-1 keeper가 죽으면 WSL 유휴 poweroff로 k3s 파드가 `Completed`/`Unknown`이 되어 측정이 끊깁니다. **긴 측정은 포그라운드로 돌리거나, keeper를 별도 PowerShell 창에서 사람이 직접 띄우세요.**
 - **`make check-labs`가 이 머신에서 그대로 안 됩니다** (위 Baseline 참조).
 - **GPU·8000 포트가 하나씩뿐.** B1·B2 / C1 / C2 / C3는 서로 배타적입니다. 세션 전환 시 앞의 것을 안 내리면 다음 실험이 OOM으로 안 뜹니다.
