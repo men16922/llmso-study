@@ -222,9 +222,9 @@ def fig_queue(fname):
         return ML + (W - ML - MR) * (i / (n - 1))
 
     out = head(
-        "슬롯이 차면 나머지는 전부 큐로 간다 — 서버 측 관측",
+        "서버 측 큐 관측 — 처리 중인 요청과 대기 중인 요청",
         "vLLM 내부 지표 · slots=16 고정 · 동시성 4 → 16 → 64 · 10초 간격",
-        [(0, "배치에서 실행 중 (running)"), (1, "큐에서 대기 (waiting)")],
+        [(0, "처리 중 (running)"), (1, "대기 중 (waiting)")],
         "요청 수",
     )
     for t in range(0, ymax + 1, 10):
@@ -266,15 +266,15 @@ def main():
     print("생성:")
     fig_linear(
         "fig-b1-throughput.svg",
-        "슬롯이 처리량의 천장을 정한다",
+        "슬롯 수에 따른 처리량 변화",
         "Qwen2.5-1.5B-Instruct · vLLM v0.23.0 · RTX 4080 Laptop · short 시나리오 · 각 지점 100요청 1회",
         "output_tok_per_s", "처리량 (tok/s)", [0, 500, 1000, 1500, 2000, 2500, 3000],
         short, "short",
     )
     fig_log(
         "fig-b1-ttft.svg",
-        "천장을 넘은 요청은 전부 대기로 간다",
-        "같은 측정의 TTFT p95 (로그 눈금) · 처리량이 평평해지는 지점에서 꺾인다",
+        "처리 한도를 넘었을 때의 TTFT",
+        "같은 측정의 TTFT p95 (로그 눈금) · 처리량 증가가 멈추는 지점에서 급증한다",
         "ttft_p95_s", "TTFT p95 (초, 로그)",
         short, "short", slo=0.5,
     )
