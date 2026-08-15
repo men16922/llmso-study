@@ -1042,7 +1042,7 @@
       "doc_description": "Continuous Batching이 처리량을 높이는 방식",
       "meta": {
         "type": "markdown",
-        "lines": 535,
+        "lines": 562,
         "index_unit": "line",
         "summary_method": "extractive-first-paragraph",
         "generator": "tools/build_pageindex.py"
@@ -1157,51 +1157,51 @@
                   "title": "5-9. 측정 증거",
                   "node_id": "0133",
                   "start_index": 356,
-                  "end_index": 375,
-                  "summary": "이 글의 모든 수치는 아래 원본에서 나왔고, 표와 그래프는 손으로 옮기지 않고 스크립트가 생성했다. 표는 summarize_results.py가, 그래프는 tools/make_figures.py가 위 JSON에서 직접 만든다. 둘 다 외부 의존성이 없다."
+                  "end_index": 402,
+                  "summary": "앞의 그림들은 내가 측정 데이터에서 그린 것이라, 데이터를 보여줄 뿐 \"실제로 실행했다\"를 증명하지는 못한다. 그건 서빙 시스템 자신이 남긴 화면이 해야 할 일이다. 아래는 Prometheus 콘솔을 그대로 캡처한 것이다. ① running은 16에서 천장을 치고, 초과분은 전부 waiting으로 간다 동시성 4 구간에서 running=4, 동시성 16 구간에서 running=16이 되고 그 위로는 올라가지 않는다. 동시성 64가 되는 02:21 직전에 waiting이 0에서 48로 수직 상승한다. 5-8의 궤적 그대로다. …"
                 }
               ]
             },
             {
               "title": "6. 해석",
               "node_id": "0134",
-              "start_index": 376,
-              "end_index": 397,
+              "start_index": 403,
+              "end_index": 424,
               "summary": "세 가지로 정리된다. ① --max-num-seqs는 성능 튜닝 노브가 아니라 용량 정의다. 슬롯 수가 처리량의 천장을 직접 정한다(5-1). 그리고 그 천장에 닿는 순간 초과 부하는 전부 대기로 전환된다(5-2). 이건 점진적 열화가 아니라 명확한 변곡점이고, 5-8의 running 궤적이 그 천장을 눈으로 보여준다 — 16에서 딱 멈추고 초과분 48건이 그대로 waiting으로 간다. 그래서 이 값은 \"적당히 올려보는\" 값이 아니라 \"이 서버는 동시 N개를 받는다\"는 선언으로 다뤄야 한다. …"
             },
             {
               "title": "7. 운영 관점",
               "node_id": "0135",
-              "start_index": 398,
-              "end_index": 414,
+              "start_index": 425,
+              "end_index": 441,
               "summary": "health check · timeout · retry 도 이 실습에서 실제로 부딪혔다. startupProbe를 최대 20분까지 허용해야 했다. 모델 로딩(가중치 다운로드 + CUDA 그래프 캡처)이 그만큼 걸린다. 기본값으로 두면 파드가 준비되기 전에 죽고 무한 재시작에 빠진다. 재배포 스크립트가 /v1/models를 폴링해서 실제 응답을 확인하게 만들어야 했다. rollout status가 성공을 반환한 뒤에도 엔드포인트는 아직 응답하지 않는 구간이 있다. sleep 5로 때우면 벤치마크가 조용히 잘못된 데이터를 만든다. …"
             },
             {
               "title": "8. 다음 실험",
               "node_id": "0136",
-              "start_index": 415,
-              "end_index": 425,
+              "start_index": 442,
+              "end_index": 452,
               "summary": "B3 — 슬롯의 상한은 무엇이 정하는가. 7절에서 관측한 59.50x를 파고든다. max-model-len과 gpu-memory-utilization을 흔들어 KV cache가 실제 상한임을 보인다. B4 — 큐 대기 시간의 분포. 5-8에서 큐의 *길이*(num_requests_waiting = 48)는 봤지만 *대기 시간의 분포*는 아직 안 봤다. vllm:request_queue_time_seconds_bucket으로 백분위를 뽑으면 \"48명이 각각 얼마나 기다렸는가\"가 나온다. …"
             },
             {
               "title": "한계 — 이 글이 증명하지 않은 것",
               "node_id": "0137",
-              "start_index": 426,
-              "end_index": 448,
+              "start_index": 453,
+              "end_index": 475,
               "summary": "정직하게 적어 둔다. 각 지점 1회 측정이다. 스터디 규칙은 3회 반복 후 대표값이다. 레벨당 100요청으로 백분위를 안정시킨 것으로 대신했고, 반복은 다음 편으로 미룬다. 따라서 표의 작은 차이(예: slots=16 1333.1 vs slots=64 1354.3)는 노이즈일 수 있다. 결론은 전부 배 단위 차이에만 기대고 있다. 전력 상한(TGP)을 못 잡았다. 랩탑 GPU라 nvidia-smi가 power.limit을 [N/A]로 보고한다. …"
             },
             {
               "title": "부록. 재현 절차",
               "node_id": "0138",
-              "start_index": 449,
-              "end_index": 528,
+              "start_index": 476,
+              "end_index": 555,
               "summary": "그 구간을 서버 측에서 되짚는다. results/b1-timeline.txt에 시각이 남아 있으므로 부하가 끝난 뒤에 조회해도 된다. Grafana(localhost:30002)에 아래 셋을 한 패널에 겹쳐도 같은 그림이 나온다. 재현하려는 사람이 밟을 함정 세 개(전부 실제로 밟았다): 측정 원본은 labs/wsl2-vllm-baseline/results/에 있다 — b1-slots-{1,16,64}-short.json, b1-timeline.txt(구간 시각), environment.md, metrics-v0.23.0.txt(v …"
             },
             {
               "title": "참고 자료",
               "node_id": "0139",
-              "start_index": 529,
-              "end_index": 535,
+              "start_index": 556,
+              "end_index": 562,
               "summary": "교재 CH3(서빙 아키텍처와 배칭), CH4(성능 측정과 지연 공식) — 공식 코드 orca3/llm-model-inference vLLM — Continuous batching / paged attention Qwen2.5-1.5B-Instruct 모델 카드 1주차 실습: Run inference of Gemma 4 model on Cloud Run.md — 이 글의 문제 정의가 나온 곳 환경 구축: WSL2를 로컬 GPU Kubernetes 개발 환경으로 사용하기.md"
             }
           ]

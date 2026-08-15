@@ -355,6 +355,30 @@ vllm:num_requests_waiting   0 0 0 0 ... 0 0  0  0  0  0  0  0 48 48 48 48 48  8
 
 ### 5-9. 측정 증거
 
+앞의 그림들은 **내가 측정 데이터에서 그린 것**이라, 데이터를 보여줄 뿐 "실제로 실행했다"를 증명하지는 못한다. 그건 서빙 시스템 자신이 남긴 화면이 해야 할 일이다. 아래는 Prometheus 콘솔을 그대로 캡처한 것이다.
+
+**① `running`은 16에서 천장을 치고, 초과분은 전부 `waiting`으로 간다**
+
+![Prometheus 콘솔 — B2 구간의 num_requests_running(초록)과 num_requests_waiting(청록). running이 4 → 16으로 오른 뒤 평평하고, 02:21에 waiting이 48로 치솟는다](./screenshots/proof-01-queue-running-waiting.jpg)
+
+동시성 4 구간에서 `running`=4, 동시성 16 구간에서 `running`=16이 되고 **그 위로는 올라가지 않는다.** 동시성 64가 되는 02:21 직전에 `waiting`이 0에서 48로 수직 상승한다. 5-8의 궤적 그대로다.
+
+**② 큐가 쌓이는 순간 서버 측 TTFT가 같이 무너진다**
+
+![Prometheus 콘솔 — 서버 측 TTFT p95. 02:21 직전까지 0에 붙어 있다가 수직으로 상승해 19초 부근에 머문다](./screenshots/proof-02-server-ttft-p95.jpg)
+
+```promql
+histogram_quantile(0.95, sum(rate(vllm:time_to_first_token_seconds_bucket[1m])) by (le))
+```
+
+동시성 4·16 구간 내내 0에 붙어 있다가, ①에서 `waiting`이 튄 **바로 그 시점**에 수직으로 올라 19초 부근에 머문다. 클라이언트가 잰 14.8초와 같은 사건이다.
+
+**③ 그 순간의 정확한 값**
+
+![Prometheus 콘솔 Table 뷰 — 2026-08-15 02:21:30 시점에 num_requests_running = 16, num_requests_waiting = 48](./screenshots/proof-03-instant-values.jpg)
+
+`02:21:30` 시점을 짚으면 `running = 16`, `waiting = 48`이다. **16 + 48 = 64**, 정확히 그때 걸고 있던 동시 요청 수다. 라벨에 `model_name="qwen2.5-1.5b"`, `namespace="llm-serving-lab"`까지 함께 찍혀 있다.
+
 이 글의 모든 수치는 아래 원본에서 나왔고, 표와 그래프는 **손으로 옮기지 않고 스크립트가 생성**했다.
 
 | 파일 | 무엇 |
@@ -363,13 +387,16 @@ vllm:num_requests_waiting   0 0 0 0 ... 0 0  0  0  0  0  0  0 48 48 48 48 48  8
 | `results/b1-slots-{1,16,64}-decode.json` | 5-7의 원본 |
 | `results/b2-queue.json` | 5-8 클라이언트 측 (동시성 3개 레벨 × 200요청) |
 | `results/b2-prometheus.json` · `.txt` | **5-8 서버 측 원본** — `running`/`waiting` 37포인트, Prometheus `query_range` 응답 그대로 |
+| `screenshots/proof-0{1,2,3}-*.jpg` | 위 ①~③ Prometheus 콘솔 캡처 |
 | `results/b1-timeline.txt` | 각 구간의 시작·종료 시각(UTC). 서버 측 지표를 사후에 되짚는 열쇠 |
 | `results/environment.md` | 0-6 환경 기록 (GPU·드라이버·커널·이미지 태그·서빙 파라미터) |
 | `results/metrics-v0.23.0.txt` | 이 vLLM 버전이 노출하는 메트릭 **96개 전체 목록** |
 
 표는 `summarize_results.py`가, 그래프는 `tools/make_figures.py`가 위 JSON에서 직접 만든다. 둘 다 외부 의존성이 없다.
 
-> **스크린샷이 아니라 원본 데이터로 증빙한다.** 콘솔 캡처는 보기 좋지만 재현·검증이 안 된다. 위 파일들은 그대로 다시 그릴 수 있고, 시각 기록이 있어 **서버 측 지표를 나중에 다시 조회할 수도 있다** — 실제로 5-8의 그림은 부하가 끝난 뒤에 Prometheus에서 되짚어 만든 것이다. (Grafana 화면 캡처는 이 글에 넣지 않았다. 같은 데이터를 같은 시간축으로 그린 것이 위 그림이다.)
+> **캡처와 원본 데이터는 서로 다른 일을 한다.** 위 캡처 ①~③은 *서빙 시스템이 실제로 그렇게 동작했다*를 보이고, 결과 JSON은 *그 수치를 다시 계산·재현할 수 있다*를 보인다. 둘 중 하나만으로는 부족하다 — 캡처만 있으면 숫자를 검증할 수 없고, JSON만 있으면 내가 지어냈을 가능성을 배제할 수 없다.
+>
+> 캡처를 **부하가 끝난 여섯 시간 뒤에** 뜰 수 있었던 건 `b1-timeline.txt`에 구간 시각을 남겨뒀기 때문이다. 측정 중에 화면을 못 찍었어도 시각만 기록해 두면 나중에 되짚을 수 있다 — 이게 타임라인 파일을 남기라고 한 이유다.
 
 ---
 
