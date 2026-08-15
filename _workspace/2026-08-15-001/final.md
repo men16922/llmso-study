@@ -476,6 +476,7 @@ for SLOTS in 1 16 64; do
     --concurrency 1,2,4,8,16,32,64 --requests-per-level 100 \
     --unique-prefix --ttft-slo 0.5 --e2e-slo 10 \
     --output results/b1-slots-$SLOTS-short.json
+done
 
   # 긴 출력(5-7)은 포인트를 줄여 따로 한 번 더
   python3 benchmark.py --scenarios decode \
@@ -545,3 +546,57 @@ python3 tools/make_figures.py        # → articles/figures/*.svg
 - [Qwen2.5-1.5B-Instruct 모델 카드](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct)
 - 1주차 실습: `Run inference of Gemma 4 model on Cloud Run.md` — 이 글의 문제 정의가 나온 곳
 - 환경 구축: `WSL2를 로컬 GPU Kubernetes 개발 환경으로 사용하기.md`
+
+<!-- HUMANIZE-SUMMARY v1.6.1
+run_id: 2026-08-15-001
+mode: strict (진단 겨냥 윤문)
+metrics:
+  char_in: 17842
+  char_out: 17318
+  change_rate: 6.6%          # 문서 전체 기준
+  change_rate_prose_only: 21.4%  # 표·코드펜스·헤딩·목차·이미지 제외 산문 기준
+  self_check: 6/6
+  grade: A
+categories:  # before → after
+  J-1 산문 볼드(표 셀 제외): 약 90 → 약 44   # 문장 전체 볼드 27건 → 0건
+  C-8 "A가 아니라 B" 대구: 20+ → 7 (표 안 제외, 핵심 3건만 의도 보존)
+  C-4/C-6 무정보 안내문: 11 → 1 (5-8 "5-6과 이어서 읽어야 할 대목이다"만 논증 연결로 보존)
+  J-3 산문 대시: 18 → 5 (헤딩 부제 대시 14개는 전량 보존)
+  D-3 열거 도입 "N가지": 6 → 1 (1절 "가설은 세 가지였다"만 설계 정보로 보존)
+  I-3 '것' 결산 종결: 10+ → 2
+  H-4 "즉": 6~7 → 1
+self_check:
+  - 고유명사·수치·인용 100% 보존: ✅ (표 15종·코드펜스 9개·이미지 5개·aside 무수정)
+  - 헤딩 텍스트 14개 무수정 (TOC 앵커 보호): ✅
+  - 변경률 30% 이하: ✅
+  - 장르 이탈 없음 (리포트 유지): ✅
+  - register 보존 ('~다' 한다체 양방향 불변): ✅
+  - 인공 표현 추가 없음 (빼기 전용): ✅ / 보존 목록 7개 문장 전량 생존
+highlights:
+  - id: I-3+C-8
+    before: "**사용률이 100%인데도 처리량이 더 오른다면, 100%라는 숫자가 재고 있는 것이 \"일하고 있음\"이지 \"꽉 찼음\"이 아니라는 뜻**이다."
+    after: "사용률이 100%인데도 처리량이 더 오른다면, 그 100%는 \"꽉 찼음\"을 재는 숫자가 아니다. \"일하고 있음\"을 잰다."
+  - id: 템플릿 중복 제거 (지시 사항)
+    before: "`short`에서 28초였던 것이 `decode`에서 131초가 된 이유는 2절에서 설명한 구조에 있다."
+    after: "`short`에서 28초였던 값이 `decode`에서 131초가 된 것은 2절의 좌석표가 여기서 그대로 되풀이되기 때문이다."
+  - id: 오류 교정 (지시 사항)
+    before: "5-8의 궤적 같다."
+    after: "5-8의 궤적 그대로다."
+  - id: I-3
+    before: "**클라이언트에서 본 지연과 서버 안의 큐가 같은 사건이라는 것이 두 측정으로 교차 확인된다.**"
+    after: "클라이언트에서 본 지연과 서버 안의 큐가 같은 사건임을 두 측정이 교차로 확인해 준다."
+  - id: J-3+C-8
+    before: "즉 이 잔차는 큐가 아니라 **고정 오버헤드**다 — HTTP 왕복, `kubectl port-forward` 한 단계, 토큰화. 절대값이 동시성과 무관하게 일정하다는 것이 그 증거다."
+    after: "이 잔차의 정체는 **고정 오버헤드**다. HTTP 왕복, `kubectl port-forward` 한 단계, 토큰화. 동시성이 어떻든 절대값이 일정하다. 그게 증거다."
+  - id: C-8 (6③ 헤더)
+    before: "**③ 배칭의 비용은 ITL이 아니라 TTFT로 청구된다.**"
+    after: "**③ 배칭의 비용은 TTFT로 청구된다.**"
+residual_findings:
+  - id: C-8
+    severity: S2
+    note: "7절 운영 관점 표 안에 대구 형태가 남아 있으나 표는 절대 불변 지시 대상이라 미수정."
+  - id: J-3
+    severity: S2
+    note: "산문 대시 5건 잔존 — 한계3 '인과는 정황이다', 5-9 '이게 타임라인 파일을 남기라고 한 이유다' 등 보존 목록·살아있는 리듬 자리."
+grade_reason: "A — S1 잔존 0, 겨냥 6패턴 전부 목표 밀도 이하. 문서 전체 변경률 6.6%는 보호 대상(표·코드·헤딩·목차)이 문서의 약 45%를 차지하기 때문이며, 실제 편집 가능 산문 기준으로는 21.4%로 A 밴드 내. 리포트 register·헤딩 14개·표 15종 무손상."
+-->
