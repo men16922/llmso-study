@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="780" height="470" viewBox="0 0 780 470" role="img" aria-label="처리 한도를 넘었을 때의 TTFT">
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="470" viewBox="0 0 780 470" role="img" aria-label="동시성에 따른 TTFT p95 변화">
 <style>
   .surface { fill: #fcfcfb; }
   .ink     { fill: #0b0b0b; }
@@ -28,8 +28,8 @@
   .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 </style>
 <rect class="surface" width="780" height="470"/>
-<text class="ttl ink" x="66" y="26">처리 한도를 넘었을 때의 TTFT</text>
-<text class="sub ink2" x="66" y="46">같은 측정의 TTFT p95 (로그 눈금) · 처리량 증가가 멈추는 지점에서 급증한다</text>
+<text class="ttl ink" x="66" y="26">동시성에 따른 TTFT p95 변화</text>
+<text class="sub ink2" x="66" y="46">같은 측정 · 로그 눈금 · 처리량 증가가 멈추는 지점부터 TTFT가 급증한다</text>
 <circle class="f0" cx="71" cy="66" r="5"/>
 <text class="lbl ink" x="82" y="70">slots=1</text>
 <circle class="f1" cx="154" cy="66" r="5"/>
