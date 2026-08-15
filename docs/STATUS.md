@@ -11,7 +11,9 @@ Last Updated: 2026-08-15
 - `knowledge/` — 번호 문서 `00`~`06` + `subpages/` 11종 + `references/` 6종. 상대 링크·앵커 전부 유효.
 - `index/` — PDF 3종 + 마크다운 묶음(66개 문서) 인덱스. 스키마 검증 통과. 현재 Inference Engineering만 `llm-claude-code-korean`으로 보강됨, 나머지는 `extractive-*`.
 - `labs/` — 4개. `wsl2-vllm-baseline`(56) · `cloudrun-gemma4-vllm`(6) · `triton-dynamic-batching`(19) · `rayserve-on-k8s`(10). 전부 mock·순수 로직이라 GPU·네트워크 불필요.
-- `articles/` — Cloud Run Gemma 4(1주차 제출 완료), WSL2 GPU K8s 실습(미제출), CH3·CH4 실습 시나리오 4편, **`Continuous Batching이 처리량을 높이는 방식`(2주차 과제 글 — 작성 완료, 제출 대기)**.
+- `articles/` — Cloud Run Gemma 4(1주차 제출 완료), CH3·CH4 실습 시나리오 4편, `두 글을 잇는 선`(연결 정리), **2주차 과제 2편 — `WSL2를 로컬 GPU Kubernetes 개발 환경으로 사용하기` + `Continuous Batching이 처리량을 높이는 방식`. 둘 다 노션 발행 완료, 링크 공유만 남음.**
+- `articles/figures/` · `articles/screenshots/` — 그래프 3종(SVG) + Prometheus 콘솔 캡처 3장.
+- `tools/` — 인덱싱 3종 + **`make_figures.py`**(결과 JSON → SVG) + **`md_to_notion.py`**(마크다운 → 노션 변환). 둘 다 외부 의존성 없음.
 - **측정 원본** — `labs/wsl2-vllm-baseline/results/`에 B1·B2 8종 + `b1-timeline.txt`(구간 시각) + `environment.md` + `metrics-v0.23.0.txt`(v0.23.0 메트릭 96개).
 - `study/` — 노션 원문 로컬 사본. **gitignore + 인덱스 제외** (멤버 전용 자료). ⚠️ **현재 체크아웃에는 없음.**
 
@@ -21,13 +23,13 @@ Last Updated: 2026-08-15
 
 Authority: `docs/NEXT_PLAN.md`.
 
-0. **2주차 과제 제출** — 글은 완성됨. 남은 것은 ① 사람 검토 ② **Grafana 스크린샷**(선택) ③ 공유. 마감 2026-08-16 09:00.
+0. **2주차 과제 링크 공유** — 글 2편 모두 노션 발행 완료. **남은 것은 공유뿐.** 마감 2026-08-16 09:00.
 1. **3주차(CH5·CH6) 예습 노트** — 모임 2026-08-16 20:30.
 
 ## Open Risks
 
-- **과제 미공유 1회 = 제명.** 마감은 매주 일요일 09:00. 다음 마감 2026-08-16 09:00 — **글은 준비됐고 제출만 남음.**
-- ~~Grafana 스크린샷 미확보~~ → **해소.** 서버 측 원본을 `results/b2-prometheus.{json,txt}`로 내보내고 `tools/make_figures.py`가 SVG 3종을 생성합니다. 캡처는 재현·검증이 안 되지만 이 파일들은 다시 그릴 수 있고, `b1-timeline.txt`의 시각이 있어 사후 재조회도 됩니다. 굳이 Grafana 화면이 필요하면 `localhost:30002`에서 같은 PromQL로 찍으면 됩니다.
+- **과제 미공유 1회 = 제명.** 마감은 매주 일요일 09:00. 다음 마감 2026-08-16 09:00 — **글 2편 발행 완료, 링크 공유만 남음.**
+- ~~Grafana 스크린샷 미확보~~ → **해소.** Prometheus 콘솔 캡처 3장을 `articles/screenshots/proof-0{1,2,3}-*.jpg`로 확보했습니다. `b1-timeline.txt`의 구간 시각 덕분에 부하가 끝난 **여섯 시간 뒤에** 되짚어 찍을 수 있었습니다.
 - **백그라운드 태스크가 이 환경에서 반복 강제 종료됩니다.** 0-1 keeper가 죽으면 WSL 유휴 poweroff로 k3s 파드가 `Completed`/`Unknown`이 되어 측정이 끊깁니다. **긴 측정은 포그라운드로 돌리거나, keeper를 별도 PowerShell 창에서 사람이 직접 띄우세요.**
 - **`make check-labs`가 이 머신에서 그대로 안 됩니다** (위 Baseline 참조).
 - **GPU·8000 포트가 하나씩뿐.** B1·B2 / C1 / C2 / C3는 서로 배타적입니다. 세션 전환 시 앞의 것을 안 내리면 다음 실험이 OOM으로 안 뜹니다.
