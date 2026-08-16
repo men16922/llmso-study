@@ -5,6 +5,13 @@
 > **이 편이 답하는 것**: 배칭 4종 중 남은 한 칸(dynamic)을 Triton으로 채우고,
 > 그 위에 Ray Serve라는 오케스트레이션 계층을 얹으면 얼마를 내야 하는지 잽니다.
 
+> ▶ **이 문서는 설계입니다. 실행은 3주차로 이월됐습니다** — 실행 런북은
+> [3주차 시리즈](./KV%20cache%EC%99%80%20%EC%84%9C%EB%B9%99%20%EA%B3%84%EC%B8%B5%20%EC%8B%A4%EC%8A%B5%20%EC%8B%9C%EB%82%98%EB%A6%AC%EC%98%A4%20%28CH5%C2%B7CH6%29.md)의
+> [01 Ray Serve 계층](./3%EC%A3%BC%EC%B0%A8-01%20Ray%20Serve%EB%9D%BC%EB%8A%94%20%EA%B3%84%EC%B8%B5%EC%9D%98%20%EA%B0%80%EA%B2%A9.md)(C3)과
+> [03 Triton](./3%EC%A3%BC%EC%B0%A8-03%20Triton%20dynamic%20batching.md)(C2)에 있습니다.
+> **가설·판단 기준의 원설계는 여기 그대로 두고**, 실행 절차·명령·체크리스트만 그쪽으로 옮겼습니다.
+> C2가 CH3가 아니라 **CH6 「Dynamic Batching in Online Inference」에 대응**한다는 근거도 그쪽에 있습니다.
+
 앞선 편의 결과가 입력입니다 — [01 배치 슬롯과 큐](./2%EC%A3%BC%EC%B0%A8-01%20%EB%B0%B0%EC%B9%98%20%EC%8A%AC%EB%A1%AF%EA%B3%BC%20%ED%81%90.md)의 `slots=16` 결과와
 [02 배칭을 직접 짜기](./2%EC%A3%BC%EC%B0%A8-02%20%EB%B0%B0%EC%B9%AD%EC%9D%84%20%EC%A7%81%EC%A0%91%20%EC%A7%9C%EA%B8%B0.md)의 패딩 낭비 관측이 있어야 이 편의 마무리가 섭니다.
 

@@ -1,6 +1,31 @@
 # Progress Log
 
-Last Updated: 2026-08-15
+Last Updated: 2026-08-16
+
+## 2026-08-16 — 2주차 마감 통과. **3주차 방향 확정 + 실습 문서 5편 작성**
+
+- **Status**: 게이트 green (문서 3종). 마크다운 인덱스 910 nodes / 76 docs. 측정은 아직 없음(문서 작업만).
+- **2주차 종료**: 글 2편 노션 발행 + 링크 공유 완료 (마감 08-16 09:00 통과).
+- **`study/` 복귀** — 체크아웃에 `Ch1~Ch6.md` + `LLM기초.md`(9,592줄)가 다시 생겼습니다. 이번 세션의 판단 근거가 대부분 여기서 나왔습니다. 인덱스·git 양쪽에서 제외된 것을 재확인(`grep '"study/'` 0건, `.gitignore:25`).
+- **3주차 방향 확정 — 이월한 C3(Ray Serve) + C2(Triton)로 수행**
+  - 근거를 노션 원문에서 확보: **Ray Serve는 CH4 공식 도전과제**(`Ch4.md:1381`), **Triton dynamic batching은 CH6 본문**(`Ch6.md:140` — vLLM엔 dynamic batching 모드가 없어 이 절은 vLLM으로 실측 불가), 과제 규칙도 *"혹은 LLM 관련 내용(혹은 도전과제)"* 로 열려 있음(`Ch6.md:1039`).
+  - **공식 도전과제 4개를 `Ch6.md:1047`에서 발견** — 그중 2번(`max batch size`·`max model length`·`max number of tokens` 변경 비교)이 이월해둔 B3와 같은 실험.
+  - ★ **`rayservice-qwen.yaml`의 `serveConfigV2 → engine_kwargs`에 그 세 노브가 그대로 노출**돼 있어, 도전과제 2를 C3 환경 위에서 수행하기로. RayService는 변경을 zero-downtime으로 갈아끼우므로 2주차의 `kubectl set env` 사고(구버전이 떠 있어 무시)가 구조적으로 없음.
+- **Changed**
+  - `articles/` **5편 신규**(990줄) — 허브 `KV cache와 서빙 계층 실습 시나리오 (CH5·CH6)` + `3주차-00`(준비·측정 규칙) / `-01`(C3) / `-02`(B3) / `-03`(C2). **문서 번호 = 실행 순서**로 배치(안전판 우선).
+  - `docs/plans/2026-08-16-week3-triton-rayserve.md` 신규 — 상세 설계·잘라내기 순서·일정.
+  - `docs/NEXT_PLAN.md` 172줄 → 89줄(예산 120). 상세는 plans로 분리, 여기엔 체크리스트만.
+  - `2주차-03`과 2주차 허브에 3주차 시리즈 포인터 추가(원설계는 그대로 두고 실행 런북만 분리).
+- **Verified**
+  - `python3 scripts/check_docs.py` → `✓ links / ✓ index / ✓ tools` (신규 문서의 한글 URL 인코딩 링크 포함).
+  - `build_pageindex.py --only md` → 910 nodes / 76 docs.
+  - `study/`가 인덱스에 유입되지 않음(0건), `git check-ignore`로 무시 확인.
+  - ⚠️ **labs 테스트는 안 돌렸습니다** — 이 머신 `make check-labs` 미동작(WSL python3.14에 pip 없음). 이번 변경은 문서뿐이라 영향 없음.
+- **고친 인식 오류 2건** (원문 대조로 정정)
+  1. *"Triton은 CH3라 CH5 주차와 어긋난다"* → **CH6에 「Dynamic Batching in Online Inference」 절이 통째로 있음.** 오히려 이번 주 주제.
+  2. 교재 CH5의 KV 공식은 `2 × 층수 × **어텐션 헤드 수** × head_dim × 정밀도`로 **MHA 전제**. Qwen2.5-1.5B는 GQA라 그대로 쓰면 안 맞음 — 교재가 *"이후 장에서 MQA·GQA·MLA 소개"* 라 예고한 그 장이 **이번 주 CH6**. 이 어긋남을 3주차 글의 핵심 절로 배치.
+- **Blockers**: 없음. 측정 미시작.
+- **Next**: 이미지 풀 → C3 배포·계층 오버헤드(08-17) → `engine_kwargs` 스윕(08-18) → C2(08-19~20) → 글(08-21~22). 마감 **08-23 09:00**.
 
 ## 2026-08-15 (2) — 2주차 과제 완성. **글 2편 시리즈로 노션 발행**
 
