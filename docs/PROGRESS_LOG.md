@@ -1,6 +1,39 @@
 # Progress Log
 
-Last Updated: 2026-08-16
+Last Updated: 2026-08-22
+
+## 2026-08-22 — 3주차 **측정 3종 전부 완료 + 글 작성 완료**. 남은 것은 노션 발행·링크 공유
+
+- **Status**: 게이트 green — 문서 3종 + labs **91건**. 마크다운 인덱스 975 nodes / 81 docs. 커밋 `42a3446`·`cf95673`·`b44f061`.
+- **08-16 → 08-21 닷새 공백 뒤 한 세션에 몰아서 수행.** 계획 일정(08-17 C3 / 08-18 B3 / 08-19~20 C2)이 통째로 밀렸으나, 측정이 계획 추정보다 훨씬 빨라(벤치마크 1회 약 4분, 롤아웃 20~60초) 셋 다 들어갔다. **2주차처럼 범위를 줄이지는 않았다.**
+- ★ **통제 변수가 깨져 있는 것을 발견해 실험 설계를 바꿨다.** `ray-llm:2.44.1`이 품은 vLLM은 **0.7.2**인데 2주차 B1 기준선은 **0.23.0**. 그냥 빼면 "계층 + 엔진 16개 마이너 버전"의 합이 나온다. **같은 ray-llm 이미지로 Ray 없이 vLLM만 띄운 구성 B**를 추가해 변수를 계층 하나로 좁혔다(추가 다운로드 0, 약 15분).
+- **Changed**
+  - `articles/처리량의 천장은 어디에 있었나.md` 신규 — 8단계 템플릿. 세 실험을 "처리량 천장을 정하는 게 무엇인가" 한 줄기로 묶음.
+  - `articles/figures/fig-c3-layer-{throughput,ttft}.svg` 신규. `tools/make_figures.py`에 3주차 계열 추가.
+  - `labs/rayserve-on-k8s/vllm-v072-direct.yaml` 신규(구성 B).
+  - 측정 원본 — `results/`에 `c3-*`(5) · `b3-*`(4) · `b-direct-v072-*`(3) · `metrics-{rayserve,direct-v072}.txt`, `labs/triton-dynamic-batching/results/`에 C2 16종.
+  - 분석 문서 3종 — `c3-environment.md` · `c3-layer-cost.md` · `b3-kv-handcalc.md`.
+- **핵심 관측**
+  - **계층의 순수 가격 −32.6%**(c=16). 순진하게 B1과 빼면 −39.3%로 **7%p 과대계상**된다. 그리고 **고정 오버헤드가 아니다** — 포화 전 ~11%, 포화 후 ~31%. 경계는 엔진이 천장을 치는 동시성 16.
+  - TTFT는 c=1에서 **+48ms**가 프록시 한 겹의 실비.
+  - **도전과제 2의 답**: 세 노브가 `Maximum concurrency`를 14.28x~64.02x(4.5배)로 흔드는데 **처리량은 ±17%**. 저 값은 "모든 요청이 컨텍스트를 꽉 채울 때"의 입장 제한이라 짧은 프롬프트 부하에서는 물리지 않는다.
+  - **CH5 공식 검증** — MHA 전제 공식은 GQA인 Qwen2.5-1.5B에서 **6배** 어긋난다(168 vs 28 KiB/token). KV 헤드(2)로 고치면 **네 설정 전부** 기동 로그와 소수점 둘째 자리까지 일치.
+  - **C2**: 대조군 평균 배치 정확히 1.00. 같은 `20ms` 설정이 **동시성 1에서 37.5 inf/s(대조군의 1/9), 동시성 32에서 1,371 inf/s(2.3배)**. dynamic batching의 이득은 도착률의 함수.
+  - **관측성 손실** — Ray Serve 아래에서 `:8000/metrics`가 404이고 `vllm:*`가 **0개**(구성 B는 15개). 같은 엔진이므로 **계층 탓**. 2주차의 서버 측 교차검증이 이 환경에서는 불가능하다.
+- **2주차 미해결 관측 일부 규명** — `Maximum concurrency` 변동의 메커니즘을 잡았다. `max_num_seqs`를 키우면 **활성화 피크가 커져 KV 예산을 갉아먹는다**(0.26→0.48 GiB, KV 7.00→6.79 GiB). KV 예산은 정적 공식이 아니라 **기동 시 프로파일링 결과**. 다만 이번 변동은 3%라 2주차의 2배(59.50↔28.77)는 여전히 미확인.
+- **고친 결함 3건**
+  1. `rayservice-qwen.yaml`의 **`accelerator_type: null`** — Ray 2.44.1 `LLMConfig` 검증이 거부해 Serve 앱 배포가 통째로 실패. 파드는 정상으로 보이고 `NUM SERVE ENDPOINTS`만 비어 증상이 조용하다. 원인은 Serve 대시보드 API에만 남는다. **필드를 생략해야 한다.** 매니페스트가 작성 후 실제 배포된 적이 없어 잠복해 있었다.
+  2. `triton_load.py`가 입력을 **`(3,224,224)`** 로 만들어 300건 전량 실패. `config.pbtxt`의 `dims`는 샘플 단위지만 클라이언트 텐서는 `(N,3,224,224)`여야 한다. 오프라인 테스트 19건은 mock이라 못 잡는 자리.
+  3. `make_figures.py`의 `fig_log`가 라벨 분리용 `rank`를 계산해두고 **쓰지 않아** 끝점이 가까우면 라벨이 겹쳤다(9.3px). 최소 간격 15px 강제. 2주차 그림은 산출물 변화 없음.
+- **환경 메모**
+  - Triton 이미지 크기 불일치 해소 — **9.63GB는 다운로드, 27.4GB가 디스크**. 계획서의 `~17GB`가 틀린 값.
+  - WSL `python3`(3.14)에 pip이 없어 numpy·tritonclient·torch를 넣을 수 없다. **C2 스윕은 Triton 컨테이너 안에서, ONNX export는 k3s에 받아둔 ray-llm 이미지 파드로** 돌렸다(추가 다운로드 0).
+  - 2주차 `huggingface-cache` PVC는 재사용 불가 — `vllm-openai`는 root, `ray-llm`은 uid 1000(`ray`)이라 `PermissionError`.
+  - **백그라운드 태스크 강제 종료는 이번 세션에서 겪지 않았다.** WSL 안에서 `setsid`로 분리한 프로세스(keeper·이미지 풀·벤치마크)는 별도 `wsl.exe` 호출을 넘어 살아남았다.
+  - Windows에서 `PYTHONIOENCODING=utf-8 py -3`로 게이트·테스트가 전부 돈다 (`Makefile`의 `PY` 항목 실마리).
+- **Verified**: `check_docs.py` green · `--only md` 975 nodes/81 docs · `pytest` 91 passed · 그림 2종 headless Chrome 렌더로 눈 확인 · 롤아웃마다 `/v1/models`와 기동 로그 양쪽으로 반영 확인.
+- **Blockers**: 없음. **노션 발행 + 링크 공유만 남음** (마감 08-23 09:00).
+- **Next**: 글 검토 → 노션 발행 → 과제 링크 공유.
 
 ## 2026-08-16 — 2주차 마감 통과. **3주차 방향 확정 + 실습 문서 5편 작성**
 
@@ -78,42 +111,4 @@ Last Updated: 2026-08-16
 
 최근 증분 요약만 유지합니다 (최신 3~5건, ≤120줄). 오래된 항목은 `/tidy-docs`로 `docs/archive/progress-YYYY-MM.md`에 보관합니다.
 
-## 2026-08-09 (2) — 2주차 실습 도구 일체 완성, 시나리오를 B1·B2·C1·C2·C3로 확장
-
-- **Status**: 게이트 green (`make check` = 문서 3종 + labs 테스트 **86건**, 오프라인·약 2초). 커밋·푸시 완료 (`6a01681`·`011379c`·`eae3406`).
-- **Changed**
-  - **근거 확보**: 교재 공식 저장소(`orca3/llm-model-inference`) ch03·ch04를 직접 읽고, 노션 CH4 원문(`study/`, gitignore)과 본인의 「7주 실행 계획」을 대조. 시나리오의 챕터 태그 오류 2건과 B4 판단 기준 오류를 정정.
-  - **실습 도구 완성** — 노트북에서는 실행·기록만 하면 됨:
-    - `benchmark.py --api book` (교재 ch03 서버 어댑터) + ITL/TPOT 지표
-    - `summarize_results.py` — `--all` / `--pareto` / `--formula` / `--delta`
-    - `redeploy.sh` — 롤아웃 실패 감지 · `/v1/models` 폴링 · 타임라인 기록
-    - `labs/triton-dynamic-batching/` 5종 + `labs/rayserve-on-k8s/` 2종
-  - **시나리오 확장**: C1(교재 자작 서버 배칭 4단계) · C2(Triton dynamic batching) · C3(RayService, CH4 도전과제) 추가. B3~B5는 다음 편으로 이월.
-  - `study/`(멤버 전용 노션 원문)를 `.gitignore` + `MD_SKIP_DIRS` 양쪽에서 제외 — 인덱스가 커밋되므로 발췌가 들어가면 사실상 저장소 전재.
-- **Verified**
-  - `make check` exit 0. 51(wsl2) + 6(cloudrun) + 19(triton) + 10(rayserve) = 86건.
-  - `summarize_results.py`를 합성 B1 데이터로 종단 실행 — 표 3종·파레토·공식 검증 모두 기대대로 출력.
-  - 코드 읽기로 찾은 함정 3개가 테스트로 고정됨: 프롬프트 에코 보정 · TTFT 없는 엔드포인트의 goodput 판정 · 네 엔드포인트 동일 계수법.
-  - `ManifestTest`가 C3의 통제 변수 4개(모델·max_model_len·gpu_memory_utilization·max_num_seqs)를 B1과 동일하게 감시.
-  - **미검증**: 실제 GPU 실행은 한 번도 안 함(도구는 전부 mock·순수 로직 테스트). vLLM v0.23.0 메트릭 이름, Triton 이미지 동작, KubeRay 배포는 전부 노트북에서 확인 필요.
-- **Blockers**: 없음. 단 `study/Ch3.md`가 0바이트 — 재복사 필요.
-- **Next**: WSL2에서 세션 1(B1·B2) 실행. 시작 시 Triton·ray-llm 이미지 풀과 C1 venv 설치를 백그라운드로.
-
-## 2026-08-09 — 하네스 설치 + 2주차 예습 노트 + CH3·CH4 실습 시나리오
-
-- **Status**: 게이트 green (`make check` = 문서 3종 + labs 테스트 6건, 약 2초). 전부 미커밋.
-- **Changed**
-  - 하네스 설치: `harness-init.sh` 스캐폴딩 후 게이트를 이 저장소에 맞게 정의. `scripts/check_docs.py`(링크·인덱스 스키마·파이썬 문법) 신규 + `Makefile`(check / check-labs / index-md / overnight 타겟).
-  - 권한 경계를 저장소 위험에 맞춰 조정 — 구독 사용량(`enrich_summaries`·`pageindex_claude`), 한국어 요약 파괴(`build_pageindex` 직접 실행), 비용(gcloud/aws/kubectl/docker/labs 벤치), 유출(push/gh/curl/MCP)을 deny.
-  - `knowledge/06-week2-prep.md` 신규 (286줄) — PDF p.29~32·37~40·107~118·185~195·206~209를 직접 추출해 작성. 교재의 Triton·RAG·에이전틱은 이 PDF에 없어 "어긋날 수 있는 지점" 표로 명시.
-  - `articles/vLLM 배칭·큐 실습 시나리오 (CH3·CH4).md` 신규 (471줄) — B1~B5 실험. 각 실험에 가설·명령·채울 표·판단 기준.
-  - 랩 보강: `vllm-baseline.yaml`의 `MAX_NUM_SEQS`/`MAX_MODEL_LEN`/`GPU_MEMORY_UTILIZATION`을 env로 분리(→ `kubectl set env`로 스윕 가능), `benchmark.py`에 `--unique-prefix`(prefix cache 오염 차단) + 테스트 2건.
-  - 아티클 이름 변경으로 끊긴 내부 링크 4곳 복구 (게이트가 검출).
-- **Verified**
-  - `make check` exit 0. `python3 -m pytest` — wsl2-vllm-baseline 6건, cloudrun 6건 통과.
-  - `check_docs.py` 역방향 테스트: 깨진 링크·앵커에 exit 1, 코드 펜스 안 예시는 무시 확인.
-  - `harness-init.sh --check` OK, `make overnight-where`가 핀 고정한 `.claude` 설치를 가리킴.
-  - `benchmark.py --help`에 `--unique-prefix` 노출, 기본값이면 프롬프트가 원본 그대로임을 확인.
-  - **미검증**: 시나리오의 PromQL과 vLLM 메트릭 이름(v0.23.0 실물 대조 안 함) — 시나리오 0-3에 확인 절차를 넣어둠. 무인 루프는 한 번도 돌리지 않음.
-- **Blockers**: 없음.
-- **Next**: 미커밋분 정리 후 커밋. WSL2 머신에서 시나리오 B1~B4 실행 → 결과로 2주차 과제 글 작성 (마감 2026-08-16 09:00).
+최근 증분 요약만 유지합니다 (최신 3~5건, ≤120줄). 오래된 항목은 [`docs/archive/progress-2026-08.md`](./archive/progress-2026-08.md)에 있습니다.
