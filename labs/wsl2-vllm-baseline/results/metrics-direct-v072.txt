@@ -1,0 +1,15 @@
+vllm:cache_config_info
+vllm:cpu_cache_usage_perc
+vllm:cpu_prefix_cache_hit_rate
+vllm:generation_tokens_total
+vllm:gpu_cache_usage_perc
+vllm:gpu_prefix_cache_hit_rate
+vllm:iteration_tokens_total_bucket
+vllm:iteration_tokens_total_count
+vllm:iteration_tokens_total_sum
+vllm:lora_requests_info
+vllm:num_preemptions_total
+vllm:num_requests_running
+vllm:num_requests_swapped
+vllm:num_requests_waiting
+vllm:prompt_tokens_total

@@ -1,0 +1,10 @@
+# 기동 로그 — len16384-seqs64-util085
+# 채취 2026-08-21T14:19:58Z · pod=vllm-service-t5nxq-gpu-group-worker-84972
+# Serve 앱만 제자리에서 교체되므로 로그가 누적된다. 타임스탬프로 정렬해 최신 값만 뽑았다.
+
+INFO 08-21 07:17:41 llm_engine.py:234] Initializing a V0 LLM engine (v0.7.2) with config: model='Qwen/Qwen2.5-1.5B-Instruct', speculative_config=None, tokenizer='Qwen/Qwen2.5-1.5B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=16384, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto,  device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='xgrammar'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=Qwen/Qwen2.5-1.5B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=False, chunked_prefill_enabled=False, use_async_output_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"splitting_ops":[],"compile_sizes":[],"cudagraph_capture_sizes":[64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":64}, use_cached_outputs=True, 
+INFO 08-21 07:17:51 executor_base.py:115] Maximum concurrency for 16384 tokens per request: 14.28x
+INFO 08-21 07:17:51 worker.py:267] model weights take 2.89GiB; non_torch_memory takes 0.04GiB; PyTorch activation peak memory takes 1.02GiB; the rest of the memory reserved for KV Cache is 6.25GiB.
+INFO 08-21 07:17:51 worker.py:267] Memory profiling takes 1.52 seconds
+INFO 08-21 07:17:47 cuda.py:230] Using Flash Attention backend.
+WARNING 08-21 07:17:47 interface.py:284] Using 'pin_memory=False' as WSL is detected. This may slow down the performance.

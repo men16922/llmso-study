@@ -1,0 +1,15 @@
+Capturing CUDA graph shapes:   0%|          | 0/5 [00:00<?, ?it/s]
+Capturing CUDA graph shapes:  20%|██        | 1/5 [00:00<00:01,  2.85it/s]
+Capturing CUDA graph shapes:  40%|████      | 2/5 [00:00<00:01,  2.90it/s]
+Capturing CUDA graph shapes:  60%|██████    | 3/5 [00:01<00:00,  2.93it/s]
+Capturing CUDA graph shapes:  80%|████████  | 4/5 [00:01<00:00,  2.94it/s]
+Capturing CUDA graph shapes: 100%|██████████| 5/5 [00:01<00:00,  2.93it/s]
+Capturing CUDA graph shapes: 100%|██████████| 5/5 [00:01<00:00,  2.95it/s]
+INFO 08-21 07:03:27 llm_engine.py:234] Initializing a V0 LLM engine (v0.7.2) with config: model='Qwen/Qwen2.5-1.5B-Instruct', speculative_config=None, tokenizer='Qwen/Qwen2.5-1.5B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=4096, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto,  device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='xgrammar'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=Qwen/Qwen2.5-1.5B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=False, chunked_prefill_enabled=False, use_async_output_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"splitting_ops":[],"compile_sizes":[],"cudagraph_capture_sizes":[16,8,4,2,1],"max_capture_size":16}, use_cached_outputs=True, 
+INFO 08-21 07:03:32 cuda.py:230] Using Flash Attention backend.
+INFO 08-21 07:07:21 executor_base.py:115] Maximum concurrency for 4096 tokens per request: 64.02x
+INFO 08-21 07:07:21 worker.py:267] Memory profiling takes 0.87 seconds
+INFO 08-21 07:07:21 worker.py:267] model weights take 2.89GiB; non_torch_memory takes 0.04GiB; PyTorch activation peak memory takes 0.26GiB; the rest of the memory reserved for KV Cache is 7.00GiB.
+INFO 2026-08-21 07:07:26,263 llm_LLMDeployment:qwen2_5-1_5b eebixab7 -- Started vLLM engine.
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:01<00:00,  1.32s/it]
+WARNING 08-21 07:03:32 interface.py:284] Using 'pin_memory=False' as WSL is detected. This may slow down the performance.

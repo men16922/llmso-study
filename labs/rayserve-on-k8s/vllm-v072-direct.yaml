@@ -1,0 +1,108 @@
+# 통제 변수 분리용 — ray-llm 이미지 안의 vLLM 0.7.2를 Ray 없이 직접 띄운다.
+#
+# 왜 필요한가:
+#   B1 기준선은 vllm/vllm-openai:v0.23.0, RayService가 쓰는 ray-llm:2.44.1은 vLLM 0.7.2.
+#   둘을 그냥 빼면 "계층의 가격"이 아니라 "계층 + 엔진 16개 마이너 버전"의 합이 나온다.
+#   같은 이미지로 Ray 없이 띄우면 남는 변수가 Ray Serve 계층 하나로 좁혀진다.
+#
+# engine 설정은 rayservice-qwen.yaml의 engine_kwargs와 동일하게 맞춘다.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-v072
+  namespace: llm-serving-lab
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vllm-v072
+  template:
+    metadata:
+      labels:
+        app: vllm-v072
+    spec:
+      runtimeClassName: nvidia
+      terminationGracePeriodSeconds: 30
+      volumes:
+        # ⚠️ 2주차의 huggingface-cache PVC는 붙이지 않는다. 그 PVC는 root 사용자로
+        # 도는 vllm-openai 이미지가 /root/.cache에 쓴 것이고, ray-llm 이미지는
+        # uid 1000(ray)로 돌아 읽지 못한다 (PermissionError: /root/.cache/huggingface/token).
+        # 모델을 새로 받는 편이 권한을 맞추는 것보다 싸다 (~3GB, 2~3분).
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 2Gi
+      containers:
+        - name: vllm
+          image: rayproject/ray-llm:2.44.1-py311-cu124
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/bash", "-c"]
+          args:
+            - >-
+              exec vllm serve "$MODEL_ID"
+              --served-model-name "$SERVED_MODEL_NAME"
+              --host 0.0.0.0
+              --port 8000
+              --dtype auto
+              --max-model-len "$MAX_MODEL_LEN"
+              --gpu-memory-utilization "$GPU_MEMORY_UTILIZATION"
+              --max-num-seqs "$MAX_NUM_SEQS"
+          env:
+            - name: MODEL_ID
+              value: Qwen/Qwen2.5-1.5B-Instruct
+            - name: SERVED_MODEL_NAME
+              value: qwen2.5-1.5b
+            - name: MAX_NUM_SEQS
+              value: "16"
+            - name: MAX_MODEL_LEN
+              value: "4096"
+            - name: GPU_MEMORY_UTILIZATION
+              value: "0.85"
+            - name: HF_HOME
+              value: /home/ray/.cache/huggingface
+          ports:
+            - name: http
+              containerPort: 8000
+          resources:
+            requests:
+              cpu: "2"
+              memory: 6Gi
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "6"
+              memory: 16Gi
+              nvidia.com/gpu: "1"
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 120
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          volumeMounts:
+            - name: shm
+              mountPath: /dev/shm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-v072
+  namespace: llm-serving-lab
+  labels:
+    app: vllm-v072
+spec:
+  selector:
+    app: vllm-v072
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http

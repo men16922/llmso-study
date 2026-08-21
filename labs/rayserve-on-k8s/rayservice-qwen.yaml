@@ -38,7 +38,10 @@ spec:
                 autoscaling_config:
                   min_replicas: 1
                   max_replicas: 1
-              accelerator_type: null
+              # ⚠️ accelerator_type은 **생략**해야 한다. `null`로 두면 Ray 2.44.1의
+              # LLMConfig 검증이 "Unsupported accelerator type: None"으로 거부해
+              # Serve 앱 배포가 통째로 실패한다 (2026-08-21 실측). 공식 예제가
+              # A10G 등 구체 값을 넣는 자리라 "값 없음"을 null로 적기 쉬운 함정.
   rayClusterConfig:
     headGroupSpec:
       rayStartParams:
