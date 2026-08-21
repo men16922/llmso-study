@@ -193,12 +193,19 @@ def fig_log(fname, title, subtitle, key, ylab, files, scenario, slo=None):
         for x, y in pts:
             out.append(f'<circle class="f{si}" cx="{x:.1f}" cy="{y:.1f}" r="4"/>')
 
-    # 끝점이 겹치지 않도록 라벨을 세로로 분리한다
+    # 끝점이 겹치지 않도록 라벨을 세로로 분리한다.
+    # 값 내림차순(= y 오름차순)으로 훑으면서 최소 간격보다 가까우면 아래로 민다.
+    # 로그 눈금에서는 끝점이 촘촘히 모이는 일이 흔해 이 보정이 필요하다.
+    MIN_GAP = 15.0
     ends = sorted(
         ((data[si][-1][key], si) for si in range(n_series)), key=lambda t: -t[0]
     )
-    for rank, (val, si) in enumerate(ends):
+    prev_y = None
+    for val, si in ends:
         y = ypos(val)
+        if prev_y is not None and y - prev_y < MIN_GAP:
+            y = prev_y + MIN_GAP
+        prev_y = y
         draw_series_label(out, xpos(n - 1, n), y, f"f{si}", SERIES[si][0])
 
     out.append("</svg>")
@@ -262,6 +269,7 @@ def write(fname, lines):
 
 
 def main():
+    global SERIES
     short = [f"b1-slots-{s}-short.json" for s in SLOTS]
     print("생성:")
     fig_linear(
@@ -279,6 +287,34 @@ def main():
         short, "short", slo=0.5,
     )
     fig_queue("fig-b2-queue.svg")
+
+    # ── 3주차 — 계층의 가격 3자 비교 ────────────────────────────────
+    # 계열 이름·색만 갈아끼우고 같은 그리기 함수를 다시 쓴다.
+    # 색은 2주차와 같은 검증된 카테고리 슬롯 1~3 (light/dark 양쪽 색각 분리 통과).
+    SERIES = [
+        ("A 직접 0.23", "#2a78d6", "#3987e5"),
+        ("B 직접 0.7", "#eb6834", "#d95926"),
+        ("C Ray Serve", "#1baf7a", "#199e70"),
+    ]
+    layer = [
+        "b1-slots-16-short.json",       # A — vLLM 0.23.0, 계층 없음
+        "b-direct-v072-short.json",     # B — vLLM 0.7.2,  계층 없음
+        "c3-rayserve-short.json",       # C — vLLM 0.7.2,  Ray Serve
+    ]
+    fig_linear(
+        "fig-c3-layer-throughput.svg",
+        "서빙 계층이 처리량에서 가져가는 몫",
+        "Qwen2.5-1.5B · max_num_seqs=16 · A→B가 엔진 버전의 값, B→C가 계층의 값 · 각 지점 100요청 1회",
+        "output_tok_per_s", "처리량 (tok/s)", [0, 300, 600, 900, 1200, 1500],
+        layer, "short",
+    )
+    fig_log(
+        "fig-c3-layer-ttft.svg",
+        "계층 한 겹이 TTFT에 더하는 시간",
+        "같은 측정 · 로그 눈금 · 동시성 1에서 약 48ms가 프록시 한 겹의 실비다",
+        "ttft_p95_s", "TTFT p95 (초, 로그)",
+        layer, "short", slo=0.5,
+    )
 
 
 if __name__ == "__main__":
