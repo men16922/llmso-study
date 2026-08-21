@@ -1,0 +1,83 @@
+# HELP nv_inference_request_success Number of successful inference requests, all batch sizes
+# TYPE nv_inference_request_success counter
+nv_inference_request_success{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",version="1"} 960
+nv_inference_request_success{model="mobilenet_v2",version="1"} 0
+# HELP nv_inference_request_failure Number of failed inference requests, all batch sizes
+# TYPE nv_inference_request_failure counter
+nv_inference_request_failure{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",reason="OTHER",version="1"} 0
+nv_inference_request_failure{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",reason="CANCELED",version="1"} 0
+nv_inference_request_failure{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",reason="REJECTED",version="1"} 0
+nv_inference_request_failure{model="mobilenet_v2",reason="OTHER",version="1"} 0
+nv_inference_request_failure{model="mobilenet_v2",reason="BACKEND",version="1"} 0
+nv_inference_request_failure{model="mobilenet_v2",reason="CANCELED",version="1"} 0
+nv_inference_request_failure{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",reason="BACKEND",version="1"} 0
+nv_inference_request_failure{model="mobilenet_v2",reason="REJECTED",version="1"} 0
+# HELP nv_inference_count Number of inferences performed (does not include cached requests)
+# TYPE nv_inference_count counter
+nv_inference_count{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",version="1"} 960
+nv_inference_count{model="mobilenet_v2",version="1"} 0
+# HELP nv_inference_exec_count Number of model executions performed (does not include cached requests)
+# TYPE nv_inference_exec_count counter
+nv_inference_exec_count{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",version="1"} 405
+nv_inference_exec_count{model="mobilenet_v2",version="1"} 0
+# HELP nv_inference_request_duration_us Cumulative inference request duration in microseconds (includes cached requests)
+# TYPE nv_inference_request_duration_us counter
+nv_inference_request_duration_us{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",version="1"} 22763327
+nv_inference_request_duration_us{model="mobilenet_v2",version="1"} 0
+# HELP nv_inference_queue_duration_us Cumulative inference queuing duration in microseconds (includes cached requests)
+# TYPE nv_inference_queue_duration_us counter
+nv_inference_queue_duration_us{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",version="1"} 13667511
+nv_inference_queue_duration_us{model="mobilenet_v2",version="1"} 0
+# HELP nv_inference_compute_input_duration_us Cumulative compute input duration in microseconds (does not include cached requests)
+# TYPE nv_inference_compute_input_duration_us counter
+nv_inference_compute_input_duration_us{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",version="1"} 906081
+nv_inference_compute_input_duration_us{model="mobilenet_v2",version="1"} 0
+# HELP nv_inference_compute_infer_duration_us Cumulative compute inference duration in microseconds (does not include cached requests)
+# TYPE nv_inference_compute_infer_duration_us counter
+nv_inference_compute_infer_duration_us{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",version="1"} 8104641
+nv_inference_compute_infer_duration_us{model="mobilenet_v2",version="1"} 0
+# HELP nv_inference_compute_output_duration_us Cumulative inference compute output duration in microseconds (does not include cached requests)
+# TYPE nv_inference_compute_output_duration_us counter
+nv_inference_compute_output_duration_us{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",version="1"} 26893
+nv_inference_compute_output_duration_us{model="mobilenet_v2",version="1"} 0
+# HELP nv_energy_consumption GPU energy consumption in joules since the Triton Server started
+# TYPE nv_energy_consumption counter
+nv_energy_consumption{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3"} 2898.469
+# HELP nv_inference_pending_request_count Instantaneous number of pending requests awaiting execution per-model.
+# TYPE nv_inference_pending_request_count gauge
+nv_inference_pending_request_count{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",version="1"} 0
+nv_inference_pending_request_count{model="mobilenet_v2",version="1"} 0
+# HELP nv_model_load_duration_secs Model load time in seconds
+# TYPE nv_model_load_duration_secs gauge
+nv_model_load_duration_secs{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3",model="mobilenet_v2",version="1"} 0
+nv_model_load_duration_secs{model="mobilenet_v2",version="1"} 0.130487473
+# HELP nv_pinned_memory_pool_total_bytes Pinned memory pool total memory size, in bytes
+# TYPE nv_pinned_memory_pool_total_bytes gauge
+nv_pinned_memory_pool_total_bytes 268435456
+# HELP nv_pinned_memory_pool_used_bytes Pinned memory pool used memory size, in bytes
+# TYPE nv_pinned_memory_pool_used_bytes gauge
+nv_pinned_memory_pool_used_bytes 4816896
+# HELP nv_gpu_utilization GPU utilization rate [0.0 - 1.0)
+# TYPE nv_gpu_utilization gauge
+nv_gpu_utilization{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3"} 0.29
+# HELP nv_gpu_memory_total_bytes GPU total memory, in bytes
+# TYPE nv_gpu_memory_total_bytes gauge
+nv_gpu_memory_total_bytes{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3"} 12878610432
+# HELP nv_gpu_memory_used_bytes GPU used memory, in bytes
+# TYPE nv_gpu_memory_used_bytes gauge
+nv_gpu_memory_used_bytes{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3"} 353370112
+# HELP nv_gpu_power_usage GPU power usage in watts
+# TYPE nv_gpu_power_usage gauge
+nv_gpu_power_usage{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3"} 14.483
+# HELP nv_gpu_power_limit GPU power management limit in watts
+# TYPE nv_gpu_power_limit gauge
+nv_gpu_power_limit{gpu_uuid="GPU-a281f91d-a6ff-c999-bea8-4eff2389aad3"} 0
+# HELP nv_cpu_utilization CPU utilization rate [0.0 - 1.0]
+# TYPE nv_cpu_utilization gauge
+nv_cpu_utilization 0.1973684210526316
+# HELP nv_cpu_memory_total_bytes CPU total memory (RAM), in bytes
+# TYPE nv_cpu_memory_total_bytes gauge
+nv_cpu_memory_total_bytes 25201065984
+# HELP nv_cpu_memory_used_bytes CPU used memory (RAM), in bytes
+# TYPE nv_cpu_memory_used_bytes gauge
+nv_cpu_memory_used_bytes 5130469376

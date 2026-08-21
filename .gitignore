@@ -37,3 +37,6 @@ scripts/overnight/logs/
 scripts/overnight/STOP
 scripts/overnight/DONE
 docs/test/history/*-overnight-review-checklist.md
+
+# C2 산출물 — export_mobilenet_onnx.py로 30초면 재생성된다 (14MB 바이너리)
+labs/triton-dynamic-batching/model_dir/*/*/*.onnx

@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "url": "localhost:8000",
+    "model": "mobilenet_v2",
+    "label": "delay=5000"
+  },
+  "summaries": [
+    {
+      "concurrency": 1,
+      "requests": 300,
+      "failures": 0,
+      "wall_s": 2.8503366990007635,
+      "inf_per_s": 105.25072357422559,
+      "p50_ms": 9.315853998487,
+      "p95_ms": 10.764296101842776,
+      "mean_ms": 9.39707100345307,
+      "label": "delay=5000"
+    },
+    {
+      "concurrency": 8,
+      "requests": 300,
+      "failures": 0,
+      "wall_s": 0.5534289349998289,
+      "inf_per_s": 542.0750181775239,
+      "p50_ms": 15.333758999986458,
+      "p95_ms": 21.43824675167707,
+      "mean_ms": 14.204584829967644,
+      "label": "delay=5000"
+    },
+    {
+      "concurrency": 32,
+      "requests": 300,
+      "failures": 0,
+      "wall_s": 0.5269228739998653,
+      "inf_per_s": 569.3432849530778,
+      "p50_ms": 45.01298650029639,
+      "p95_ms": 100.73944359774035,
+      "mean_ms": 51.19555819997913,
+      "label": "delay=5000"
+    }
+  ]
+}

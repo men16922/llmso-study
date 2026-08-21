@@ -133,7 +133,13 @@ def main(argv: list[str] | None = None) -> int:
 
     # 내용은 중요하지 않다 — 모든 요청의 연산량이 정확히 같다는 점이 중요하다.
     # (그래서 dynamic batching이 성립한다. LLM에서 깨지는 것이 바로 이 전제다.)
-    image = np.random.rand(3, 224, 224).astype(np.float32)
+    # ★ 배치 차원(맨 앞의 1)을 반드시 포함해야 한다.
+    # config.pbtxt의 `dims: [3, 224, 224]`는 **샘플 하나의** 모양이고,
+    # Triton이 max_batch_size를 보고 배치 축을 앞에 붙인다. 하지만 클라이언트가
+    # 보내는 텐서는 그 배치 축까지 포함한 (N, 3, 224, 224)여야 한다.
+    # (3, 224, 224)로 보내면 서버가 전부 거부한다 — config는 멀쩡한데 요청만 실패해
+    # 원인을 찾기 어렵다. 2026-08-21 실측에서 300건 전량 실패로 드러났다.
+    image = np.random.rand(1, 3, 224, 224).astype(np.float32)
 
     summaries = []
     for concurrency in args.concurrency:
