@@ -582,3 +582,62 @@ python3 labs/wsl2-vllm-baseline/summarize_results.py \
 - [Triton — OpenAI-Compatible Frontend](https://github.com/triton-inference-server/server/tree/main/python/openai)
 - [KServe — Raw Kubernetes Deployment](https://kserve.github.io/website/latest/admin/kubernetes_deployment/)
 - 실측 원본: `labs/wsl2-vllm-baseline/results/`, `labs/kserve-on-k8s/`, `labs/triton-vllm-backend/`, `labs/triton-dynamic-batching/results/`
+
+<!-- HUMANIZE-SUMMARY v1.6.1
+run_id: 2026-08-23-001
+mode: strict-polish (진단 겨냥)
+metrics:
+  char_in: 25722
+  char_out: 24960
+  change_rate: 11.8%
+  self_check: 6/6
+  grade: A
+categories:  # before → after (quick-rules ID 기준)
+  J-1 본문 볼드 경구: 100+ → 8 (표·인용·부록D 단계 라벨 제외)
+  C-8 "A가 아니라 B" 대구: 15+ → 5
+  C-1/C-9/D-3 서수 열거 공식: 결론 5단(첫째~다섯째) → 산문 5문단, "이유는 세 가지입니다" 삭제
+  C-11 연결어미 뒤 쉼표: 약 30 → 2 (인용문 내부만 잔존, 인용 보존 규칙)
+  J-3 본문 em-dash 삽입구: 9 → 3 (헤딩·목차 대시는 불변)
+  C-4/E-1 소절 마무리 경구·리듬 균일: 문장 결합 14곳, 100자급 장문 6개 생성
+self_check:
+  - 고유명사·수치·인용 100% 보존: ✅ (표 전량·코드블록 전량·이미지 alt 전량·URL 전량 무수정)
+  - 변경률 30% 이하: ✅ 11.8%
+  - 장르 이탈 없음: ✅ 기술 실측 블로그 유지
+  - register 보존: ✅ 합쇼체(-습니다) 100%, 해요체·한다체 유입 0
+  - S1 잔존 0건: ✅ (C-11·J-2·D-1~D-3·A-7/8/16·C-5/C-10 잔존 없음)
+  - 인공 표현 추가 없음: ✅ 원문에 없던 주장·상투구 신규 삽입 0
+constraints_honored:
+  - 헤딩 12개 + 목차 블록: 한 글자도 수정 없음 (앵커 링크 무결)
+  - 인용문(> 블록) 5개: 전량 원문 그대로 (핵심 요약 박스 포함)
+  - 표 파이프 셀: 전량 원문 그대로 (셀 내 볼드 보존)
+  - 코드블록·<details> 재현 명령: 전량 원문 그대로
+  - 「한계와 다음 단계」1~10 / 부록 C 1~5: 번호·순서·항목 대응 유지 (선두 볼드만 해제)
+  - 고정 어휘(계층·구조·설정·goodput·처리량·동시성): 동의어 치환 0
+highlights:
+  - id: C-1/D-3
+    before: "**첫째, 비교는 저절로 성립하지 않습니다.** 세 계층이 각각 vLLM 0.7.2·0.5.5·0.20.0을 품고 있었습니다."
+    after: "먼저 걸린 것은 비교가 저절로 성립하지 않는다는 사실이었습니다. 세 계층이 각각 vLLM 0.7.2·0.5.5·0.20.0을 품고 있었으니 …"
+  - id: C-8
+    before: "계층 비용은 상수가 아니라 **엔진이 낼 수 있는 값의 함수**였습니다."
+    after: "계층 비용은 엔진이 낼 수 있는 값을 따라 커졌습니다."
+  - id: J-3
+    before: "처리량만 보면 놓치는 것 — 토큰은 나오는데 사용자는 기다리다 지치는 상태 — 을 잡기 위한 지표입니다."
+    after: "처리량만 보면 토큰은 나오는데 사용자는 기다리다 지치는 상태를 놓칩니다. 그 상태를 잡기 위한 지표입니다."
+  - id: C-11
+    before: "노브 하나가 그만큼을 냈으니, 다음 단계도 노브라고 생각하는 게 자연스럽습니다."
+    after: "노브 하나가 그만큼을 냈으니 다음 단계도 노브라고 생각하는 게 자연스럽습니다."
+  - id: D-3
+    before: "Triton Inference Server를 골랐습니다. 이유는 세 가지입니다. / 1. **교재가 권장하는 스택**이고 …"
+    after: "Triton Inference Server를 골랐습니다. 교재가 권장하는 스택이고 NVIDIA가 vLLM을 백엔드로 공식 지원합니다. …"
+  - id: J-1
+    before: "**엔진 버전이 계층마다 다릅니다.** 그래서 계층 비용은 **항상 같은 버전끼리 짝을 만들어** 쟀습니다"
+    after: "엔진 버전이 계층마다 다릅니다. 그래서 계층 비용은 항상 같은 버전끼리 짝을 만들어 쟀습니다"
+residual_findings:
+  - id: C-11
+    severity: low
+    note: 인용문(> 블록) 내부 쉼표 2건 — "닿지도 않으므로, 상한을" 등. 인용 절대 불변 지시로 미수정.
+  - id: C-8
+    severity: low
+    note: "고정값이 아니라 …의 함수"(3-3), "구현 품질이 아니라 역할"(4-5), "노브 문제가 아니라 구조 문제"(7-3), "가격이지 값어치가 아닙니다"(7·한계5) — 글의 논지 축이라 의도적 존치(5회).
+grade_reason: "A — S1 잔존 0, 변경률 11.8%, 자체검증 6항 통과. 헤딩·표·코드·인용 전량 불변이며 합쇼체·고정 어휘도 그대로."
+-->

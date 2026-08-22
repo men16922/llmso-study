@@ -1,0 +1,13 @@
+{
+ "./figures/fig-c3-seqs64-throughput.svg": "file-upload://3c44c242-0ac4-81da-92c9-00b2320f9a95",
+ "./figures/fig-c3-layer-cost.svg": "file-upload://3c44c242-0ac4-813b-8ad0-00b20e374dd5",
+ "./screenshots/proof-w3-01-ray-serve-tab.jpg": "file-upload://3c44c242-0ac4-8130-a790-00b22060ca5b",
+ "./screenshots/proof-w3-02-ray-cluster-gpu.jpg": "file-upload://3c44c242-0ac4-8111-92f8-00b2ff4fdf4d",
+ "./screenshots/proof-w3-03-dcgm-gpu-util.jpg": "file-upload://3c44c242-0ac4-81a7-8f3a-00b24e851ec8",
+ "./screenshots/proof-w3-04-v1-models.jpg": "file-upload://3c44c242-0ac4-8138-b9f0-00b27fb67434",
+ "./screenshots/proof-w3-05-metrics-404.jpg": "file-upload://3c44c242-0ac4-818d-a339-00b24b5094ad",
+ "./screenshots/proof-w3-06-replica-stdout-empty.jpg": "file-upload://3c44c242-0ac4-813c-b913-00b28f23ede8",
+ "./screenshots/proof-w3-07-ray-actors.jpg": "file-upload://3c44c242-0ac4-815b-b2e5-00b2b979f496",
+ "./screenshots/proof-w3-08-grafana-dcgm-util.jpg": "file-upload://3c44c242-0ac4-8175-bc08-00b2031e4d86",
+ "./screenshots/proof-w3-09-grafana-dcgm-temp.jpg": "file-upload://3c44c242-0ac4-81f5-a5c1-00b27733ca9b"
+}
