@@ -1,40 +1,10 @@
-# 서빙 최적화, 설정부터 만지면 안 되는 이유
-
 **GPU 한 장·같은 모델에 서빙 구조를 바꿔 씌워 가며 설정을 함께 흔들어 본 기록**
 
-> **핵심 요약**
->
-> LLM 서빙에서 만질 수 있는 건 두 종류입니다. **설정**(슬롯 수·컨텍스트 길이·메모리 비율 같은 엔진 노브)과 **구조**(엔진 앞에 얹는 서빙 계층). 보통 설정부터 만집니다. 문서가 그렇게 되어 있고, 재기도 쉽습니다.
->
-> 이번에 그 순서가 맞는지 확인해 봤습니다. Ray Serve 위에서 설정을 네 가지로 흔들었더니 처리량이 **822~964 tok/s** 안에서만 움직였습니다(±17%). 같은 설정 변경을 계층 없는 구조에서 하니 **1,186 → 2,837 tok/s(+139%)**였습니다. **같은 노브인데 구조가 그 효과를 정하고 있었습니다.**
->
-> 그렇다고 계층을 버려야 한다는 뜻은 아닙니다. 같은 저울에 Triton과 KServe를 올렸더니 계층 비용이 각각 **−12.6%**, **−2.2%**였고 goodput은 둘 다 100%였습니다. **계층이 비싼 게 아니라 계층마다 가격이 다릅니다.**
->
-> 가격을 가르는 건 구현 품질이 아니라 **요청 경로에 서 있느냐**였습니다. KServe(RawDeployment)는 배포만 만들어 주고 경로에서 빠지므로 비용도 0에 가깝고 엔진 메트릭 66개도 그대로 남습니다. Triton과 Ray Serve는 모든 요청이 통과하므로 값을 치릅니다.
->
-> 결론은 탐색 순서입니다. **구조를 먼저 고르고, 그 위에서 설정을 조입니다.** 설정이 안 먹으면 노브를 더 돌릴 게 아니라 구조를 의심해야 합니다.
+> **핵심 요약**<br>LLM 서빙에서 만질 수 있는 건 두 종류입니다. **설정**(슬롯 수·컨텍스트 길이·메모리 비율 같은 엔진 노브)과 **구조**(엔진 앞에 얹는 서빙 계층). 보통 설정부터 만집니다. 문서가 그렇게 되어 있고, 재기도 쉽습니다.<br>이번에 그 순서가 맞는지 확인해 봤습니다. Ray Serve 위에서 설정을 네 가지로 흔들었더니 처리량이 **822~964 tok/s** 안에서만 움직였습니다(±17%). 같은 설정 변경을 계층 없는 구조에서 하니 **1,186 → 2,837 tok/s(+139%)**였습니다. **같은 노브인데 구조가 그 효과를 정하고 있었습니다.**<br>그렇다고 계층을 버려야 한다는 뜻은 아닙니다. 같은 저울에 Triton과 KServe를 올렸더니 계층 비용이 각각 **−12.6%**, **−2.2%**였고 goodput은 둘 다 100%였습니다. **계층이 비싼 게 아니라 계층마다 가격이 다릅니다.**<br>가격을 가르는 건 구현 품질이 아니라 **요청 경로에 서 있느냐**였습니다. KServe(RawDeployment)는 배포만 만들어 주고 경로에서 빠지므로 비용도 0에 가깝고 엔진 메트릭 66개도 그대로 남습니다. Triton과 Ray Serve는 모든 요청이 통과하므로 값을 치릅니다.<br>결론은 탐색 순서입니다. **구조를 먼저 고르고, 그 위에서 설정을 조입니다.** 설정이 안 먹으면 노브를 더 돌릴 게 아니라 구조를 의심해야 합니다.
 
 ---
 
-## 목차
-
-- [1. 목적 — 무엇을 만져야 처리량이 오르는가](#1-목적--무엇을-만져야-처리량이-오르는가)
-- [2. 문제 인식 — 설정 축이 죽어 있었다](#2-문제-인식--설정-축이-죽어-있었다)
-- [3. 원인 — 구조가 설정의 효과를 정한다](#3-원인--구조가-설정의-효과를-정한다)
-- [4. 그러면 계층을 버려야 하나 — 가격이 다를 뿐이다](#4-그러면-계층을-버려야-하나--가격이-다를-뿐이다)
-- [5. 서빙 구조 가격표](#5-서빙-구조-가격표)
-- [6. 두 번째 가격 — 관측성](#6-두-번째-가격--관측성)
-- [7. 그래서 탐색은 이 순서로](#7-그래서-탐색은-이-순서로)
-- [한계와 다음 단계](#한계와-다음-단계)
-- [결론 — 실험하며 배운 것](#결론--실험하며-배운-것)
-- [부록 A. Triton의 dynamic batching은 왜 LLM에 안 맞나](#부록-a-triton의-dynamic-batching은-왜-llm에-안-맞나)
-- [부록 B. KV cache 공식이 6배 어긋난 자리](#부록-b-kv-cache-공식이-6배-어긋난-자리)
-- [부록 C. KServe를 띄우기까지 막힌 다섯 곳](#부록-c-kserve를-띄우기까지-막힌-다섯-곳)
-- [부록 D. 재현 절차](#부록-d-재현-절차)
-- [참고 자료](#참고-자료)
-
----
-
+<table_of_contents color="gray"/>
 ## 1. 목적 — 무엇을 만져야 처리량이 오르는가
 
 GPU 한 장에 LLM을 올려놓고 "처리량을 더 뽑아라"라는 말을 들으면 손이 먼저 가는 곳은 엔진 설정입니다. vLLM 문서에도 `max_num_seqs`, `max_model_len`, `gpu_memory_utilization`이 나란히 있고 값 하나 바꾸고 다시 재면 되니 실험 비용도 쌉니다.
@@ -45,40 +15,89 @@ GPU 한 장에 LLM을 올려놓고 "처리량을 더 뽑아라"라는 말을 들
 
 그러면 최적화에는 축이 두 개가 됩니다.
 
-| 축 | 무엇 | 예 |
-|---|---|---|
-| **설정** | 엔진 안의 노브 | `max_num_seqs`, `max_model_len`, `gpu_memory_utilization` |
-| **구조** | 엔진 앞·위에 얹는 서빙 계층 | 계층 없음 / Ray Serve / Triton / KServe |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>축</td>
+<td>무엇</td>
+<td>예</td>
+</tr>
+<tr>
+<td>**설정**</td>
+<td>엔진 안의 노브</td>
+<td>`max_num_seqs`, `max_model_len`, `gpu_memory_utilization`</td>
+</tr>
+<tr>
+<td>**구조**</td>
+<td>엔진 앞·위에 얹는 서빙 계층</td>
+<td>계층 없음 / Ray Serve / Triton / KServe</td>
+</tr>
+</table>
 
 이 글은 두 축을 같은 저울에 올려 어느 쪽이 큰 레버인지 재 본 기록입니다.
 
 ### 실험 환경
 
-| 항목 | 값 |
-|---|---|
-| GPU | NVIDIA GeForce RTX 4080 Laptop, 12,282 MiB |
-| 드라이버 | 581.57 |
-| 커널 | 6.18.33.1-microsoft-standard-WSL2 |
-| k3s | v1.36.2+k3s1 |
-| 모델 | `Qwen/Qwen2.5-1.5B-Instruct` |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>항목</td>
+<td>값</td>
+</tr>
+<tr>
+<td>GPU</td>
+<td>NVIDIA GeForce RTX 4080 Laptop, 12,282 MiB</td>
+</tr>
+<tr>
+<td>드라이버</td>
+<td>581.57</td>
+</tr>
+<tr>
+<td>커널</td>
+<td>6.18.33.1-microsoft-standard-WSL2</td>
+</tr>
+<tr>
+<td>k3s</td>
+<td>v1.36.2+k3s1</td>
+</tr>
+<tr>
+<td>모델</td>
+<td>`Qwen/Qwen2.5-1.5B-Instruct`</td>
+</tr>
+</table>
 
 전 구성 공통 설정은 `max_model_len=4096`, `gpu_memory_utilization=0.85`, `max_num_seqs=64`입니다(2장의 설정 스윕 구간만 예외). 계층별로 쓴 것은 이렇습니다.
 
-| 계층 | 버전 | 품고 있는 vLLM |
-|---|---|---|
-| Ray Serve | KubeRay 1.4.2 / ray-llm 2.44.1 | 0.7.2 |
-| Triton | 24.12 (`vllm-python-py3`) | 0.5.5 |
-| KServe | 0.20.0 (RawDeployment) | 0.20.0 |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>계층</td>
+<td>버전</td>
+<td>품고 있는 vLLM</td>
+</tr>
+<tr>
+<td>Ray Serve</td>
+<td>KubeRay 1.4.2 / ray-llm 2.44.1</td>
+<td>0.7.2</td>
+</tr>
+<tr>
+<td>Triton</td>
+<td>24.12 (`vllm-python-py3`)</td>
+<td>0.5.5</td>
+</tr>
+<tr>
+<td>KServe</td>
+<td>0.20.0 (RawDeployment)</td>
+<td>0.20.0</td>
+</tr>
+</table>
 
 엔진 버전이 계층마다 다릅니다. 그래서 계층 비용은 항상 같은 버전끼리 짝을 만들어 쟀습니다(3-1·4-2·4-4).
 
 > 이 글의 화면 캡처는 전부 **측정을 마친 뒤 같은 매니페스트로 다시 띄워 찍은 것**입니다(Ray Serve는 2026-08-22, Triton·KServe는 08-23). 기동값이 본문과 같은지, 관측성 주장이 실제 화면에서 성립하는지를 보이려는 것이고, **부하 조건은 본문 표와 다릅니다.** 화면 속 숫자를 표와 섞어 읽지 마세요.
 
-![Ray Dashboard Cluster 탭 — 노드 2개 ALIVE. head 노드는 GPU N/A, gpu-group-worker 노드만 GPU [0] 83.0% · GRAM 10962MiB/12282MiB](./screenshots/proof-w3-02-ray-cluster-gpu.jpg)
+![Ray Dashboard Cluster 탭 — 노드 2개 ALIVE. head 노드는 GPU N/A, gpu-group-worker 노드만 GPU [0] 83.0% · GRAM 10962MiB/12282MiB](file-upload://3c44c242-0ac4-8111-92f8-00b2ff4fdf4d)
 
 워커에만 `[0] 83.0%` / `10962MiB/12282MiB`가 붙습니다. 헤드는 `GPU N/A`입니다. 여기 보이는 12,282 MiB를 2장에서 KV 예산의 분모로 씁니다.
 
-![Grafana NVIDIA DCGM Exporter Dashboard, 12시간 범위 — GPU Utilization 패널에 84%·91%까지 오르는 스파이크 두 개, Tensor Core Utilization 패널은 No data, GPU Framebuffer Mem Used는 최대 10.7 GB](./screenshots/proof-w3-08-grafana-dcgm-util.jpg)
+![Grafana NVIDIA DCGM Exporter Dashboard, 12시간 범위 — GPU Utilization 패널에 84%·91%까지 오르는 스파이크 두 개, Tensor Core Utilization 패널은 No data, GPU Framebuffer Mem Used는 최대 10.7 GB](file-upload://3c44c242-0ac4-8175-bc08-00b2031e4d86)
 
 측정 구간에서 GPU 사용률이 84%·91%까지 오릅니다. 뒤에 나오는 낮은 처리량은 GPU가 놀아서 생긴 게 아닙니다. `GPU Framebuffer Mem Used` 최대 10.7 GB도 `nvidia-smi`·Ray Dashboard 값과 맞습니다.
 
@@ -102,22 +121,64 @@ python3 benchmark.py --scenarios short --concurrency 1,2,4,8,16,32,64 \
 
 3주차 환경은 Ray Serve 위의 vLLM입니다. 여기서 지난 편과 같은 노브를 돌렸습니다. 슬롯 16 → 64, 4배입니다.
 
-| 구성 | c=64 처리량 | TTFT p95 | goodput |
-|---|---|---|---|
-| Ray Serve, 슬롯 16 | 821.6 tok/s | 3.777s | 16% |
-| Ray Serve, 슬롯 64 | 852.3 tok/s | 4.006s | 19% |
-| **차이** | **+3.7%** | — | — |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>구성</td>
+<td>c=64 처리량</td>
+<td>TTFT p95</td>
+<td>goodput</td>
+</tr>
+<tr>
+<td>Ray Serve, 슬롯 16</td>
+<td>821.6 tok/s</td>
+<td>3.777s</td>
+<td>16%</td>
+</tr>
+<tr>
+<td>Ray Serve, 슬롯 64</td>
+<td>852.3 tok/s</td>
+<td>4.006s</td>
+<td>19%</td>
+</tr>
+<tr>
+<td>**차이**</td>
+<td>**+3.7%**</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</table>
 
 지난 편에서 23배를 냈던 노브가 +3.7%입니다.
 
 노브 하나가 이상한 걸 수도 있으니 설정 축을 더 흔들어 봤습니다. 슬롯을 64로 둔 채 컨텍스트 길이와 메모리 비율을 바꿨습니다. 둘 다 KV cache 예산을 직접 건드리는 값이라 동시성 상한이 실제로 크게 움직였습니다.
 
-| 설정 (전부 slots=64) | 기동 로그의 `Maximum concurrency` | c=64 처리량 |
-|---|---|---|
-| 기준 (len 4096, util 0.85) | 62.04x | 852.3 tok/s |
-| 컨텍스트 4096 → **16384** | 14.28x | 964.0 tok/s |
-| 메모리 0.85 → **0.60** | 34.62x | 961.0 tok/s |
-| 슬롯 16 (참고) | 64.02x | 821.6 tok/s |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>설정 (전부 slots=64)</td>
+<td>기동 로그의 `Maximum concurrency`</td>
+<td>c=64 처리량</td>
+</tr>
+<tr>
+<td>기준 (len 4096, util 0.85)</td>
+<td>62.04x</td>
+<td>852.3 tok/s</td>
+</tr>
+<tr>
+<td>컨텍스트 4096 → **16384**</td>
+<td>14.28x</td>
+<td>964.0 tok/s</td>
+</tr>
+<tr>
+<td>메모리 0.85 → **0.60**</td>
+<td>34.62x</td>
+<td>961.0 tok/s</td>
+</tr>
+<tr>
+<td>슬롯 16 (참고)</td>
+<td>64.02x</td>
+<td>821.6 tok/s</td>
+</tr>
+</table>
 
 동시성 상한은 14.28x에서 64.02x까지 4.5배 흔들렸습니다. 그런데 처리량은 822~964 tok/s, 폭으로 ±17% 안입니다.
 
@@ -125,7 +186,7 @@ python3 benchmark.py --scenarios short --concurrency 1,2,4,8,16,32,64 \
 
 설정을 네 가지로 흔들어 얻은 최고값이 964 tok/s입니다. **이 구조에서는 설정 축을 아무리 뒤져도 1,000 tok/s 근처가 천장이었습니다.**
 
-![브라우저에서 연 /v1/models 응답 — qwen2.5-1.5b 모델 하나, rayllm_metadata의 max_request_context_length가 4096](./screenshots/proof-w3-04-v1-models.jpg)
+![브라우저에서 연 /v1/models 응답 — qwen2.5-1.5b 모델 하나, rayllm_metadata의 max_request_context_length가 4096](file-upload://3c44c242-0ac4-8138-b9f0-00b27fb67434)
 
 `max_request_context_length`가 4096입니다. 위 표의 기준 행과 같은 값이니 설정이 실제로 걸려 있었습니다.
 
@@ -141,11 +202,28 @@ python3 benchmark.py --scenarios short --concurrency 1,2,4,8,16,32,64 \
 
 그래서 구성을 하나 더 만들었습니다. ray-llm과 똑같은 이미지에서 Ray만 빼고 vLLM을 직접 띄운 것입니다.
 
-| 구성 | 엔진 | 계층 |
-|---|---|---|
-| A | vLLM 0.23.0 | 없음 (2주차 기준선) |
-| B | vLLM 0.7.2 | 없음 ← **새로 만듦** |
-| C | vLLM 0.7.2 | Ray Serve |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>구성</td>
+<td>엔진</td>
+<td>계층</td>
+</tr>
+<tr>
+<td>A</td>
+<td>vLLM 0.23.0</td>
+<td>없음 (2주차 기준선)</td>
+</tr>
+<tr>
+<td>B</td>
+<td>vLLM 0.7.2</td>
+<td>없음 ← **새로 만듦**</td>
+</tr>
+<tr>
+<td>C</td>
+<td>vLLM 0.7.2</td>
+<td>Ray Serve</td>
+</tr>
+</table>
 
 A와 C를 그냥 비교하면 −39.3%가 나옵니다. 하지만 A→B(엔진 버전만)가 이미 −9.9%였으니 B와 C를 비교해야 계층만의 값이 나옵니다.
 
@@ -155,10 +233,23 @@ A와 C를 그냥 비교하면 −39.3%가 나옵니다. 하지만 A→B(엔진 �
 
 B(계층 없음)에서 똑같은 슬롯 변경을 했습니다.
 
-| 구조 | 슬롯 16 → 64, c=64 처리량 | 변화 |
-|---|---|---|
-| Ray Serve | 821.6 → 852.3 | **+3.7%** |
-| 계층 없음 | 1,186.1 → 2,836.8 | **+139.2%** |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>구조</td>
+<td>슬롯 16 → 64, c=64 처리량</td>
+<td>변화</td>
+</tr>
+<tr>
+<td>Ray Serve</td>
+<td>821.6 → 852.3</td>
+<td>**+3.7%**</td>
+</tr>
+<tr>
+<td>계층 없음</td>
+<td>1,186.1 → 2,836.8</td>
+<td>**+139.2%**</td>
+</tr>
+</table>
 
 같은 엔진, 같은 노브, 같은 부하입니다. **차이는 앞에 계층이 있느냐뿐입니다.**
 
@@ -166,7 +257,7 @@ B(계층 없음)에서 똑같은 슬롯 변경을 했습니다.
 
 여기서 계층이라고 부른 것의 실체는 이렇게 생겼습니다.
 
-![Ray Dashboard Serve 탭 — Controller HEALTHY, Proxy HEALTHY ×2, Application RUNNING ×1. llm 애플리케이션 아래 LLMDeployment:qwen2_5-1_5b가 replica 1개, LLMRouter가 replica 2개로 HEALTHY 상태](./screenshots/proof-w3-01-ray-serve-tab.jpg)
+![Ray Dashboard Serve 탭 — Controller HEALTHY, Proxy HEALTHY ×2, Application RUNNING ×1. llm 애플리케이션 아래 LLMDeployment:qwen2_5-1_5b가 replica 1개, LLMRouter가 replica 2개로 HEALTHY 상태](file-upload://3c44c242-0ac4-8130-a790-00b22060ca5b)
 
 엔진을 감싼 `LLMDeployment` replica 1개 앞에 `LLMRouter` replica 2개와 프록시가 섭니다.
 
@@ -174,33 +265,91 @@ B(계층 없음)에서 똑같은 슬롯 변경을 했습니다.
 
 같은 엔진(0.7.2)·같은 설정(슬롯 64)에서 계층 하나만 놓고 동시성별로 비교하면 이렇게 나옵니다.
 
-| 동시성 | 계층 없음 | Ray Serve | 차이 |
-|---|---|---|---|
-| 1 | 104.6 | 97.6 | −6.7% |
-| 2 | 201.1 | 182.4 | −9.3% |
-| 4 | 384.8 | 336.2 | −12.6% |
-| 8 | 700.9 | 567.3 | −19.1% |
-| 16 | 1,201.5 | 745.8 | −37.9% |
-| 32 | 1,853.1 | 788.8 | −57.4% |
-| **64** | **2,836.8** | **852.3** | **−70.0%** |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>동시성</td>
+<td>계층 없음</td>
+<td>Ray Serve</td>
+<td>차이</td>
+</tr>
+<tr>
+<td>1</td>
+<td>104.6</td>
+<td>97.6</td>
+<td>−6.7%</td>
+</tr>
+<tr>
+<td>2</td>
+<td>201.1</td>
+<td>182.4</td>
+<td>−9.3%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>384.8</td>
+<td>336.2</td>
+<td>−12.6%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>700.9</td>
+<td>567.3</td>
+<td>−19.1%</td>
+</tr>
+<tr>
+<td>16</td>
+<td>1,201.5</td>
+<td>745.8</td>
+<td>−37.9%</td>
+</tr>
+<tr>
+<td>32</td>
+<td>1,853.1</td>
+<td>788.8</td>
+<td>−57.4%</td>
+</tr>
+<tr>
+<td>**64**</td>
+<td>**2,836.8**</td>
+<td>**852.3**</td>
+<td>**−70.0%**</td>
+</tr>
+</table>
 
-![슬롯을 64로 열었을 때 계층 유무 비교 — 직접 vLLM은 동시성이 오를수록 처리량이 계속 올라 c=64에서 2,837 tok/s에 닿지만, Ray Serve는 c=16 부근부터 850 근처에서 평평해진다](./figures/fig-c3-seqs64-throughput.svg)
+![슬롯을 64로 열었을 때 계층 유무 비교 — 직접 vLLM은 동시성이 오를수록 처리량이 계속 올라 c=64에서 2,837 tok/s에 닿지만, Ray Serve는 c=16 부근부터 850 근처에서 평평해진다](file-upload://3c44c242-0ac4-81da-92c9-00b2320f9a95)
 
 부하가 커질수록 비용이 커집니다. 동시성 1에서는 6.7%로 무시할 만하지만 64에서는 70%입니다. 계층 비용은 고정값이 아니라 엔진이 낼 수 있는 값의 함수입니다.
 
 여기서 슬롯 16에서 멈췄다면 "계층이 3분의 1쯤 먹는다"(−37.9%)고 썼을 겁니다. 엔진에 여유를 준 뒤 다시 재야 70%가 보입니다.
 
-![Prometheus DCGM_FI_DEV_GPU_UTIL 그래프 — 15분 구간에서 부하 시각에만 0%에서 약 83%로 사각 펄스가 올라갔다 내려온다. 시계열 라벨의 exported_pod가 vllm-service의 gpu-group-worker 파드](./screenshots/proof-w3-03-dcgm-gpu-util.jpg)
+![Prometheus DCGM_FI_DEV_GPU_UTIL 그래프 — 15분 구간에서 부하 시각에만 0%에서 약 83%로 사각 펄스가 올라갔다 내려온다. 시계열 라벨의 exported_pod가 vllm-service의 gpu-group-worker 파드](file-upload://3c44c242-0ac4-81a7-8f3a-00b24e851ec8)
 
 부하 구간에서 사용률이 83%까지 올랐습니다. 시계열 라벨의 `exported_pod`가 Ray 워커 파드라 이 일이 어디서 나왔는지까지 메트릭이 남깁니다. 이 그래프를 만든 것은 동시성 64로 900요청을 건 별도의 지속 부하입니다(1,036.9 tok/s, goodput 2.1%).
 
 지연과 goodput을 같이 보면 성격이 분명해집니다.
 
-| 동시성 | 계층 없음 TTFT p95 / goodput | Ray Serve TTFT p95 / goodput |
-|---|---|---|
-| 16 | 0.112s / 100% | 0.285s / 100% |
-| 32 | 0.190s / 100% | 1.698s / 48% |
-| 64 | 0.330s / 100% | 4.006s / **19%** |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>동시성</td>
+<td>계층 없음 TTFT p95 / goodput</td>
+<td>Ray Serve TTFT p95 / goodput</td>
+</tr>
+<tr>
+<td>16</td>
+<td>0.112s / 100%</td>
+<td>0.285s / 100%</td>
+</tr>
+<tr>
+<td>32</td>
+<td>0.190s / 100%</td>
+<td>1.698s / 48%</td>
+</tr>
+<tr>
+<td>64</td>
+<td>0.330s / 100%</td>
+<td>4.006s / **19%**</td>
+</tr>
+</table>
 
 계층 없는 구성은 c=64에서도 TTFT p95가 0.33초로 SLO(0.5초) 안이고 goodput 100%입니다. Ray Serve는 c=32부터 무너져 c=64에서 10건 중 8건이 SLO를 못 지킵니다. 처리량이 3분의 1인 것보다 이쪽이 운영에서는 더 아픈 숫자입니다.
 
@@ -226,21 +375,62 @@ Triton 24.12 컨테이너 안의 vLLM은 0.5.5로 Ray Serve의 0.7.2보다도 �
 
 ### 4-3. Triton의 계층 비용
 
-| 동시성 | 계층 없음 (0.5.5) | Triton + vLLM (0.5.5) | 차이 |
-|---|---|---|---|
-| 1 | 98.0 | 91.5 | −6.6% |
-| 2 | 186.7 | 173.1 | −7.3% |
-| 4 | 348.6 | 330.0 | −5.3% |
-| 8 | 633.4 | 603.4 | −4.7% |
-| 16 | 1,065.3 | 1,021.3 | −4.1% |
-| 32 | 1,593.4 | 1,537.1 | −3.5% |
-| 64 | 2,310.1 | 2,018.9 | −12.6% |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>동시성</td>
+<td>계층 없음 (0.5.5)</td>
+<td>Triton + vLLM (0.5.5)</td>
+<td>차이</td>
+</tr>
+<tr>
+<td>1</td>
+<td>98.0</td>
+<td>91.5</td>
+<td>−6.6%</td>
+</tr>
+<tr>
+<td>2</td>
+<td>186.7</td>
+<td>173.1</td>
+<td>−7.3%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>348.6</td>
+<td>330.0</td>
+<td>−5.3%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>633.4</td>
+<td>603.4</td>
+<td>−4.7%</td>
+</tr>
+<tr>
+<td>16</td>
+<td>1,065.3</td>
+<td>1,021.3</td>
+<td>−4.1%</td>
+</tr>
+<tr>
+<td>32</td>
+<td>1,593.4</td>
+<td>1,537.1</td>
+<td>−3.5%</td>
+</tr>
+<tr>
+<td>64</td>
+<td>2,310.1</td>
+<td>2,018.9</td>
+<td>−12.6%</td>
+</tr>
+</table>
 
 곡선의 모양이 다릅니다. Ray Serve는 부하가 커질수록 비용이 커졌습니다(6.7% → 70%). Triton은 부하와 무관하게 평평하고(3.5~12.6%) 부하가 커질 때 오히려 줄어드는 구간도 있습니다.
 
 goodput은 c=64에서도 100%이고 TTFT p95는 0.384초로 SLO 안입니다.
 
-![브라우저에서 연 :9000/v1/models 응답 — 모델 하나(id qwen), owned_by가 "Triton Inference Server"](./screenshots/proof-w3-10-triton-v1-models.jpg)
+![브라우저에서 연 :9000/v1/models 응답 — 모델 하나(id qwen), owned_by가 "Triton Inference Server"](file-upload://3c44c242-0ac4-81f4-8900-00b23ba395a4)
 
 같은 OpenAI 규격이어도 응답을 만든 주체는 `owned_by`가 밝힙니다.
 
@@ -256,19 +446,60 @@ Istio·Knative가 없는 k3s라 RawDeployment 모드로 설치했습니다.
 
 두 구성의 기동 로그가 `GPU KV cache size: 247,024 tokens` / `Maximum concurrency ... 60.31x`로 완전히 같습니다.
 
-| 동시성 | 계층 없음 (0.20.0) | KServe + vLLM (0.20.0) | 차이 |
-|---|---|---|---|
-| 1 | 113.5 | 113.7 | +0.2% |
-| 2 | 217.4 | 217.8 | +0.2% |
-| 4 | 422.7 | 426.6 | +0.9% |
-| 8 | 791.3 | 781.8 | −1.2% |
-| 16 | 1,400.5 | 1,384.9 | −1.1% |
-| 32 | 2,032.5 | 2,166.5 | +6.6% |
-| 64 | 2,714.2 | 2,654.0 | −2.2% |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>동시성</td>
+<td>계층 없음 (0.20.0)</td>
+<td>KServe + vLLM (0.20.0)</td>
+<td>차이</td>
+</tr>
+<tr>
+<td>1</td>
+<td>113.5</td>
+<td>113.7</td>
+<td>+0.2%</td>
+</tr>
+<tr>
+<td>2</td>
+<td>217.4</td>
+<td>217.8</td>
+<td>+0.2%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>422.7</td>
+<td>426.6</td>
+<td>+0.9%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>791.3</td>
+<td>781.8</td>
+<td>−1.2%</td>
+</tr>
+<tr>
+<td>16</td>
+<td>1,400.5</td>
+<td>1,384.9</td>
+<td>−1.1%</td>
+</tr>
+<tr>
+<td>32</td>
+<td>2,032.5</td>
+<td>2,166.5</td>
+<td>+6.6%</td>
+</tr>
+<tr>
+<td>64</td>
+<td>2,714.2</td>
+<td>2,654.0</td>
+<td>−2.2%</td>
+</tr>
+</table>
 
 계층 비용이 사실상 0입니다. 부호가 왔다 갔다 하는 걸 보면 잡음과 구별되지 않는 수준입니다. goodput은 양쪽 다 100%, TTFT p95는 0.296s 대 0.310s입니다.
 
-![브라우저에서 연 KServe 예측기 :30080/v1/models 응답 — id qwen, owned_by가 "vllm", root가 /mnt/models/hub/models--Qwen--Qwen2.5-1.5B-Instruct/snapshots/989aa7980e4cf806f80c7fef2b1adb7bc71aa306, max_model_len 4096](./screenshots/proof-w3-13-kserve-v1-models.jpg)
+![브라우저에서 연 KServe 예측기 :30080/v1/models 응답 — id qwen, owned_by가 "vllm", root가 /mnt/models/hub/models--Qwen--Qwen2.5-1.5B-Instruct/snapshots/989aa7980e4cf806f80c7fef2b1adb7bc71aa306, max_model_len 4096](file-upload://3c44c242-0ac4-818c-b03d-00b2e11cf442)
 
 같은 자리에서 `owned_by`가 `vllm`입니다. `root`의 `/mnt/models/hub/...`는 KServe가 `storageUri`로 붙여 준 HF 캐시 경로이고 `max_model_len` 4096은 본문 통제 변수와 같습니다.
 
@@ -287,24 +518,96 @@ KServe가 "더 좋다"는 말이 아닙니다. 하는 일이 다를 뿐입니다
 
 같은 GPU·같은 모델·같은 부하 명령으로 잰 결과입니다. 계층 비용은 각 계층이 쓰는 엔진 버전과 짝을 이루는 "계층 없음" 구성 대비입니다. 구성끼리의 절대값이 아니라 각자의 짝과 비교한 값입니다.
 
-| 계층 | 요청 경로에 서나 | 엔진 | 계층 비용 (c=64) | goodput (c=64) | TTFT p95 (c=64) | `vllm:*` 메트릭 |
-|---|---|---|---|---|---|---|
-| **없음** | — | 0.7.2 / 0.5.5 / 0.20.0 | — | 100% | 0.30~0.35s | 15 / 21 / 66개 |
-| **KServe** (RawDeployment) | **아니오** (컨트롤 플레인) | 0.20.0 | **−2.2%** | **100%** | 0.310s | **66개 (보존)** |
-| **Triton** + vLLM 백엔드 | 예 | 0.5.5 | **−12.6%** | **100%** | 0.384s | 0개 (`nv_*` 22개) |
-| **Ray Serve** (ray-llm) | 예 | 0.7.2 | **−70.0%** | **19%** | 4.006s | 0개 (`ray_*` 184개) |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>계층</td>
+<td>요청 경로에 서나</td>
+<td>엔진</td>
+<td>계층 비용 (c=64)</td>
+<td>goodput (c=64)</td>
+<td>TTFT p95 (c=64)</td>
+<td>`vllm:*` 메트릭</td>
+</tr>
+<tr>
+<td>**없음**</td>
+<td>—</td>
+<td>0.7.2 / 0.5.5 / 0.20.0</td>
+<td>—</td>
+<td>100%</td>
+<td>0.30~0.35s</td>
+<td>15 / 21 / 66개</td>
+</tr>
+<tr>
+<td>**KServe** (RawDeployment)</td>
+<td>**아니오** (컨트롤 플레인)</td>
+<td>0.20.0</td>
+<td>**−2.2%**</td>
+<td>**100%**</td>
+<td>0.310s</td>
+<td>**66개 (보존)**</td>
+</tr>
+<tr>
+<td>**Triton** + vLLM 백엔드</td>
+<td>예</td>
+<td>0.5.5</td>
+<td>**−12.6%**</td>
+<td>**100%**</td>
+<td>0.384s</td>
+<td>0개 (`nv_*` 22개)</td>
+</tr>
+<tr>
+<td>**Ray Serve** (ray-llm)</td>
+<td>예</td>
+<td>0.7.2</td>
+<td>**−70.0%**</td>
+<td>**19%**</td>
+<td>4.006s</td>
+<td>0개 (`ray_*` 184개)</td>
+</tr>
+</table>
 
 동시성이 올라갈 때 비용이 어떻게 움직이는지가 성격을 가장 잘 보여줍니다.
 
-| 동시성 | KServe | Triton | Ray Serve |
-|---|---|---|---|
-| 1 | +0.2% | −6.6% | −6.7% |
-| 8 | −1.2% | −4.7% | −19.1% |
-| 16 | −1.1% | −4.1% | −37.9% |
-| 32 | +6.6% | −3.5% | −57.4% |
-| 64 | −2.2% | −12.6% | **−70.0%** |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>동시성</td>
+<td>KServe</td>
+<td>Triton</td>
+<td>Ray Serve</td>
+</tr>
+<tr>
+<td>1</td>
+<td>+0.2%</td>
+<td>−6.6%</td>
+<td>−6.7%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>−1.2%</td>
+<td>−4.7%</td>
+<td>−19.1%</td>
+</tr>
+<tr>
+<td>16</td>
+<td>−1.1%</td>
+<td>−4.1%</td>
+<td>−37.9%</td>
+</tr>
+<tr>
+<td>32</td>
+<td>+6.6%</td>
+<td>−3.5%</td>
+<td>−57.4%</td>
+</tr>
+<tr>
+<td>64</td>
+<td>−2.2%</td>
+<td>−12.6%</td>
+<td>**−70.0%**</td>
+</tr>
+</table>
 
-![세 계층의 가격 곡선 — 가로축 동시 요청 수, 세로축 계층 비용 %. KServe는 0% 선 근처에 붙어 있고, Triton은 −3~−13% 사이에서 평평하며, Ray Serve만 동시성이 오를수록 아래로 벌어져 −70%에 닿는다](./figures/fig-c3-layer-cost.svg)
+![세 계층의 가격 곡선 — 가로축 동시 요청 수, 세로축 계층 비용 %. KServe는 0% 선 근처에 붙어 있고, Triton은 −3~−13% 사이에서 평평하며, Ray Serve만 동시성이 오를수록 아래로 벌어져 −70%에 닿는다](file-upload://3c44c242-0ac4-813b-8ad0-00b20e374dd5)
 
 - **KServe** — 0 근처에서 부호가 왔다 갔다 합니다. 요청 경로에 없으니 당연합니다.
 - **Triton** — 부하와 무관하게 평평합니다. 요청당 고정비를 내는 프록시의 모양입니다.
@@ -320,14 +623,50 @@ KServe가 "더 좋다"는 말이 아닙니다. 하는 일이 다를 뿐입니다
 
 vLLM은 `/metrics`에 자기 상태를 내놓습니다. KV cache 사용률, 대기 중인 요청 수, 선점(preemption) 횟수, TTFT 히스토그램처럼 서빙을 진단할 때 실제로 보게 되는 값들입니다.
 
-| 구성 | 메트릭 엔드포인트 | `vllm:*` 이름 수 | 대신 주는 것 |
-|---|---|---|---|
-| 계층 없음 (0.20.0) | `:8080/metrics` → 200 | **66개** | — |
-| 계층 없음 (0.5.5) | `:8000/metrics` → 200 | 21개 | — |
-| 계층 없음 (0.7.2) | 200 | 15개 | — |
-| **KServe** + vLLM | `:8080/metrics` → 200 | **66개 (그대로)** | — |
-| Triton + vLLM | `:9000/metrics` → 200 | **0개** | `nv_*` 22개 |
-| Ray Serve + vLLM | `:8000/metrics` → **404** | **0개** | `ray_*` 184개 (`:8080`) |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>구성</td>
+<td>메트릭 엔드포인트</td>
+<td>`vllm:*` 이름 수</td>
+<td>대신 주는 것</td>
+</tr>
+<tr>
+<td>계층 없음 (0.20.0)</td>
+<td>`:8080/metrics` → 200</td>
+<td>**66개**</td>
+<td>—</td>
+</tr>
+<tr>
+<td>계층 없음 (0.5.5)</td>
+<td>`:8000/metrics` → 200</td>
+<td>21개</td>
+<td>—</td>
+</tr>
+<tr>
+<td>계층 없음 (0.7.2)</td>
+<td>200</td>
+<td>15개</td>
+<td>—</td>
+</tr>
+<tr>
+<td>**KServe** + vLLM</td>
+<td>`:8080/metrics` → 200</td>
+<td>**66개 (그대로)**</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Triton + vLLM</td>
+<td>`:9000/metrics` → 200</td>
+<td>**0개**</td>
+<td>`nv_*` 22개</td>
+</tr>
+<tr>
+<td>Ray Serve + vLLM</td>
+<td>`:8000/metrics` → **404**</td>
+<td>**0개**</td>
+<td>`ray_*` 184개 (`:8080`)</td>
+</tr>
+</table>
 
 갈리는 기준이 처리량 때와 똑같습니다. KServe는 요청 경로에 없으니 엔진의 `/metrics`도 66개 전부 그대로 남습니다. 반면 데이터 플레인인 두 계층은 `vllm:*`을 통째로 가립니다. 엔진이 계층 안쪽에서 라이브러리로 돌아 자기 HTTP 서버를 띄우지 않기 때문입니다.
 
@@ -335,27 +674,44 @@ vLLM은 `/metrics`에 자기 상태를 내놓습니다. KV cache 사용률, 대�
 
 **KServe** — 이름이 전부 `vllm:`으로 시작합니다.
 
-![KServe 예측기 :30080/metrics 중간 부분 — vllm:num_requests_running, vllm:num_requests_waiting, vllm:num_requests_waiting_by_reason, vllm:kv_cache_usage_perc, vllm:prefix_cache_queries_total 209650, vllm:prefix_cache_hits_total 38452, vllm:num_preemptions_total 등 vllm: 으로 시작하는 이름이 이어진다](./screenshots/proof-w3-14-kserve-metrics.jpg)
+![KServe 예측기 :30080/metrics 중간 부분 — vllm:num_requests_running, vllm:num_requests_waiting, vllm:num_requests_waiting_by_reason, vllm:kv_cache_usage_perc, vllm:prefix_cache_queries_total 209650, vllm:prefix_cache_hits_total 38452, vllm:num_preemptions_total 등 vllm: 으로 시작하는 이름이 이어진다](file-upload://3c44c242-0ac4-818b-8cbe-00b2e6014190)
 
 `vllm:prefix_cache_queries_total 209650` / `vllm:prefix_cache_hits_total 38452`에 방금 건 부하가 그대로 들어왔습니다(2,400요청, 3,248.3 tok/s, goodput 100%).
 
 **Triton** — 같은 자리에 `nv_`로 시작하는 이름만 있고 `vllm:`은 한 줄도 없습니다.
 
-![Triton :9000/metrics 전문 — nv_inference_request_success 2401, nv_inference_queue_duration_us 1179290, nv_gpu_utilization·nv_gpu_memory_used_bytes 등 nv_로 시작하는 이름만 나열되고 vllm: 로 시작하는 이름은 하나도 없다](./screenshots/proof-w3-11-triton-metrics.jpg)
+![Triton :9000/metrics 전문 — nv_inference_request_success 2401, nv_inference_queue_duration_us 1179290, nv_gpu_utilization·nv_gpu_memory_used_bytes 등 nv_로 시작하는 이름만 나열되고 vllm: 로 시작하는 이름은 하나도 없다](file-upload://3c44c242-0ac4-81ec-81df-00b2ed35a65d)
 
 값은 살아 있습니다. 동시성 64로 2,400요청을 건 직후에 찍었습니다(2,243.6 tok/s, goodput 100%). 부하 전 0이던 카운터가 이렇게 올라갔습니다.
 
-| 지표 | 부하 전 | 부하 후 |
-|---|---|---|
-| `nv_inference_request_success` | 0 | 2,401 |
-| `nv_inference_count` | 0 | 2,401 |
-| `nv_inference_queue_duration_us` | 0 | 1,179,290 |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>지표</td>
+<td>부하 전</td>
+<td>부하 후</td>
+</tr>
+<tr>
+<td>`nv_inference_request_success`</td>
+<td>0</td>
+<td>2,401</td>
+</tr>
+<tr>
+<td>`nv_inference_count`</td>
+<td>0</td>
+<td>2,401</td>
+</tr>
+<tr>
+<td>`nv_inference_queue_duration_us`</td>
+<td>0</td>
+<td>1,179,290</td>
+</tr>
+</table>
 
 누적 큐 대기 1,179,290µs를 2,401건으로 나누면 건당 약 491µs입니다.
 
 **Ray Serve** — 엔드포인트 자체가 없습니다.
 
-![같은 호스트의 :8000/metrics 응답 — {"detail":"Not Found"}](./screenshots/proof-w3-05-metrics-404.jpg)
+![같은 호스트의 :8000/metrics 응답 — {"detail":"Not Found"}](file-upload://3c44c242-0ac4-818d-a339-00b24b5094ad)
 
 `/v1/models`가 정상 응답한 것과 **같은 포트**입니다.
 
@@ -370,15 +726,15 @@ vLLM은 `/metrics`에 자기 상태를 내놓습니다. KV cache 사용률, 대�
 
 Ray Serve는 로그도 한 겹 안쪽입니다. vLLM 엔진은 `ServeReplica`가 아니라 `_EngineBackgroundProcess`라는 별개 액터에서 돌고 기동 로그도 그쪽 파일로 갑니다. `Maximum concurrency` 한 줄을 보려고 파드에 들어가 `/tmp/ray/session_latest/logs/`를 뒤져야 했습니다.
 
-![Ray Dashboard Serve 탭의 Deployments 로그 뷰 — LLMDeployment replica의 STDOUT에 4줄만 있고 vLLM 엔진 기동 로그가 없다](./screenshots/proof-w3-06-replica-stdout-empty.jpg)
+![Ray Dashboard Serve 탭의 Deployments 로그 뷰 — LLMDeployment replica의 STDOUT에 4줄만 있고 vLLM 엔진 기동 로그가 없다](file-upload://3c44c242-0ac4-813c-b913-00b28f23ede8)
 
-![Ray Dashboard Actors 탭 — 액터 9개 ALIVE. _EngineBackgroundProcess(PID 377)와 ServeReplica:llm:LLMDeployment:qwen2_5-1_5b(PID 187)가 서로 다른 액터로 잡혀 있다](./screenshots/proof-w3-07-ray-actors.jpg)
+![Ray Dashboard Actors 탭 — 액터 9개 ALIVE. _EngineBackgroundProcess(PID 377)와 ServeReplica:llm:LLMDeployment:qwen2_5-1_5b(PID 187)가 서로 다른 액터로 잡혀 있다](file-upload://3c44c242-0ac4-815b-b2e5-00b2b979f496)
 
 replica의 STDOUT에는 네 줄뿐입니다. `_EngineBackgroundProcess`는 `ServeReplica`와 **별개 액터**(PID 377 vs 187)입니다. 그래서 기동 로그가 replica 쪽에 없습니다.
 
 마지막으로 관측 경로 자체도 계층이 정합니다.
 
-![Prometheus DCGM_FI_DEV_GPU_UTIL 그래프 15분 구간 — 왼쪽 청록 계열이 45%에서 65%로 올랐다 내려오고, 오른쪽 초록 계열이 35%에서 99%로 올랐다 내려온다. 초록 시계열의 라벨에 exported_container=kserve-container, exported_namespace=llm-serving-lab, exported_pod=qwen-predictor-5c4f546d7-5g74b가 붙어 있다](./screenshots/proof-w3-15-gpu-util-triton-kserve.jpg)
+![Prometheus DCGM_FI_DEV_GPU_UTIL 그래프 15분 구간 — 왼쪽 청록 계열이 45%에서 65%로 올랐다 내려오고, 오른쪽 초록 계열이 35%에서 99%로 올랐다 내려온다. 초록 시계열의 라벨에 exported_container=kserve-container, exported_namespace=llm-serving-lab, exported_pod=qwen-predictor-5c4f546d7-5g74b가 붙어 있다](file-upload://3c44c242-0ac4-817c-ad39-00b257fc44f0)
 
 한 그래프에 두 부하가 나란히 있습니다. 왼쪽 봉우리가 Triton, 오른쪽이 KServe입니다. 오른쪽 시계열에만 `exported_pod="qwen-predictor-..."`가 붙습니다. KServe 예측기는 쿠버네티스 파드라 DCGM 지표에 출처가 박히지만 도커로 띄운 Triton은 그 라벨이 없습니다.
 
@@ -392,12 +748,28 @@ replica의 STDOUT에는 네 줄뿐입니다. `_EngineBackgroundProcess`는 `Serv
 
 레버의 크기가 다릅니다. 같은 부하(c=64)에서 이 실험이 만난 값들입니다.
 
-| 무엇을 바꿨나 | 처리량 변화 |
-|---|---|
-| Ray Serve 위에서 **설정** 4종을 흔듦 | 822 → 964 (**+17%**) |
-| **구조**를 Ray Serve → Triton | 852 → 2,019 (**+137%**) |
-| **구조**를 Ray Serve → KServe | 852 → 2,654 (**+211%**) |
-| **구조**를 Ray Serve → 계층 없음 | 852 → 2,837 (**+233%**) |
+<table fit-page-width="true" header-row="true">
+<tr>
+<td>무엇을 바꿨나</td>
+<td>처리량 변화</td>
+</tr>
+<tr>
+<td>Ray Serve 위에서 **설정** 4종을 흔듦</td>
+<td>822 → 964 (**+17%**)</td>
+</tr>
+<tr>
+<td>**구조**를 Ray Serve → Triton</td>
+<td>852 → 2,019 (**+137%**)</td>
+</tr>
+<tr>
+<td>**구조**를 Ray Serve → KServe</td>
+<td>852 → 2,654 (**+211%**)</td>
+</tr>
+<tr>
+<td>**구조**를 Ray Serve → 계층 없음</td>
+<td>852 → 2,837 (**+233%**)</td>
+</tr>
+</table>
 
 **구조 쪽 레버가 한 자릿수 배 크고 설정 쪽은 그 구조가 정한 천장 안에서만 움직입니다.** 구조를 나중에 고르면 그 앞의 설정 튜닝은 대부분 버려집니다.
 
@@ -435,14 +807,11 @@ replica의 STDOUT에는 네 줄뿐입니다. `_EngineBackgroundProcess`는 `Serv
 7. KV 예산은 정적 공식이 아니라 기동 시 프로파일링 결과입니다. 그래서 같은 설정으로 다시 띄워도 `Maximum concurrency`가 달라질 수 있고, 지난 편에서는 같은 구성이 두 배 차이로 갈린 적도 있습니다. 원인은 아직 못 밝혔습니다. 이번 측정에서는 짝마다 기동 로그의 KV 값이 일치하는 것을 확인하고 진행했습니다.
 8. WSL2에서 `pin_memory=False`로 동작합니다. 전 구성 같은 조건이라 비교에는 중립이지만 절대값은 낮게 나옵니다.
 
-9. chunked prefill은 하지 못했습니다. 다만 ray-llm 2.44.1의 vLLM 0.7.2는 V0 엔진이고 `chunked_prefill_enabled=False`가 기본이라 ON/OFF 비교가 가능한 환경임은 확인했습니다.
-10. KServe는 RawDeployment 모드입니다. Istio·Knative를 깔지 않았으므로 Serverless 모드의 scale-to-zero·트래픽 분할은 보지 못했습니다. 그 기능들은 요청 경로에 뭔가를 세워야 하는 일이라 켜면 계층 비용도 같이 생길 가능성이 높습니다. −2.2%는 RawDeployment의 값입니다.
-
-마지막으로 쓰지 않기로 한 지표가 하나 있습니다.
-
-![Grafana DCGM 대시보드 상단 — GPU Temperature가 유휴 46°C 대에서 측정 구간에만 60°C·69°C로 치솟는다. GPU Avg. Temp 게이지는 46.1°C](./screenshots/proof-w3-09-grafana-dcgm-temp.jpg)
+![Grafana DCGM 대시보드 상단 — GPU Temperature가 유휴 46°C 대에서 측정 구간에만 60°C·69°C로 치솟는다. GPU Avg. Temp 게이지는 46.1°C](file-upload://3c44c242-0ac4-81f5-a5c1-00b27733ca9b)
 
 > ⚠️ 온도는 유휴 46°C에서 측정 구간에만 60·69°C로 오릅니다. 다만 같은 화면의 `GPU Power Usage`가 **최대 593 W**로 읽힙니다. 이 GPU는 70 W 제품이라 그대로 믿을 수 없는 값이고, 원인을 확인하지 않았으므로 **이 글에서 전력 수치는 쓰지 않았습니다.**
+9. chunked prefill은 하지 못했습니다. 다만 ray-llm 2.44.1의 vLLM 0.7.2는 V0 엔진이고 `chunked_prefill_enabled=False`가 기본이라 ON/OFF 비교가 가능한 환경임은 확인했습니다.
+10. KServe는 RawDeployment 모드입니다. Istio·Knative를 깔지 않았으므로 Serverless 모드의 scale-to-zero·트래픽 분할은 보지 못했습니다. 그 기능들은 요청 경로에 뭔가를 세워야 하는 일이라 켜면 계층 비용도 같이 생길 가능성이 높습니다. −2.2%는 RawDeployment의 값입니다.
 
 ---
 
@@ -466,139 +835,160 @@ Ray Serve 위에서 설정을 네 가지로 흔들어 얻은 최고값이 964 to
 
 ---
 
-## 부록
+## 부록 {toggle="true"}
 
-### 부록 A. Triton의 dynamic batching은 왜 LLM에 안 맞나
+	### 부록 A. Triton의 dynamic batching은 왜 LLM에 안 맞나
 
-4장에서 Triton을 vLLM 백엔드로 썼습니다. 그런데 Triton에는 자체 배칭 기능인 dynamic batching이 따로 있습니다. 왜 그걸 쓰지 않았는지를 확인하려고 별도로 재 봤습니다.
+	4장에서 Triton을 vLLM 백엔드로 썼습니다. 그런데 Triton에는 자체 배칭 기능인 dynamic batching이 따로 있습니다. 왜 그걸 쓰지 않았는지를 확인하려고 별도로 재 봤습니다.
 
-dynamic batching은 요청이 오면 바로 처리하지 않고 `max_queue_delay_microseconds` 동안 기다려 여러 개를 묶습니다. 모델은 `mobilenet_v2`(ONNX)를 썼습니다. LLM이 아닌 이유는 바로 아래에 나옵니다.
+	dynamic batching은 요청이 오면 바로 처리하지 않고 `max_queue_delay_microseconds` 동안 기다려 여러 개를 묶습니다. 모델은 `mobilenet_v2`(ONNX)를 썼습니다. LLM이 아닌 이유는 바로 아래에 나옵니다.
 
-| 지연 설정 | c=1 | c=8 | c=32 |
-|---|---|---|---|
-| 없음 (대조군) | 258.9 inf/s | 1,290.6 | 1,368.9 |
-| 1ms | 246.9 | 1,281.1 | 1,371.4 |
-| 20ms | **37.5** | 396.1 | **1,371.2** |
+	<table fit-page-width="true" header-row="true">
+	<tr>
+	<td>지연 설정</td>
+	<td>c=1</td>
+	<td>c=8</td>
+	<td>c=32</td>
+	</tr>
+	<tr>
+	<td>없음 (대조군)</td>
+	<td>258.9 inf/s</td>
+	<td>1,290.6</td>
+	<td>1,368.9</td>
+	</tr>
+	<tr>
+	<td>1ms</td>
+	<td>246.9</td>
+	<td>1,281.1</td>
+	<td>1,371.4</td>
+	</tr>
+	<tr>
+	<td>20ms</td>
+	<td>**37.5**</td>
+	<td>396.1</td>
+	<td>**1,371.2**</td>
+	</tr>
+	</table>
 
-대조군의 평균 배치 크기는 정확히 1.00이었습니다. 기능이 꺼져 있음을 확인한 값입니다.
+	대조군의 평균 배치 크기는 정확히 1.00이었습니다. 기능이 꺼져 있음을 확인한 값입니다.
 
-읽는 법은 이렇습니다. 동시성이 낮으면 기다린 시간이 그대로 손해입니다(20ms에서 37.5 inf/s, 대조군의 7분의 1). 도착률이 충분히 높으면 기다릴 필요가 없어 차이가 사라집니다(c=32에서 셋 다 1,370 근처). dynamic batching의 효과를 정하는 것은 설정값이 아니라 도착률입니다.
+	읽는 법은 이렇습니다. 동시성이 낮으면 기다린 시간이 그대로 손해입니다(20ms에서 37.5 inf/s, 대조군의 7분의 1). 도착률이 충분히 높으면 기다릴 필요가 없어 차이가 사라집니다(c=32에서 셋 다 1,370 근처). dynamic batching의 효과를 정하는 것은 설정값이 아니라 도착률입니다.
 
-LLM에서 이게 안 맞는 이유는 전제에 있습니다. dynamic batching은 "묶은 요청들이 같은 시간에 끝난다"를 전제로 합니다. mobilenet은 입력 크기가 같으면 처리 시간도 같으니 성립합니다. 그런데 LLM은 요청마다 출력 길이가 다릅니다. 10토큰짜리와 500토큰짜리를 한 배치로 묶으면 먼저 끝난 요청이 나머지를 기다립니다.
+	LLM에서 이게 안 맞는 이유는 전제에 있습니다. dynamic batching은 "묶은 요청들이 같은 시간에 끝난다"를 전제로 합니다. mobilenet은 입력 크기가 같으면 처리 시간도 같으니 성립합니다. 그런데 LLM은 요청마다 출력 길이가 다릅니다. 10토큰짜리와 500토큰짜리를 한 배치로 묶으면 먼저 끝난 요청이 나머지를 기다립니다.
 
-그래서 vLLM은 이 방식 대신 continuous batching을 씁니다. 배치를 미리 묶지 않고 토큰 생성 단계마다 끝난 요청을 빼고 대기 중인 요청을 채웁니다. 4장에서 Triton의 dynamic batching을 끄고 배칭을 vLLM 백엔드에 맡긴 이유가 이것입니다.
+	그래서 vLLM은 이 방식 대신 continuous batching을 씁니다. 배치를 미리 묶지 않고 토큰 생성 단계마다 끝난 요청을 빼고 대기 중인 요청을 채웁니다. 4장에서 Triton의 dynamic batching을 끄고 배칭을 vLLM 백엔드에 맡긴 이유가 이것입니다.
 
-### 부록 B. KV cache 공식이 6배 어긋난 자리
+	### 부록 B. KV cache 공식이 6배 어긋난 자리
 
-2장에서 KV cache 예산을 다뤘으니 손으로 검산해 봤습니다. 교재 공식은 이렇습니다.
+	2장에서 KV cache 예산을 다뤘으니 손으로 검산해 봤습니다. 교재 공식은 이렇습니다.
 
-```
-토큰당 KV = 2(K와 V) × 레이어 수 × 헤드 수 × 헤드 차원 × 데이터 타입 바이트
-```
+	```
+	토큰당 KV = 2(K와 V) × 레이어 수 × 헤드 수 × 헤드 차원 × 데이터 타입 바이트
+	```
 
-Qwen2.5-1.5B에 넣으면 `2 × 28 × 12 × 128 × 2 = 172,032바이트 = 168.0 KiB/토큰`입니다. 그런데 기동 로그에서 역산한 값은 28.0 KiB/토큰으로 6배 차이입니다.
+	Qwen2.5-1.5B에 넣으면 `2 × 28 × 12 × 128 × 2 = 172,032바이트 = 168.0 KiB/토큰`입니다. 그런데 기동 로그에서 역산한 값은 28.0 KiB/토큰으로 6배 차이입니다.
 
-원인은 GQA(Grouped Query Attention)입니다. 위 공식은 어텐션 헤드 수와 KV 헤드 수가 같은 MHA 전제입니다. Qwen2.5-1.5B는 어텐션 헤드가 12개지만 KV 헤드는 2개입니다. KV cache는 K와 V만 저장하므로 헤드 수 자리에 들어가야 할 것은 12가 아니라 2입니다.
+	원인은 GQA(Grouped Query Attention)입니다. 위 공식은 어텐션 헤드 수와 KV 헤드 수가 같은 MHA 전제입니다. Qwen2.5-1.5B는 어텐션 헤드가 12개지만 KV 헤드는 2개입니다. KV cache는 K와 V만 저장하므로 헤드 수 자리에 들어가야 할 것은 12가 아니라 2입니다.
 
-```
-2 × 28 × 2 × 128 × 2 = 28,672바이트 = 28.0 KiB/토큰
-```
+	```
+	2 × 28 × 2 × 128 × 2 = 28,672바이트 = 28.0 KiB/토큰
+	```
 
-이 값으로 계산한 결과는 서로 다른 네 번의 기동 로그와 소수점 둘째 자리까지 일치했습니다.
+	이 값으로 계산한 결과는 서로 다른 네 번의 기동 로그와 소수점 둘째 자리까지 일치했습니다.
 
-액면대로 썼다면 용량 산정을 6배 틀렸을 자리입니다. 요즘 모델은 대부분 GQA를 쓰므로 `config.json`의 `num_key_value_heads`를 확인하는 습관이 필요합니다.
+	액면대로 썼다면 용량 산정을 6배 틀렸을 자리입니다. 요즘 모델은 대부분 GQA를 쓰므로 `config.json`의 `num_key_value_heads`를 확인하는 습관이 필요합니다.
 
-### 부록 C. KServe를 띄우기까지 막힌 다섯 곳
+	### 부록 C. KServe를 띄우기까지 막힌 다섯 곳
 
-계층의 가격에는 진입 비용도 들어갑니다. KServe 0.20.0을 k3s에 올려 첫 응답을 받기까지 막혔던 곳을 그대로 적어 둡니다. 전부 매니페스트 몇 줄로 풀렸지만 모르면 각각 한참 걸립니다.
+	계층의 가격에는 진입 비용도 들어갑니다. KServe 0.20.0을 k3s에 올려 첫 응답을 받기까지 막혔던 곳을 그대로 적어 둡니다. 전부 매니페스트 몇 줄로 풀렸지만 모르면 각각 한참 걸립니다.
 
-1. `kserve.yaml`이 네임스페이스를 만들지 않습니다. `kubectl create namespace kserve`를 먼저 하지 않으면 전부 `NotFound`로 튕깁니다.
-2. 기본 모드가 Serverless입니다. Istio·Knative가 없으면 `InferenceService`가 계속 `Ready=False`입니다. `inferenceservice-config`의 `deploy`를 `RawDeployment`로 바꾸고 컨트롤러를 재시작해야 합니다.
-3. 번들 런타임과 이미지가 어긋나 있습니다. `kserve-vllmserver`는 `python`을 실행하는데 정작 그 런타임이 지정한 `vllm/vllm-openai:v0.20.0`에는 `python3`만 있습니다 → `exec: "python": executable file not found in $PATH`. `command`를 덮어써야 합니다. 같은 맥락으로 vLLM 0.20.0에는 `--disable-log-requests`가 없습니다(→ `--no-enable-log-requests`).
-4. HF 캐시를 `storageUri`로 바로 가리키면 안 됩니다. `snapshots/<hash>/` 안의 파일들은 `../../blobs/<sha>`를 가리키는 심볼릭 링크입니다. 그 폴더만 subPath로 잘라 마운트하면 링크가 끊겨 `Invalid repository ID or local directory specified: '/mnt/models'`가 납니다. 캐시 루트째 마운트하고 `--model`로 스냅샷 경로를 주면 됩니다.
-5. WSL2 k3s에서는 `runtimeClassName: nvidia`가 필수입니다. 빠지면 컨테이너에서 CUDA가 보이지 않아 `Failed to infer device type`으로 죽습니다.
+	1. `kserve.yaml`이 네임스페이스를 만들지 않습니다. `kubectl create namespace kserve`를 먼저 하지 않으면 전부 `NotFound`로 튕깁니다.
+	2. 기본 모드가 Serverless입니다. Istio·Knative가 없으면 `InferenceService`가 계속 `Ready=False`입니다. `inferenceservice-config`의 `deploy`를 `RawDeployment`로 바꾸고 컨트롤러를 재시작해야 합니다.
+	3. 번들 런타임과 이미지가 어긋나 있습니다. `kserve-vllmserver`는 `python`을 실행하는데 정작 그 런타임이 지정한 `vllm/vllm-openai:v0.20.0`에는 `python3`만 있습니다 → `exec: "python": executable file not found in $PATH`. `command`를 덮어써야 합니다. 같은 맥락으로 vLLM 0.20.0에는 `--disable-log-requests`가 없습니다(→ `--no-enable-log-requests`).
+	4. HF 캐시를 `storageUri`로 바로 가리키면 안 됩니다. `snapshots/<hash>/` 안의 파일들은 `../../blobs/<sha>`를 가리키는 심볼릭 링크입니다. 그 폴더만 subPath로 잘라 마운트하면 링크가 끊겨 `Invalid repository ID or local directory specified: '/mnt/models'`가 납니다. 캐시 루트째 마운트하고 `--model`로 스냅샷 경로를 주면 됩니다.
+	5. WSL2 k3s에서는 `runtimeClassName: nvidia`가 필수입니다. 빠지면 컨테이너에서 CUDA가 보이지 않아 `Failed to infer device type`으로 죽습니다.
 
-그리고 GPU가 한 장이면 롤링 업데이트가 스스로 풀리지 않습니다. 새 파드가 GPU를 기다리는데 그 GPU를 옛 파드가 쥐고 있어 교착합니다. 옛 ReplicaSet을 0으로 내려야 진행됩니다.
+	그리고 GPU가 한 장이면 롤링 업데이트가 스스로 풀리지 않습니다. 새 파드가 GPU를 기다리는데 그 GPU를 옛 파드가 쥐고 있어 교착합니다. 옛 ReplicaSet을 0으로 내려야 진행됩니다.
 
-### 부록 D. 재현 절차
+	### 부록 D. 재현 절차
 
-<details>
-<summary>펼치기</summary>
+	<details>
+	<summary>펼치기</summary>
 
-측정 순서는 GPU가 한 장이라 직렬입니다. 각 단계 사이에 앞 구성을 완전히 내리고 `nvidia-smi`로 VRAM 반환을 확인합니다.
+		측정 순서는 GPU가 한 장이라 직렬입니다. 각 단계 사이에 앞 구성을 완전히 내리고 `nvidia-smi`로 VRAM 반환을 확인합니다.
 
-```bash
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-```
+		```bash
+		export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+		```
 
-**1. Ray Serve — 계층 비용 짝 ①**
+		**1. Ray Serve — 계층 비용 짝 ①**
 
-```bash
-kubectl apply -f labs/rayserve-on-k8s/rayservice-qwen.yaml
-# 짝: 같은 이미지에서 Ray만 뺀 구성
-kubectl apply -f labs/rayserve-on-k8s/vllm-v072-direct.yaml
-```
+		```bash
+		kubectl apply -f labs/rayserve-on-k8s/rayservice-qwen.yaml
+		# 짝: 같은 이미지에서 Ray만 뺀 구성
+		kubectl apply -f labs/rayserve-on-k8s/vllm-v072-direct.yaml
+		```
 
-**2. Triton + vLLM 백엔드 — 계층 비용 짝 ②**
+		**2. Triton + vLLM 백엔드 — 계층 비용 짝 ②**
 
-```bash
-docker run -d --name triton-vllm --gpus all --shm-size=8g -p 9000:9000 \
-  -v /opt/llmso/triton-models:/models \
-  -v "$HF_CACHE":/root/.cache/huggingface \
-  nvcr.io/nvidia/tritonserver:24.12-vllm-python-py3 \
-  python3 /opt/tritonserver/python/openai/openai_frontend/main.py \
-    --model-repository /models --tokenizer Qwen/Qwen2.5-1.5B-Instruct \
-    --openai-port 9000
+		```bash
+		docker run -d --name triton-vllm --gpus all --shm-size=8g -p 9000:9000 \
+		  -v /opt/llmso/triton-models:/models \
+		  -v "$HF_CACHE":/root/.cache/huggingface \
+		  nvcr.io/nvidia/tritonserver:24.12-vllm-python-py3 \
+		  python3 /opt/tritonserver/python/openai/openai_frontend/main.py \
+		    --model-repository /models --tokenizer Qwen/Qwen2.5-1.5B-Instruct \
+		    --openai-port 9000
 
-# 짝: 같은 이미지에서 Triton만 뺀 구성
-docker run -d --name direct-v055 --gpus all --shm-size=8g -p 9101:8000 \
-  -v "$HF_CACHE":/root/.cache/huggingface \
-  --entrypoint python3 nvcr.io/nvidia/tritonserver:24.12-vllm-python-py3 \
-  -m vllm.entrypoints.openai.api_server \
-    --model Qwen/Qwen2.5-1.5B-Instruct --served-model-name qwen \
-    --max-model-len 4096 --gpu-memory-utilization 0.85 --max-num-seqs 64
-```
+		# 짝: 같은 이미지에서 Triton만 뺀 구성
+		docker run -d --name direct-v055 --gpus all --shm-size=8g -p 9101:8000 \
+		  -v "$HF_CACHE":/root/.cache/huggingface \
+		  --entrypoint python3 nvcr.io/nvidia/tritonserver:24.12-vllm-python-py3 \
+		  -m vllm.entrypoints.openai.api_server \
+		    --model Qwen/Qwen2.5-1.5B-Instruct --served-model-name qwen \
+		    --max-model-len 4096 --gpu-memory-utilization 0.85 --max-num-seqs 64
+		```
 
-Triton 24.12 프론트엔드는 `stream_options`를 거부하므로 벤치마크에 `--no-stream-options`를 줍니다.
+		Triton 24.12 프론트엔드는 `stream_options`를 거부하므로 벤치마크에 `--no-stream-options`를 줍니다.
 
-**3. KServe — 계층 비용 짝 ③**
+		**3. KServe — 계층 비용 짝 ③**
 
-```bash
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.2/cert-manager.yaml
-kubectl -n cert-manager wait --for=condition=Available deployment --all --timeout=300s
+		```bash
+		kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.2/cert-manager.yaml
+		kubectl -n cert-manager wait --for=condition=Available deployment --all --timeout=300s
 
-kubectl create namespace kserve
-kubectl apply --server-side -f https://github.com/kserve/kserve/releases/download/v0.20.0/kserve.yaml
-kubectl -n kserve rollout restart deployment/kserve-controller-manager
-kubectl apply --server-side -f https://github.com/kserve/kserve/releases/download/v0.20.0/kserve-cluster-resources.yaml
+		kubectl create namespace kserve
+		kubectl apply --server-side -f https://github.com/kserve/kserve/releases/download/v0.20.0/kserve.yaml
+		kubectl -n kserve rollout restart deployment/kserve-controller-manager
+		kubectl apply --server-side -f https://github.com/kserve/kserve/releases/download/v0.20.0/kserve-cluster-resources.yaml
 
-kubectl apply -f labs/kserve-on-k8s/isvc-qwen.yaml
-# 짝: 같은 이미지에서 KServe만 뺀 구성
-kubectl apply -f labs/kserve-on-k8s/vllm-v0200-direct.yaml
-```
+		kubectl apply -f labs/kserve-on-k8s/isvc-qwen.yaml
+		# 짝: 같은 이미지에서 KServe만 뺀 구성
+		kubectl apply -f labs/kserve-on-k8s/vllm-v0200-direct.yaml
+		```
 
-RawDeployment 전환은 `inferenceservice-config`의 `deploy` 키를 `{"defaultDeploymentMode":"RawDeployment"}`로 병합 패치합니다(→ 부록 C 2번).
+		RawDeployment 전환은 `inferenceservice-config`의 `deploy` 키를 `{"defaultDeploymentMode":"RawDeployment"}`로 병합 패치합니다(→ 부록 C 2번).
 
-**4. 부하 — 전 구성 같은 명령**
+		**4. 부하 — 전 구성 같은 명령**
 
-```bash
-python3 labs/wsl2-vllm-baseline/benchmark.py \
-  --base-url <각 구성의 주소> \
-  --scenarios short --concurrency 1,2,4,8,16,32,64 \
-  --requests-per-level 100 --warmup 1 --unique-prefix \
-  --ttft-slo 0.5 --e2e-slo 10 \
-  --output labs/wsl2-vllm-baseline/results/<구성>.json
-```
+		```bash
+		python3 labs/wsl2-vllm-baseline/benchmark.py \
+		  --base-url <각 구성의 주소> \
+		  --scenarios short --concurrency 1,2,4,8,16,32,64 \
+		  --requests-per-level 100 --warmup 1 --unique-prefix \
+		  --ttft-slo 0.5 --e2e-slo 10 \
+		  --output labs/wsl2-vllm-baseline/results/<구성>.json
+		```
 
-**5. 표 만들기**
+		**5. 표 만들기**
 
-```bash
-python3 labs/wsl2-vllm-baseline/summarize_results.py \
-  results/b-direct-v0200-seqs64.json results/c3-kserve-vllm-seqs64.json \
-  --label-regex '(b-direct-v0200|c3-kserve)' --delta --metric output_tok_per_s
-```
+		```bash
+		python3 labs/wsl2-vllm-baseline/summarize_results.py \
+		  results/b-direct-v0200-seqs64.json results/c3-kserve-vllm-seqs64.json \
+		  --label-regex '(b-direct-v0200|c3-kserve)' --delta --metric output_tok_per_s
+		```
 
-</details>
+	</details>
 
 ---
 

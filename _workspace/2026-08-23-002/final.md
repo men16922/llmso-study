@@ -435,14 +435,11 @@ replica의 STDOUT에는 네 줄뿐입니다. `_EngineBackgroundProcess`는 `Serv
 7. KV 예산은 정적 공식이 아니라 기동 시 프로파일링 결과입니다. 그래서 같은 설정으로 다시 띄워도 `Maximum concurrency`가 달라질 수 있고, 지난 편에서는 같은 구성이 두 배 차이로 갈린 적도 있습니다. 원인은 아직 못 밝혔습니다. 이번 측정에서는 짝마다 기동 로그의 KV 값이 일치하는 것을 확인하고 진행했습니다.
 8. WSL2에서 `pin_memory=False`로 동작합니다. 전 구성 같은 조건이라 비교에는 중립이지만 절대값은 낮게 나옵니다.
 
-9. chunked prefill은 하지 못했습니다. 다만 ray-llm 2.44.1의 vLLM 0.7.2는 V0 엔진이고 `chunked_prefill_enabled=False`가 기본이라 ON/OFF 비교가 가능한 환경임은 확인했습니다.
-10. KServe는 RawDeployment 모드입니다. Istio·Knative를 깔지 않았으므로 Serverless 모드의 scale-to-zero·트래픽 분할은 보지 못했습니다. 그 기능들은 요청 경로에 뭔가를 세워야 하는 일이라 켜면 계층 비용도 같이 생길 가능성이 높습니다. −2.2%는 RawDeployment의 값입니다.
-
-마지막으로 쓰지 않기로 한 지표가 하나 있습니다.
-
 ![Grafana DCGM 대시보드 상단 — GPU Temperature가 유휴 46°C 대에서 측정 구간에만 60°C·69°C로 치솟는다. GPU Avg. Temp 게이지는 46.1°C](./screenshots/proof-w3-09-grafana-dcgm-temp.jpg)
 
 > ⚠️ 온도는 유휴 46°C에서 측정 구간에만 60·69°C로 오릅니다. 다만 같은 화면의 `GPU Power Usage`가 **최대 593 W**로 읽힙니다. 이 GPU는 70 W 제품이라 그대로 믿을 수 없는 값이고, 원인을 확인하지 않았으므로 **이 글에서 전력 수치는 쓰지 않았습니다.**
+9. chunked prefill은 하지 못했습니다. 다만 ray-llm 2.44.1의 vLLM 0.7.2는 V0 엔진이고 `chunked_prefill_enabled=False`가 기본이라 ON/OFF 비교가 가능한 환경임은 확인했습니다.
+10. KServe는 RawDeployment 모드입니다. Istio·Knative를 깔지 않았으므로 Serverless 모드의 scale-to-zero·트래픽 분할은 보지 못했습니다. 그 기능들은 요청 경로에 뭔가를 세워야 하는 일이라 켜면 계층 비용도 같이 생길 가능성이 높습니다. −2.2%는 RawDeployment의 값입니다.
 
 ---
 
@@ -610,3 +607,59 @@ python3 labs/wsl2-vllm-baseline/summarize_results.py \
 - [Triton — OpenAI-Compatible Frontend](https://github.com/triton-inference-server/server/tree/main/python/openai)
 - [KServe — Raw Kubernetes Deployment](https://kserve.github.io/website/latest/admin/kubernetes_deployment/)
 - 실측 원본: `labs/wsl2-vllm-baseline/results/`, `labs/kserve-on-k8s/`, `labs/triton-vllm-backend/`, `labs/triton-dynamic-batching/results/`
+
+<!-- HUMANIZE-SUMMARY v1.6.1
+run_id: 2026-08-23-002
+scope: 이미지 직후 캡션 문단 한정(본문 재윤문 금지) + 주 표적 5의 I-3 봉인 결말 1건
+metrics:
+  char_in: 27714
+  char_out: 27530
+  change_rate: 2.6%
+  self_check: 6/6
+  grade: A
+categories:  # before → after (사정거리 내)
+  C-11 연결어미 뒤 쉼표(캡션): 6 → 0
+  C-4 캡션 2단 공식: 16 → 10 (노골적 6곳만 진입 역전·해석 삭제)
+  E-2 '-어 있습니다' 종결 반복(캡션): 7 → 2
+  C-8 캡션 신규 대구: 2 → 1 (뒤쪽 삭제, 앞쪽 보존)
+  I-3 봉인 결말: 4 → 2 (캡션 1 + 본문 '확인입니다' 1 해제)
+  J-1 캡션 문장 전체 볼드: 1 → 0
+  캡션·본문 동어반복: 3 → 0
+self_check:
+  - 고유명사·수치·인용 100% 보존: ✅ (표·코드블록·URL·alt 텍스트·헤딩·목차 무수정)
+  - 변경률 30% 이하: ✅ (2.6%)
+  - 장르 이탈 없음: ✅
+  - register 보존(합쇼체): ✅
+  - S1 잔존 0건: ✅ (캡션 내 C-11 0건)
+  - 인공 표현 추가 없음: ✅ (원문에 없던 주장·수사 무삽입)
+highlights:
+  - id: C-8 + C-11 + E-2
+    before: "GPU가 쉬어서 처리량이 낮았던 게 아닙니다. 부하 구간에서 사용률이 83%까지 올랐고, … 메트릭에 박혀 있습니다."
+    after: "부하 구간에서 사용률이 83%까지 올랐습니다. … 이 일이 어디서 나왔는지까지 메트릭이 남깁니다."
+  - id: I-3
+    before: "replica의 STDOUT에는 네 줄뿐이고, … 잡혀 있습니다. 로그가 한 겹 안쪽이라는 게 이 구조입니다."
+    after: "replica의 STDOUT에는 네 줄뿐입니다. … **별개 액터**(PID 377 vs 187)입니다. 그래서 기동 로그가 replica 쪽에 없습니다."
+  - id: I-3 (본문 1건, 주 표적 5 명시)
+    before: "KV cache 예산이 같다는 뜻이고 저울이 맞았다는 확인입니다."
+    after: "KV cache 예산이 같으니 저울이 맞았습니다."
+  - id: 중복 제거
+    before: "응답을 만든 주체가 `owned_by`에 적혀 있습니다. 같은 OpenAI 규격이라도 이 구성에서는 요청이 Triton을 거쳐 엔진으로 들어갑니다."
+    after: "같은 OpenAI 규격이어도 응답을 만든 주체는 `owned_by`가 밝힙니다."
+  - id: 중복 제거 + 예고 삭제
+    before: "… `owned_by`가 `vllm`입니다. 바로 앞 Triton 화면과 나란히 놓으면 다음 절의 구분이 그대로 보입니다. … 경로이고, …"
+    after: "… `owned_by`가 `vllm`입니다. `root`의 …는 … HF 캐시 경로이고 `max_model_len` 4096은 …"
+  - id: C-4 진입 역전
+    before: "설정이 실제로 걸려 있었는지는 엔드포인트가 답해 줍니다. `max_request_context_length`가 4096으로, 위 표의 기준 행과 같습니다."
+    after: "`max_request_context_length`가 4096입니다. 위 표의 기준 행과 같은 값이니 설정이 실제로 걸려 있었습니다."
+residual_findings:
+  - id: C-8
+    severity: S2
+    reason: 본문 잔존 대구 10건 — 사용자 지시로 사정거리 밖(보존)
+  - id: I-3
+    severity: S2
+    reason: 부록 A "기능이 꺼져 있음을 확인한 값입니다." — 본문 영역이라 보수 강도에서 미편집
+  - id: C-4
+    severity: S2
+    reason: 캡션 10곳은 틀이 온건해 진입 순서 유지(진단 처방대로 5~6곳만 손질)
+grade_reason: "A — 사정거리 내 S1(C-11) 0건, 변경률 2.6%로 과윤문 없음, 자체검증 6항 통과. 헤딩·표·코드·alt·번호 구조 무손상, 합쇼체 유지."
+-->

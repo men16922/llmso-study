@@ -1,0 +1,103 @@
+{
+  "version": "v2.0",
+  "genre": "blog",
+  "char_count": 27714,
+  "metrics": {
+    "comma_inclusion_rate": 0.1362940275650842,
+    "comma_usage_rate": 0.23889739663093415,
+    "ending_comma_rate": 0.16666666666666666,
+    "comma_segment_length": 6.216316440049444,
+    "conclusion_pivot_count": 0,
+    "safe_balance_count": 0,
+    "hanja_nominalizer_density": 0.007534107106495622,
+    "lexical_diversity": 0.48014660965180206
+  },
+  "z_scores": {
+    "comma_inclusion_rate": -0.730449149970713,
+    "comma_usage_rate": -1.2462973473693226,
+    "ending_comma_rate": 1.5977961432506886,
+    "comma_segment_length": 0.8866111354154128,
+    "hanja_nominalizer_density": -1.748863096450146,
+    "lexical_diversity": -3.39706780696396
+  },
+  "risk_band": "low",
+  "risk_score": 3,
+  "evidence": {
+    "conclusion_pivots": [],
+    "safe_balances": []
+  },
+  "warning": "baseline_genre_null:blog->essay",
+  "v2_metrics": {
+    "lexical_diversity_ttr": 0.48014660965180206,
+    "lexical_density": 0.019140704540826715,
+    "ending_diversity": 0.01910828025477707,
+    "normalisation_score": 0.007656967840735069,
+    "da_streak_rate": 29,
+    "inanimate_subject_rate": 0.0,
+    "by_passive_count": 0,
+    "double_passive_count": 0,
+    "pronoun_density": 0.002073860715805555,
+    "deul_overuse_rate": 0.00020362451639177357,
+    "relative_clause_nesting": 2,
+    "have_make_literal_count": 4,
+    "double_particle_count": 0,
+    "progressive_aspect_rate": 0.004594180704441042,
+    "antithesis_count": 10
+  },
+  "v2_interference_index": {
+    "components": {
+      "T1_inanimate_subject_rate": 0.0,
+      "T2a_by_passive_per_1k": 0.0,
+      "T2b_double_passive_per_1k": 0.0,
+      "T3_pronoun_density": 0.002073860715805555,
+      "T4_deul_overuse_rate": 0.00020362451639177357,
+      "T5_nested_clause_count": 2,
+      "T6_have_make_per_1k": 0.14433138485963773,
+      "T7_double_particle_per_1k": 0.0,
+      "T8b_progressive_rate": 0.004594180704441042
+    },
+    "weighted_total": 0.14257039860515788,
+    "n_sentences": 653,
+    "n_chars": 27714
+  },
+  "v2_z_scores": {
+    "lexical_diversity_ttr": -1.498167379352474,
+    "lexical_density": -3.135741193239666,
+    "ending_diversity": -5.257430997876858,
+    "normalisation_score": -2.1796835119959166,
+    "da_streak_rate": 47.833333333333336,
+    "inanimate_subject_rate": -1.3333333333333335,
+    "by_passive_count": -0.4285714285714286,
+    "double_passive_count": -0.4,
+    "pronoun_density": -1.3271782736828703,
+    "deul_overuse_rate": -0.5423393548011752,
+    "relative_clause_nesting": 4.5,
+    "have_make_literal_count": 5.2857142857142865,
+    "double_particle_count": -0.4,
+    "progressive_aspect_rate": -1.1540581929555895,
+    "antithesis_count": null
+  },
+  "v2_baseline_warnings": [
+    "lexical_diversity_ttr",
+    "lexical_density",
+    "ending_diversity",
+    "normalisation_score",
+    "da_streak_rate",
+    "inanimate_subject_rate",
+    "by_passive_count",
+    "double_passive_count",
+    "pronoun_density",
+    "deul_overuse_rate",
+    "relative_clause_nesting",
+    "have_make_literal_count",
+    "double_particle_count",
+    "progressive_aspect_rate"
+  ],
+  "route_hint": "heavy",
+  "route_reason": "27,714자 초장문(>15,000) — 진단 + 청킹 권장",
+  "route_signals": {
+    "lexical_tell_count": 4,
+    "risk_band": "low",
+    "char_count": 27714
+  }
+}
