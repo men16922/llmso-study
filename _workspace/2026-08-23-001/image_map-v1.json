@@ -9,10 +9,5 @@
  "./screenshots/proof-w3-06-replica-stdout-empty.jpg": "file-upload://3c44c242-0ac4-813c-b913-00b28f23ede8",
  "./screenshots/proof-w3-07-ray-actors.jpg": "file-upload://3c44c242-0ac4-815b-b2e5-00b2b979f496",
  "./screenshots/proof-w3-08-grafana-dcgm-util.jpg": "file-upload://3c44c242-0ac4-8175-bc08-00b2031e4d86",
- "./screenshots/proof-w3-09-grafana-dcgm-temp.jpg": "file-upload://3c44c242-0ac4-81f5-a5c1-00b27733ca9b",
- "./screenshots/proof-w3-10-triton-v1-models.jpg": "file-upload://3c44c242-0ac4-81f4-8900-00b23ba395a4",
- "./screenshots/proof-w3-11-triton-metrics.jpg": "file-upload://3c44c242-0ac4-81ec-81df-00b2ed35a65d",
- "./screenshots/proof-w3-13-kserve-v1-models.jpg": "file-upload://3c44c242-0ac4-818c-b03d-00b2e11cf442",
- "./screenshots/proof-w3-14-kserve-metrics.jpg": "file-upload://3c44c242-0ac4-818b-8cbe-00b2e6014190",
- "./screenshots/proof-w3-15-gpu-util-triton-kserve.jpg": "file-upload://3c44c242-0ac4-817c-ad39-00b257fc44f0"
+ "./screenshots/proof-w3-09-grafana-dcgm-temp.jpg": "file-upload://3c44c242-0ac4-81f5-a5c1-00b27733ca9b"
 }
