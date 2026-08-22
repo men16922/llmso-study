@@ -212,6 +212,71 @@ def fig_log(fname, title, subtitle, key, ylab, files, scenario, slo=None):
     write(fname, out)
 
 
+def fig_cost(fname, title, subtitle, pairs, scenario, yticks):
+    """계층 비용(%)을 그린다.
+
+    pairs는 (계열이름, 짝이 되는 '계층 없음' 파일, '계층 위' 파일)이다.
+    각 계열이 자기 짝과만 비교되므로 엔진 버전 차이가 섞이지 않는다 —
+    구성끼리의 절대 처리량을 한 그림에 겹치면 생기는 혼입을 피하기 위한 것.
+    """
+    n_series = len(pairs)
+    xs = None
+    series_pts = []
+    for _, base_f, layer_f in pairs:
+        base = {s["concurrency"]: s for s in load_summaries(base_f, scenario)}
+        lay = {s["concurrency"]: s for s in load_summaries(layer_f, scenario)}
+        levels = sorted(set(base) & set(lay))
+        xs = levels if xs is None else xs
+        series_pts.append([
+            (lay[c]["output_tok_per_s"] - base[c]["output_tok_per_s"])
+            / base[c]["output_tok_per_s"] * 100
+            for c in levels
+        ])
+
+    n = len(xs)
+    ymin, ymax = yticks[0], yticks[-1]
+    y0, y1 = H - MB, MT
+
+    def ypos(v):
+        v = max(ymin, min(ymax, v))
+        return y1 + (y0 - y1) * (1 - (v - ymin) / (ymax - ymin))
+
+    out = head(title, subtitle, [(i, SERIES[i][0]) for i in range(n_series)], "계층 비용 (%)")
+    for t in yticks:
+        y = ypos(t)
+        out.append(f'<line class="grid" x1="{ML}" y1="{y:.1f}" x2="{W - MR}" y2="{y:.1f}" stroke-width="1"/>')
+        out.append(f'<text class="tick muted" x="{ML - 10}" y="{y + 4:.1f}" text-anchor="end">{t:+d}</text>')
+    # 0% 기준선 — 계층이 공짜인 자리
+    yz = ypos(0)
+    out.append(f'<line class="axis" x1="{ML}" y1="{yz:.1f}" x2="{W - MR}" y2="{yz:.1f}" stroke-width="1.5"/>')
+    for i, c in enumerate(xs):
+        x = xpos(i, n)
+        out.append(f'<text class="tick muted" x="{x:.1f}" y="{y0 + 20}" text-anchor="middle">{c}</text>')
+    out.append(f'<text class="lbl muted" x="{(ML + W - MR) / 2:.0f}" y="{H - 14}" text-anchor="middle">동시 요청 수</text>')
+
+    # 라벨이 겹치지 않도록 끝점 y를 벌린다.
+    MIN_GAP = 16.0
+    ends = sorted(((series_pts[si][-1], si) for si in range(n_series)), key=lambda t: -t[0])
+    label_y, prev = {}, None
+    for val, si in ends:
+        y = ypos(val)
+        if prev is not None and y - prev < MIN_GAP:
+            y = prev + MIN_GAP
+        prev = y
+        label_y[si] = y
+
+    for si in range(n_series):
+        pts = [(xpos(i, n), ypos(series_pts[si][i])) for i in range(n)]
+        d = "M" + " L".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+        out.append(f'<path class="line s{si}" d="{d}"/>')
+        for x, y in pts:
+            out.append(f'<circle class="f{si}" cx="{x:.1f}" cy="{y:.1f}" r="4"/>')
+        draw_series_label(out, pts[-1][0], label_y[si], f"f{si}", SERIES[si][0])
+
+    out.append("</svg>")
+    write(fname, out)
+
+
 def fig_queue(fname):
     with open(os.path.join(RESULTS, "b2-prometheus.json"), encoding="utf-8") as f:
         d = json.load(f)
@@ -336,6 +401,28 @@ def main():
         "Qwen2.5-1.5B · vLLM 0.7.2 동일 · max_num_seqs=64 · 각 지점 100요청 1회",
         "output_tok_per_s", "처리량 (tok/s)", [0, 600, 1200, 1800, 2400, 3000],
         seqs64, "short",
+    )
+
+    # ── 세 계층의 가격 곡선 ────────────────────────────────────────
+    # 각 계열은 '같은 이미지에서 계층만 뺀 짝'과 비교한 값이다.
+    # 절대 처리량을 겹쳐 그리면 엔진 버전(0.20.0/0.5.5/0.7.2)이 섞이지만,
+    # 짝 대비 퍼센트는 그 혼입이 상쇄된다.
+    SERIES = [
+        ("KServe", "#2a78d6", "#3987e5"),
+        ("Triton", "#eb6834", "#d95926"),
+        ("Ray Serve", "#1baf7a", "#199e70"),
+    ]
+    fig_cost(
+        "fig-c3-layer-cost.svg",
+        "서빙 계층이 가져가는 몫 — 동시성이 오를수록",
+        "각 계층을 '같은 이미지에서 계층만 뺀 구성'과 비교 · max_num_seqs=64 · 각 지점 100요청 1회",
+        [
+            ("KServe", "b-direct-v0200-seqs64.json", "c3-kserve-vllm-seqs64.json"),
+            ("Triton", "b-direct-v055-seqs64.json", "c3-triton-vllm-seqs64.json"),
+            ("Ray Serve", "b-direct-v072-seqs64.json", "b3-seqs64.json"),
+        ],
+        "short",
+        [-80, -60, -40, -20, 0, 20],
     )
 
 

@@ -183,6 +183,7 @@ def run_request(
     api: str = "openai",
     endpoint: str | None = None,
     prompts_per_request: int = 1,
+    stream_options: bool = True,
 ) -> RequestResult:
     """API 방식에 따라 실제 요청 함수로 분기한다.
 
@@ -209,6 +210,7 @@ def run_request(
         request_id=request_id,
         timeout_s=timeout_s,
         unique_prefix=unique_prefix,
+        stream_options=stream_options,
     )
 
 
@@ -338,9 +340,10 @@ def run_openai_request(
     request_id: int,
     timeout_s: float,
     unique_prefix: bool = False,
+    stream_options: bool = True,
 ) -> RequestResult:
     scenario = SCENARIOS[scenario_name]
-    body = {
+    body: dict[str, Any] = {
         "model": model,
         "messages": [
             {"role": "user", "content": build_prompt(scenario_name, unique_prefix)}
@@ -348,8 +351,12 @@ def run_openai_request(
         "max_tokens": scenario["max_tokens"],
         "temperature": 0,
         "stream": True,
-        "stream_options": {"include_usage": True},
     }
+    # 일부 OpenAI 호환 서버는 stream_options 자체를 거부한다
+    # (Triton 24.12 프론트엔드: extra_forbidden). 그런 서버에서는 이 옵션을 빼고
+    # 출력 토큰 수를 usage 대신 스트림 이벤트 수로 센다 — 아래 참조.
+    if stream_options:
+        body["stream_options"] = {"include_usage": True}
     request = urllib.request.Request(
         api_url(base_url, "/v1/chat/completions"),
         data=json.dumps(body, ensure_ascii=False).encode("utf-8"),
@@ -387,7 +394,12 @@ def run_openai_request(
         ended = time.perf_counter()
         exact = output_tokens is not None
         if output_tokens is None:
-            output_tokens = estimate_tokens("".join(output_parts))
+            # usage를 주지 않는 서버 — 받은 content 이벤트 수로 센다.
+            # 단어 분리(estimate_tokens)는 한국어에서 4~5배 과소 계수라
+            # 서버 간 처리량 비교를 통째로 망가뜨린다. vLLM 스트리밍은
+            # 이벤트 하나가 토큰 하나에 대응하므로 이 값이 훨씬 가깝다.
+            # tokens_exact=False로 남겨 요약의 exact_usage_requests에 드러나게 한다.
+            output_tokens = len(output_parts)
         return RequestResult(
             scenario=scenario_name,
             concurrency=concurrency,
@@ -490,6 +502,7 @@ def run_group(
     api: str = "openai",
     endpoint: str | None = None,
     prompts_per_request: int = 1,
+    stream_options: bool = True,
 ) -> tuple[list[RequestResult], float]:
     started = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
@@ -507,6 +520,7 @@ def run_group(
                 api=api,
                 endpoint=endpoint,
                 prompts_per_request=prompts_per_request,
+                stream_options=stream_options,
             )
             for request_id in range(request_count)
         ]
@@ -580,6 +594,13 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="요청마다 프롬프트 앞에 고유 식별자를 붙여 prefix cache 적중을 막는다",
     )
+    parser.add_argument(
+        "--no-stream-options",
+        action="store_true",
+        help="stream_options를 거부하는 호환 서버용(Triton 프론트엔드 등). "
+             "출력 토큰은 usage 대신 스트림 이벤트 수로 세며 "
+             "결과의 exact_usage_requests가 0으로 남는다",
+    )
     parser.add_argument("--output", type=Path)
     return parser
 
@@ -630,6 +651,7 @@ def main(argv: list[str] | None = None) -> int:
                 api=args.api,
                 endpoint=endpoint,
                 prompts_per_request=args.prompts_per_request,
+                stream_options=not args.no_stream_options,
             )
             if not warmup.ok:
                 print(f"{scenario_name} warmup 실패: {warmup.error}", file=sys.stderr)
@@ -649,6 +671,7 @@ def main(argv: list[str] | None = None) -> int:
                 api=args.api,
                 endpoint=endpoint,
                 prompts_per_request=args.prompts_per_request,
+                stream_options=not args.no_stream_options,
             )
             all_results.extend(results)
             summaries.append(

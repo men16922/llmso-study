@@ -1,0 +1,15 @@
+# Triton vLLM 백엔드 — Ray Serve·직접 vLLM과 같은 저울에 올리기 위한 구성.
+#
+# 통제 변수: 모델·max_model_len·gpu_memory_utilization·max_num_seqs를
+# 다른 두 구성과 동일하게 맞춘다 (model.json 참조).
+# 다르면 "계층의 가격"이 아니라 "설정 차이"를 재게 된다.
+backend: "vllm"
+
+# vLLM 백엔드는 자체적으로 배칭을 하므로 Triton의 dynamic_batching은 쓰지 않는다.
+# (continuous batching이 이미 엔진 안에 있다)
+instance_group [
+  {
+    count: 1
+    kind: KIND_MODEL
+  }
+]

@@ -1,0 +1,64 @@
+# KServe와 짝을 이루는 통제 구성 — 같은 이미지·같은 설정, KServe 없이 직접.
+#
+# 이래야 두 결과의 차이가 '엔진 버전'이 아니라 'KServe 계층' 하나로 좁혀진다.
+# (Ray Serve는 0.7.2, Triton은 0.5.5로 같은 방식의 짝을 만들었다)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-v0200-direct
+  namespace: llm-serving-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm-v0200-direct
+  template:
+    metadata:
+      labels:
+        app: vllm-v0200-direct
+    spec:
+      # WSL2 k3s에서 GPU 파드는 nvidia 런타임을 명시해야 한다.
+      runtimeClassName: nvidia
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:v0.20.0
+          command: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
+          args:
+            # HF 캐시 루트를 통째로 마운트하므로 snapshots의 심볼릭 링크가 살아 있다.
+            - --model=/mnt/models/hub/models--Qwen--Qwen2.5-1.5B-Instruct/snapshots/989aa7980e4cf806f80c7fef2b1adb7bc71aa306
+            - --served-model-name=qwen
+            - --max-model-len=4096
+            - --gpu-memory-utilization=0.85
+            - --max-num-seqs=64
+            - --dtype=auto
+            - --no-enable-log-requests
+            - --port=8080
+          ports:
+            - containerPort: 8080
+          env:
+            - name: HF_HOME
+              value: /tmp
+            - name: VLLM_CONFIG_ROOT
+              value: /tmp
+          resources:
+            limits:
+              cpu: "4"
+              memory: 16Gi
+              nvidia.com/gpu: "1"
+            requests:
+              cpu: "2"
+              memory: 8Gi
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: models
+              mountPath: /mnt/models
+            - name: shm
+              mountPath: /dev/shm
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: huggingface-cache
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 8Gi

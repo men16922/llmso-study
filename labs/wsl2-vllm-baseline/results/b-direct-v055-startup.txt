@@ -1,0 +1,40 @@
+INFO 08-22 14:31:31 api_server.py:440] vLLM API server version 0.5.5
+INFO 08-22 14:31:31 api_server.py:441] args: Namespace(host=None, port=8000, uvicorn_log_level='info', allow_credentials=False, allowed_origins=['*'], allowed_methods=['*'], allowed_headers=['*'], api_key=None, lora_modules=None, prompt_adapters=None, chat_template=None, response_role='assistant', ssl_keyfile=None, ssl_certfile=None, ssl_ca_certs=None, ssl_cert_reqs=0, root_path=None, middleware=[], return_tokens_as_token_ids=False, disable_frontend_multiprocessing=False, model='Qwen/Qwen2.5-1.5B-Instruct', tokenizer=None, skip_tokenizer_init=False, revision=None, code_revision=None, tokenizer_revision=None, tokenizer_mode='auto', trust_remote_code=False, download_dir=None, load_format='auto', dtype='auto', kv_cache_dtype='auto', quantization_param_path=None, max_model_len=4096, guided_decoding_backend='outlines', distributed_executor_backend=None, worker_use_ray=False, pipeline_parallel_size=1, tensor_parallel_size=1, max_parallel_loading_workers=None, ray_workers_use_nsight=False, block_size=16, enable_prefix_caching=False, disable_sliding_window=False, use_v2_block_manager=False, num_lookahead_slots=0, seed=0, swap_space=4, cpu_offload_gb=0, gpu_memory_utilization=0.85, num_gpu_blocks_override=None, max_num_batched_tokens=None, max_num_seqs=64, max_logprobs=20, disable_log_stats=False, quantization=None, rope_scaling=None, rope_theta=None, enforce_eager=False, max_context_len_to_capture=None, max_seq_len_to_capture=8192, disable_custom_all_reduce=False, tokenizer_pool_size=0, tokenizer_pool_type='ray', tokenizer_pool_extra_config=None, limit_mm_per_prompt=None, enable_lora=False, max_loras=1, max_lora_rank=16, lora_extra_vocab_size=256, lora_dtype='auto', long_lora_scaling_factors=None, max_cpu_loras=None, fully_sharded_loras=False, enable_prompt_adapter=False, max_prompt_adapters=1, max_prompt_adapter_token=0, device='auto', num_scheduler_steps=1, scheduler_delay_factor=0.0, enable_chunked_prefill=None, speculative_model=None, speculative_model_quantization=None, num_speculative_tokens=None, speculative_draft_tensor_parallel_size=None, speculative_max_model_len=None, speculative_disable_by_batch_size=None, ngram_prompt_lookup_max=None, ngram_prompt_lookup_min=None, spec_decoding_acceptance_method='rejection_sampler', typical_acceptance_sampler_posterior_threshold=None, typical_acceptance_sampler_posterior_alpha=None, disable_logprobs_during_spec_decoding=None, model_loader_extra_config=None, ignore_patterns=[], preemption_mode=None, served_model_name=['qwen'], qlora_adapter_name_or_path=None, otlp_traces_endpoint=None, collect_detailed_traces=None, engine_use_ray=False, disable_log_requests=True, max_log_len=None)
+INFO 08-22 14:31:31 api_server.py:144] Multiprocessing frontend to use ipc:///tmp/fa2110a9-08ca-4752-bb66-bf96a1c613dc for RPC Path.
+INFO 08-22 14:31:31 api_server.py:161] Started engine process with PID 65
+INFO 08-22 14:31:35 llm_engine.py:184] Initializing an LLM engine (v0.5.5) with config: model='Qwen/Qwen2.5-1.5B-Instruct', speculative_config=None, tokenizer='Qwen/Qwen2.5-1.5B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=4096, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=qwen, use_v2_block_manager=False, enable_prefix_caching=False)
+WARNING 08-22 14:31:35 utils.py:721] Using 'pin_memory=False' as WSL is detected. This may slow down the performance.
+INFO 08-22 14:31:36 model_runner.py:879] Starting to load model Qwen/Qwen2.5-1.5B-Instruct...
+INFO 08-22 14:31:36 weight_utils.py:236] Using model weights format ['*.safetensors', '*.bin', '*.pt']
+INFO 08-22 14:31:36 weight_utils.py:280] No model.safetensors.index.json found in remote.
+Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:01<00:00,  1.04s/it]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:01<00:00,  1.04s/it]
+
+INFO 08-22 14:31:37 model_runner.py:890] Loading model weights took 2.8875 GB
+INFO 08-22 14:31:37 gpu_executor.py:121] # GPU blocks: 15326, # CPU blocks: 9362
+INFO 08-22 14:31:39 model_runner.py:1181] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 08-22 14:31:39 model_runner.py:1185] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 08-22 14:31:42 model_runner.py:1300] Graph capturing finished in 3 secs.
+INFO 08-22 14:31:42 api_server.py:209] vLLM to use /tmp/tmpxb_zvco0 as PROMETHEUS_MULTIPROC_DIR
+WARNING 08-22 14:31:42 serving_embedding.py:188] embedding_mode is False. Embedding API will not work.
+INFO 08-22 14:31:42 launcher.py:20] Available routes are:
+INFO 08-22 14:31:42 launcher.py:28] Route: /openapi.json, Methods: HEAD, GET
+INFO 08-22 14:31:42 launcher.py:28] Route: /docs, Methods: HEAD, GET
+INFO 08-22 14:31:42 launcher.py:28] Route: /docs/oauth2-redirect, Methods: HEAD, GET
+INFO 08-22 14:31:42 launcher.py:28] Route: /redoc, Methods: HEAD, GET
+INFO 08-22 14:31:42 launcher.py:28] Route: /health, Methods: GET
+INFO 08-22 14:31:42 launcher.py:28] Route: /tokenize, Methods: POST
+INFO 08-22 14:31:42 launcher.py:28] Route: /detokenize, Methods: POST
+INFO 08-22 14:31:42 launcher.py:28] Route: /v1/models, Methods: GET
+INFO 08-22 14:31:42 launcher.py:28] Route: /version, Methods: GET
+INFO 08-22 14:31:42 launcher.py:28] Route: /v1/chat/completions, Methods: POST
+INFO 08-22 14:31:42 launcher.py:28] Route: /v1/completions, Methods: POST
+INFO 08-22 14:31:42 launcher.py:28] Route: /v1/embeddings, Methods: POST
+INFO 08-22 14:31:42 launcher.py:33] Launching Uvicorn with --limit_concurrency 32765. To avoid this limit at the expense of performance run with --disable-frontend-multiprocessing
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     172.17.0.1:35074 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     172.17.0.1:35090 - "GET /v1/models HTTP/1.1" 200 OK
