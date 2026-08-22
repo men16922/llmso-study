@@ -24,8 +24,12 @@ import sys
 FENCE = re.compile(r"^\s*```")
 PIPE_ROW = re.compile(r"^\s*\|.*\|\s*$")
 SEP_ROW = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
-IMAGE = re.compile(r"!\[([^\]]*)\]\(([^)]+)\)")
-LINK = re.compile(r"(?<!!)\[([^\]]+)\]\(([^)]+)\)")
+# alt·링크 텍스트 안에 대괄호가 들어가는 경우가 있다 (예: "GPU [0] 83.0%").
+# `[^\]]*`로 잡으면 그 지점에서 끊겨 매치가 통째로 실패하고, 이미지 경로가
+# 치환되지 않은 채 조용히 넘어간다. 한 겹 중첩까지 허용해 준다.
+_TEXT = r"(?:[^\[\]]|\[[^\[\]]*\])*"
+IMAGE = re.compile(r"!\[(" + _TEXT + r")\]\(([^)]+)\)")
+LINK = re.compile(r"(?<!!)\[(" + _TEXT + r")\]\(([^)]+)\)")
 
 
 def split_cells(line):
