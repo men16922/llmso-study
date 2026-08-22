@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="470" viewBox="0 0 780 470" role="img" aria-label="슬롯을 64로 열었을 때 — 계층이 있고 없고">
+<style>
+  .surface { fill: #fcfcfb; }
+  .ink     { fill: #0b0b0b; }
+  .ink2    { fill: #52514e; }
+  .muted   { fill: #898781; }
+  .grid    { stroke: #e1e0d9; }
+  .axis    { stroke: #c3c2b7; }
+  .s0 { stroke: #2a78d6; } .f0 { fill: #2a78d6; }
+  .s1 { stroke: #1baf7a; } .f1 { fill: #1baf7a; }
+  .s2 { stroke: #eb6834; } .f2 { fill: #eb6834; }
+  @media (prefers-color-scheme: dark) {
+    .surface { fill: #1a1a19; }
+    .ink     { fill: #ffffff; }
+    .ink2    { fill: #c3c2b7; }
+    .muted   { fill: #898781; }
+    .grid    { stroke: #2c2c2a; }
+    .axis    { stroke: #383835; }
+    .s0 { stroke: #3987e5; } .f0 { fill: #3987e5; }
+    .s1 { stroke: #199e70; } .f1 { fill: #199e70; }
+    .s2 { stroke: #d95926; } .f2 { fill: #d95926; }
+  }
+  text { font-family: system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .tick { font-size: 12px; font-variant-numeric: tabular-nums; }
+  .lbl  { font-size: 13px; }
+  .ttl  { font-size: 17px; font-weight: 600; }
+  .sub  { font-size: 13px; }
+  .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+</style>
+<rect class="surface" width="780" height="470"/>
+<text class="ttl ink" x="66" y="26">슬롯을 64로 열었을 때 — 계층이 있고 없고</text>
+<text class="sub ink2" x="66" y="46">Qwen2.5-1.5B · vLLM 0.7.2 동일 · max_num_seqs=64 · 각 지점 100요청 1회</text>
+<circle class="f0" cx="71" cy="66" r="5"/>
+<text class="lbl ink" x="82" y="70">직접 vLLM</text>
+<circle class="f1" cx="154" cy="66" r="5"/>
+<text class="lbl ink" x="165" y="70">Ray Serve</text>
+<text class="lbl muted" x="66" y="92">처리량 (tok/s)</text>
+<line class="grid" x1="66" y1="412.0" x2="662" y2="412.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="416.0" text-anchor="end">0</text>
+<line class="grid" x1="66" y1="350.4" x2="662" y2="350.4" stroke-width="1"/>
+<text class="tick muted" x="56" y="354.4" text-anchor="end">600</text>
+<line class="grid" x1="66" y1="288.8" x2="662" y2="288.8" stroke-width="1"/>
+<text class="tick muted" x="56" y="292.8" text-anchor="end">1,200</text>
+<line class="grid" x1="66" y1="227.2" x2="662" y2="227.2" stroke-width="1"/>
+<text class="tick muted" x="56" y="231.2" text-anchor="end">1,800</text>
+<line class="grid" x1="66" y1="165.6" x2="662" y2="165.6" stroke-width="1"/>
+<text class="tick muted" x="56" y="169.6" text-anchor="end">2,400</text>
+<line class="grid" x1="66" y1="104.0" x2="662" y2="104.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="108.0" text-anchor="end">3,000</text>
+<line class="axis" x1="66" y1="412" x2="662" y2="412" stroke-width="1"/>
+<text class="tick muted" x="66.0" y="432" text-anchor="middle">1</text>
+<text class="tick muted" x="165.3" y="432" text-anchor="middle">2</text>
+<text class="tick muted" x="264.7" y="432" text-anchor="middle">4</text>
+<text class="tick muted" x="364.0" y="432" text-anchor="middle">8</text>
+<text class="tick muted" x="463.3" y="432" text-anchor="middle">16</text>
+<text class="tick muted" x="562.7" y="432" text-anchor="middle">32</text>
+<text class="tick muted" x="662.0" y="432" text-anchor="middle">64</text>
+<text class="lbl muted" x="364" y="456" text-anchor="middle">동시 요청 수</text>
+<path class="line s0" d="M66.0,401.3 L165.3,391.4 L264.7,372.5 L364.0,340.0 L463.3,288.6 L562.7,221.7 L662.0,120.8"/>
+<circle class="f0" cx="66.0" cy="401.3" r="4"/>
+<circle class="f0" cx="165.3" cy="391.4" r="4"/>
+<circle class="f0" cx="264.7" cy="372.5" r="4"/>
+<circle class="f0" cx="364.0" cy="340.0" r="4"/>
+<circle class="f0" cx="463.3" cy="288.6" r="4"/>
+<circle class="f0" cx="562.7" cy="221.7" r="4"/>
+<circle class="f0" cx="662.0" cy="120.8" r="4"/>
+<circle class="f0" cx="674.0" cy="120.8" r="4.5"/>
+<text class="lbl ink" x="684.0" y="125.3">직접 vLLM</text>
+<path class="line s1" d="M66.0,402.0 L165.3,393.3 L264.7,377.5 L364.0,353.8 L463.3,335.4 L562.7,331.0 L662.0,324.5"/>
+<circle class="f1" cx="66.0" cy="402.0" r="4"/>
+<circle class="f1" cx="165.3" cy="393.3" r="4"/>
+<circle class="f1" cx="264.7" cy="377.5" r="4"/>
+<circle class="f1" cx="364.0" cy="353.8" r="4"/>
+<circle class="f1" cx="463.3" cy="335.4" r="4"/>
+<circle class="f1" cx="562.7" cy="331.0" r="4"/>
+<circle class="f1" cx="662.0" cy="324.5" r="4"/>
+<circle class="f1" cx="674.0" cy="324.5" r="4.5"/>
+<text class="lbl ink" x="684.0" y="329.0">Ray Serve</text>
+</svg>

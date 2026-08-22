@@ -11,7 +11,7 @@ Last Updated: 2026-08-22
 - `knowledge/` — 번호 문서 `00`~`06` + `subpages/` 11종 + `references/` 6종. 상대 링크·앵커 전부 유효.
 - `index/` — PDF 3종 + 마크다운 묶음(66개 문서) 인덱스. 스키마 검증 통과. 현재 Inference Engineering만 `llm-claude-code-korean`으로 보강됨, 나머지는 `extractive-*`.
 - `labs/` — 4개. `wsl2-vllm-baseline`(56) · `cloudrun-gemma4-vllm`(6) · `triton-dynamic-batching`(19) · `rayserve-on-k8s`(10). 전부 mock·순수 로직이라 GPU·네트워크 불필요.
-- `articles/` — Cloud Run Gemma 4(1주차), CH3·CH4 시나리오 4편, `두 글을 잇는 선`, **2주차 과제 2편(노션 발행·링크 공유 완료)**, 3주차 실습 시나리오 5편(허브 + `3주차-00`~`-03`), **3주차 과제 글 `처리량의 천장은 어디에 있었나` — 윤문·노션 발행 완료**.
+- `articles/` — Cloud Run Gemma 4(1주차), CH3·CH4 시나리오 4편, `두 글을 잇는 선`, **2주차 과제 2편(노션 발행·링크 공유 완료)**, 3주차 실습 시나리오 5편(허브 + `3주차-00`~`-03`), **3주차 과제 글 `슬롯을 4배로 늘렸는데 처리량이 그대로였다` — 윤문·노션 발행 완료**.
 - `articles/figures/` · `articles/screenshots/` — 그래프 **5종**(SVG, 3주차 계층 비교 2종 추가) + Prometheus 콘솔 캡처 3장.
 - `tools/` — 인덱싱 3종 + **`make_figures.py`**(결과 JSON → SVG) + **`md_to_notion.py`**(마크다운 → 노션 변환). 둘 다 외부 의존성 없음.
 - **측정 원본** — `labs/wsl2-vllm-baseline/results/`에 2주차 B1·B2 8종 + **3주차 `c3-*`(5) · `b3-*`(4) · `b-direct-v072-*`(3) · `metrics-{rayserve,direct-v072}.txt`**, 분석 3종(`c3-environment.md` · `c3-layer-cost.md` · `b3-kv-handcalc.md`). C2는 `labs/triton-dynamic-batching/results/` 16종.

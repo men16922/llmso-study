@@ -8,7 +8,7 @@ Last Updated: 2026-08-22
 - **08-16 → 08-21 닷새 공백 뒤 한 세션에 몰아서 수행.** 계획 일정(08-17 C3 / 08-18 B3 / 08-19~20 C2)이 통째로 밀렸으나, 측정이 계획 추정보다 훨씬 빨라(벤치마크 1회 약 4분, 롤아웃 20~60초) 셋 다 들어갔다. **2주차처럼 범위를 줄이지는 않았다.**
 - ★ **통제 변수가 깨져 있는 것을 발견해 실험 설계를 바꿨다.** `ray-llm:2.44.1`이 품은 vLLM은 **0.7.2**인데 2주차 B1 기준선은 **0.23.0**. 그냥 빼면 "계층 + 엔진 16개 마이너 버전"의 합이 나온다. **같은 ray-llm 이미지로 Ray 없이 vLLM만 띄운 구성 B**를 추가해 변수를 계층 하나로 좁혔다(추가 다운로드 0, 약 15분).
 - **Changed**
-  - `articles/처리량의 천장은 어디에 있었나.md` 신규 — 8단계 템플릿. 세 실험을 "처리량 천장을 정하는 게 무엇인가" 한 줄기로 묶음.
+  - `articles/슬롯을 4배로 늘렸는데 처리량이 그대로였다.md` 신규 — 8단계 템플릿. 세 실험을 "처리량 천장을 정하는 게 무엇인가" 한 줄기로 묶음.
   - `articles/figures/fig-c3-layer-{throughput,ttft}.svg` 신규. `tools/make_figures.py`에 3주차 계열 추가.
   - `labs/rayserve-on-k8s/vllm-v072-direct.yaml` 신규(구성 B).
   - 측정 원본 — `results/`에 `c3-*`(5) · `b3-*`(4) · `b-direct-v072-*`(3) · `metrics-{rayserve,direct-v072}.txt`, `labs/triton-dynamic-batching/results/`에 C2 16종.
