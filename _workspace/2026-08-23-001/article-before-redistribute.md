@@ -25,6 +25,11 @@
 - [5. 서빙 구조 가격표](#5-서빙-구조-가격표)
 - [6. 두 번째 가격 — 관측성](#6-두-번째-가격--관측성)
 - [7. 그래서 탐색은 이 순서로](#7-그래서-탐색은-이-순서로)
+- [측정 증거](#측정-증거)
+  - [계층 1 — Ray Serve](#계층-1--ray-serve)
+  - [계층 2 — Triton + vLLM 백엔드](#계층-2--triton--vllm-백엔드)
+  - [계층 3 — KServe](#계층-3--kserve)
+  - [두 부하가 GPU에 닿은 모습](#두-부하가-gpu에-닿은-모습)
 - [한계와 다음 단계](#한계와-다음-단계)
 - [결론 — 실험하며 배운 것](#결론--실험하며-배운-것)
 - [부록 A. Triton의 dynamic batching은 왜 LLM에 안 맞나](#부록-a-triton의-dynamic-batching은-왜-llm에-안-맞나)
@@ -72,18 +77,6 @@ GPU 한 장에 LLM을 올려놓고 "처리량을 더 뽑아라"라는 말을 들
 
 엔진 버전이 계층마다 다릅니다. 그래서 계층 비용은 항상 같은 버전끼리 짝을 만들어 쟀습니다(3-1·4-2·4-4).
 
-> 이 글의 화면 캡처는 전부 **측정을 마친 뒤 같은 매니페스트로 다시 띄워 찍은 것**입니다(Ray Serve는 2026-08-22, Triton·KServe는 08-23). 기동값이 본문과 같은지, 관측성 주장이 실제 화면에서 성립하는지를 보이려는 것이고, **부하 조건은 본문 표와 다릅니다.** 화면 속 숫자를 표와 섞어 읽지 마세요.
-
-![Ray Dashboard Cluster 탭 — 노드 2개 ALIVE. head 노드는 GPU N/A, gpu-group-worker 노드만 GPU [0] 83.0% · GRAM 10962MiB/12282MiB](./screenshots/proof-w3-02-ray-cluster-gpu.jpg)
-
-헤드에는 `GPU N/A`, 워커에만 `[0] 83.0%` / `10962MiB/12282MiB`가 붙어 있습니다. 2장에서 KV 예산을 셀 때 분모로 쓰는 12,282 MiB가 이 값입니다.
-
-![Grafana NVIDIA DCGM Exporter Dashboard, 12시간 범위 — GPU Utilization 패널에 84%·91%까지 오르는 스파이크 두 개, Tensor Core Utilization 패널은 No data, GPU Framebuffer Mem Used는 최대 10.7 GB](./screenshots/proof-w3-08-grafana-dcgm-util.jpg)
-
-측정 구간에서 GPU 사용률이 84%·91%까지 오릅니다. 뒤에 나오는 낮은 처리량은 GPU가 놀아서 생긴 게 아닙니다. `GPU Framebuffer Mem Used` 최대 10.7 GB도 `nvidia-smi`·Ray Dashboard 값과 맞습니다.
-
-같은 화면의 `Tensor Core Utilization`은 `No data`입니다. WSL2에서는 `DCGM_FI_PROF_*` 계열이 노출되지 않아 패널만 있고 채울 데이터가 오지 않습니다.
-
 GPU가 한 장이라 구성끼리 배타적입니다. 앞의 것을 완전히 내리고 `nvidia-smi`로 VRAM 반환을 확인한 뒤 다음을 띄웠습니다.
 
 부하는 전 구성 같은 명령입니다. 짧은 프롬프트, 동시성 1·2·4·8·16·32·64, 각 100요청, 요청마다 프롬프트 앞에 고유 접두사를 붙여 캐시 효과를 배제했습니다.
@@ -125,10 +118,6 @@ python3 benchmark.py --scenarios short --concurrency 1,2,4,8,16,32,64 \
 
 설정을 네 가지로 흔들어 얻은 최고값이 964 tok/s입니다. **이 구조에서는 설정 축을 아무리 뒤져도 1,000 tok/s 근처가 천장이었습니다.**
 
-![브라우저에서 연 /v1/models 응답 — qwen2.5-1.5b 모델 하나, rayllm_metadata의 max_request_context_length가 4096](./screenshots/proof-w3-04-v1-models.jpg)
-
-설정이 실제로 걸려 있었는지는 엔드포인트가 답해 줍니다. `max_request_context_length`가 4096으로, 위 표의 기준 행과 같습니다.
-
 ---
 
 ## 3. 원인 — 구조가 설정의 효과를 정한다
@@ -164,12 +153,6 @@ B(계층 없음)에서 똑같은 슬롯 변경을 했습니다.
 
 노브가 고장 난 게 아니었습니다. 계층이 이미 그보다 낮은 곳에서 막고 있어서 엔진에 여유를 줘도 그 여유가 쓰이지 않았던 것입니다.
 
-여기서 계층이라고 부른 것의 실체는 이렇게 생겼습니다.
-
-![Ray Dashboard Serve 탭 — Controller HEALTHY, Proxy HEALTHY ×2, Application RUNNING ×1. llm 애플리케이션 아래 LLMDeployment:qwen2_5-1_5b가 replica 1개, LLMRouter가 replica 2개로 HEALTHY 상태](./screenshots/proof-w3-01-ray-serve-tab.jpg)
-
-엔진을 감싼 `LLMDeployment` replica 1개 앞에 `LLMRouter` replica 2개와 프록시가 서 있습니다. 요청은 이 라우터와 프록시를 지나 엔진에 닿습니다.
-
 ### 3-3. 계층 비용은 상수가 아니다
 
 같은 엔진(0.7.2)·같은 설정(슬롯 64)에서 계층 하나만 놓고 동시성별로 비교하면 이렇게 나옵니다.
@@ -189,10 +172,6 @@ B(계층 없음)에서 똑같은 슬롯 변경을 했습니다.
 부하가 커질수록 비용이 커집니다. 동시성 1에서는 6.7%로 무시할 만하지만 64에서는 70%입니다. 계층 비용은 고정값이 아니라 엔진이 낼 수 있는 값의 함수입니다.
 
 여기서 슬롯 16에서 멈췄다면 "계층이 3분의 1쯤 먹는다"(−37.9%)고 썼을 겁니다. 엔진에 여유를 준 뒤 다시 재야 70%가 보입니다.
-
-![Prometheus DCGM_FI_DEV_GPU_UTIL 그래프 — 15분 구간에서 부하 시각에만 0%에서 약 83%로 사각 펄스가 올라갔다 내려온다. 시계열 라벨의 exported_pod가 vllm-service의 gpu-group-worker 파드](./screenshots/proof-w3-03-dcgm-gpu-util.jpg)
-
-GPU가 쉬어서 처리량이 낮았던 게 아닙니다. 부하 구간에서 사용률이 83%까지 올랐고, 시계열 라벨의 `exported_pod`가 Ray 워커 파드라 이 일이 어디서 나왔는지도 메트릭에 박혀 있습니다. 이 그래프를 만든 것은 동시성 64로 900요청을 건 별도의 지속 부하입니다(1,036.9 tok/s, goodput 2.1%).
 
 지연과 goodput을 같이 보면 성격이 분명해집니다.
 
@@ -240,10 +219,6 @@ Triton 24.12 컨테이너 안의 vLLM은 0.5.5로 Ray Serve의 0.7.2보다도 �
 
 goodput은 c=64에서도 100%이고 TTFT p95는 0.384초로 SLO 안입니다.
 
-![브라우저에서 연 :9000/v1/models 응답 — 모델 하나(id qwen), owned_by가 "Triton Inference Server"](./screenshots/proof-w3-10-triton-v1-models.jpg)
-
-응답을 만든 주체가 `owned_by`에 적혀 있습니다. 같은 OpenAI 규격이라도 이 구성에서는 요청이 Triton을 거쳐 엔진으로 들어갑니다.
-
 > c=64의 −12.6%는 조심해서 읽어야 합니다. 같은 서버를 두 번 잰 재현 측정에서 c=64만 10% 가까이 흔들렸습니다(c≤32는 1.3% 안). c=64에서 10%대 차이는 잡음과 구별되지 않습니다. **확실한 것은 "Triton의 계층 비용은 한 자릿수~10%대이고, Ray Serve의 70%와는 자릿수가 다르다"까지입니다.**
 
 ### 4-4. 세 번째 계층 — KServe
@@ -267,10 +242,6 @@ Istio·Knative가 없는 k3s라 RawDeployment 모드로 설치했습니다.
 | 64 | 2,714.2 | 2,654.0 | −2.2% |
 
 계층 비용이 사실상 0입니다. 부호가 왔다 갔다 하는 걸 보면 잡음과 구별되지 않는 수준입니다. goodput은 양쪽 다 100%, TTFT p95는 0.296s 대 0.310s입니다.
-
-![브라우저에서 연 KServe 예측기 :30080/v1/models 응답 — id qwen, owned_by가 "vllm", root가 /mnt/models/hub/models--Qwen--Qwen2.5-1.5B-Instruct/snapshots/989aa7980e4cf806f80c7fef2b1adb7bc71aa306, max_model_len 4096](./screenshots/proof-w3-13-kserve-v1-models.jpg)
-
-같은 자리에서 `owned_by`가 `vllm`입니다. 바로 앞 Triton 화면과 나란히 놓으면 다음 절의 구분이 그대로 보입니다. `root`의 `/mnt/models/hub/...`는 KServe가 `storageUri`로 붙여 준 HF 캐시 경로이고, `max_model_len` 4096은 본문 통제 변수와 같습니다.
 
 ### 4-5. 왜 이렇게 갈리는가 — 요청 경로에 서 있는가
 
@@ -331,34 +302,6 @@ vLLM은 `/metrics`에 자기 상태를 내놓습니다. KV cache 사용률, 대�
 
 갈리는 기준이 처리량 때와 똑같습니다. KServe는 요청 경로에 없으니 엔진의 `/metrics`도 66개 전부 그대로 남습니다. 반면 데이터 플레인인 두 계층은 `vllm:*`을 통째로 가립니다. 엔진이 계층 안쪽에서 라이브러리로 돌아 자기 HTTP 서버를 띄우지 않기 때문입니다.
 
-같은 자리를 세 구성에서 열어 보면 이렇습니다.
-
-**KServe** — 이름이 전부 `vllm:`으로 시작합니다.
-
-![KServe 예측기 :30080/metrics 중간 부분 — vllm:num_requests_running, vllm:num_requests_waiting, vllm:num_requests_waiting_by_reason, vllm:kv_cache_usage_perc, vllm:prefix_cache_queries_total 209650, vllm:prefix_cache_hits_total 38452, vllm:num_preemptions_total 등 vllm: 으로 시작하는 이름이 이어진다](./screenshots/proof-w3-14-kserve-metrics.jpg)
-
-`vllm:prefix_cache_queries_total 209650` / `vllm:prefix_cache_hits_total 38452`처럼 방금 건 부하가 값에 반영돼 있습니다(2,400요청, 3,248.3 tok/s, goodput 100%).
-
-**Triton** — 같은 자리에 `nv_`로 시작하는 이름만 있고 `vllm:`은 한 줄도 없습니다.
-
-![Triton :9000/metrics 전문 — nv_inference_request_success 2401, nv_inference_queue_duration_us 1179290, nv_gpu_utilization·nv_gpu_memory_used_bytes 등 nv_로 시작하는 이름만 나열되고 vllm: 로 시작하는 이름은 하나도 없다](./screenshots/proof-w3-11-triton-metrics.jpg)
-
-값은 살아 있습니다. 동시성 64로 2,400요청을 건 직후에 찍었고(2,243.6 tok/s, goodput 100%), 부하 전 0이던 카운터가 이렇게 올라갔습니다.
-
-| 지표 | 부하 전 | 부하 후 |
-|---|---|---|
-| `nv_inference_request_success` | 0 | 2,401 |
-| `nv_inference_count` | 0 | 2,401 |
-| `nv_inference_queue_duration_us` | 0 | 1,179,290 |
-
-누적 큐 대기 1,179,290µs를 2,401건으로 나누면 건당 약 491µs입니다.
-
-**Ray Serve** — 엔드포인트 자체가 없습니다.
-
-![같은 호스트의 :8000/metrics 응답 — {"detail":"Not Found"}](./screenshots/proof-w3-05-metrics-404.jpg)
-
-`/v1/models`가 정상 응답한 것과 **같은 포트**입니다.
-
 가린 자리에 대신 주는 것이 다릅니다.
 
 - **Triton**의 `nv_*` 22개에는 `nv_inference_queue_duration_us`(큐에서 기다린 시간)와 `nv_inference_pending_request_count`(대기 요청 수)가 있습니다. "큐에 밀렸나"를 계층 층위에서 볼 수 있습니다.
@@ -366,21 +309,7 @@ vLLM은 `/metrics`에 자기 상태를 내놓습니다. KV cache 사용률, 대�
 
 **두 계층에서 공통으로 잃는 것은 KV cache 사용률과 선점 횟수입니다.** "메모리가 모자라 요청이 밀려났는가"를 엔진에게 직접 물을 수 없습니다.
 
-위 KServe 화면에는 그 두 가지가 `vllm:kv_cache_usage_perc`와 `vllm:num_preemptions_total`로 그대로 있습니다. Triton 화면의 `nv_` 목록에는 대응하는 이름이 없습니다.
-
 Ray Serve는 로그도 한 겹 안쪽입니다. vLLM 엔진은 `ServeReplica`가 아니라 `_EngineBackgroundProcess`라는 별개 액터에서 돌고 기동 로그도 그쪽 파일로 갑니다. `Maximum concurrency` 한 줄을 보려고 파드에 들어가 `/tmp/ray/session_latest/logs/`를 뒤져야 했습니다.
-
-![Ray Dashboard Serve 탭의 Deployments 로그 뷰 — LLMDeployment replica의 STDOUT에 4줄만 있고 vLLM 엔진 기동 로그가 없다](./screenshots/proof-w3-06-replica-stdout-empty.jpg)
-
-![Ray Dashboard Actors 탭 — 액터 9개 ALIVE. _EngineBackgroundProcess(PID 377)와 ServeReplica:llm:LLMDeployment:qwen2_5-1_5b(PID 187)가 서로 다른 액터로 잡혀 있다](./screenshots/proof-w3-07-ray-actors.jpg)
-
-replica의 STDOUT에는 네 줄뿐이고, `_EngineBackgroundProcess`가 `ServeReplica`와 **별개 액터**(PID 377 vs 187)로 잡혀 있습니다. 로그가 한 겹 안쪽이라는 게 이 구조입니다.
-
-마지막으로 관측 경로 자체도 계층이 정합니다.
-
-![Prometheus DCGM_FI_DEV_GPU_UTIL 그래프 15분 구간 — 왼쪽 청록 계열이 45%에서 65%로 올랐다 내려오고, 오른쪽 초록 계열이 35%에서 99%로 올랐다 내려온다. 초록 시계열의 라벨에 exported_container=kserve-container, exported_namespace=llm-serving-lab, exported_pod=qwen-predictor-5c4f546d7-5g74b가 붙어 있다](./screenshots/proof-w3-15-gpu-util-triton-kserve.jpg)
-
-한 그래프에 두 부하가 나란히 있습니다. 왼쪽 봉우리가 Triton, 오른쪽이 KServe입니다. **오른쪽 시계열에만 `exported_pod="qwen-predictor-..."`가 붙습니다.** KServe 예측기는 쿠버네티스 파드라 DCGM 지표에 출처가 박히지만, 도커로 띄운 Triton은 그 라벨이 없습니다.
 
 ---
 
@@ -424,6 +353,119 @@ replica의 STDOUT에는 네 줄뿐이고, `_EngineBackgroundProcess`가 `ServeRe
 **이 글이 잰 것은 가격이지 값어치가 아닙니다.** 값어치는 여러분의 요구사항이 정합니다.
 
 ---
+## 측정 증거
+
+> ⚠️ **아래 화면은 본문 표를 만든 그 실행이 아닙니다.** 측정을 마치고 GPU를 내린 뒤, 같은 매니페스트로 **다시 띄워 찍은 확인용 재현**입니다(Ray Serve는 2026-08-22, Triton·KServe는 08-23). 기동값이 본문과 같게 나오는지, 관측성 관련 주장이 실제 화면에서 성립하는지를 보이려는 것입니다. 부하 조건도 다릅니다. 본문 표는 동시성별 각 100요청이고 아래는 동시성 64에 요청을 몰아 넣은 지속 부하입니다. **숫자를 본문 표와 섞어 읽지 마세요.**
+
+세 계층을 차례로 다시 띄웠고, GPU가 한 장이라 앞의 것을 완전히 내린 뒤 다음을 올렸습니다.
+
+### 계층 1 — Ray Serve
+
+#### 배포가 실제로 떠 있다
+
+![Ray Dashboard Serve 탭 — Controller HEALTHY, Proxy HEALTHY ×2, Application RUNNING ×1. llm 애플리케이션 아래 LLMDeployment:qwen2_5-1_5b가 replica 1개, LLMRouter가 replica 2개로 HEALTHY 상태](./screenshots/proof-w3-01-ray-serve-tab.jpg)
+
+`LLMDeployment:qwen2_5-1_5b` replica 1개 + `LLMRouter` replica 2개입니다. 3장에서 "계층"이라고 부른 것의 실체가 이 라우터와 프록시입니다.
+
+#### GPU가 워커에만 붙어 있다
+
+![Ray Dashboard Cluster 탭 — 노드 2개 ALIVE. head 노드는 GPU N/A, gpu-group-worker 노드만 GPU [0] 83.0% · GRAM 10962MiB/12282MiB](./screenshots/proof-w3-02-ray-cluster-gpu.jpg)
+
+헤드는 `GPU N/A`, 워커만 `[0] 83.0%` / `10962MiB/12282MiB`입니다. 2장의 KV 예산 계산이 이 12,282 MiB를 분모로 씁니다.
+
+#### 부하가 GPU까지 닿았다
+
+![Prometheus DCGM_FI_DEV_GPU_UTIL 그래프 — 15분 구간에서 부하 시각에만 0%에서 약 83%로 사각 펄스가 올라갔다 내려온다. 시계열 라벨의 exported_pod가 vllm-service의 gpu-group-worker 파드](./screenshots/proof-w3-03-dcgm-gpu-util.jpg)
+
+시계열 라벨의 `exported_pod`가 Ray 워커 파드라 이 GPU 일이 어디서 나왔는지가 메트릭 자체에 박혀 있습니다. 이 그래프를 만든 것은 동시성 64로 900요청을 건 별도의 지속 부하입니다(1,036.9 tok/s, goodput 2.1%). 본문 표는 각 지점 100요청이라 조건이 다릅니다.
+
+#### Grafana DCGM 대시보드
+
+![Grafana NVIDIA DCGM Exporter Dashboard, 12시간 범위 — GPU Utilization 패널에 84%·91%까지 오르는 스파이크 두 개, Tensor Core Utilization 패널은 No data, GPU Framebuffer Mem Used는 최대 10.7 GB](./screenshots/proof-w3-08-grafana-dcgm-util.jpg)
+
+- **GPU Utilization** — 측정 구간에서 84% / 91%까지 오릅니다. GPU가 놀아서 처리량이 낮았던 게 아닙니다.
+- **GPU Framebuffer Mem Used** — 최대 10.7 GB. `nvidia-smi`의 10,628 MiB, Ray Dashboard의 10,962 MiB와 같은 값입니다.
+- **Tensor Core Utilization — `No data`** ★ — 「한계」에 적어둔 그대로입니다. WSL2에서는 `DCGM_FI_PROF_*` 계열이 노출되지 않아 패널은 있는데 채울 데이터가 오지 않습니다.
+
+![Grafana DCGM 대시보드 상단 — GPU Temperature가 유휴 46°C 대에서 측정 구간에만 60°C·69°C로 치솟는다. GPU Avg. Temp 게이지는 46.1°C](./screenshots/proof-w3-09-grafana-dcgm-temp.jpg)
+
+> ⚠️ 같은 화면의 `GPU Power Usage`는 **최대 593 W**로 읽힙니다. 이 GPU는 70 W 제품이라 그대로 믿을 수 없는 값이고, 원인을 확인하지 않았으므로 **전력 수치는 쓰지 않았습니다.**
+
+#### 엔진 설정이 본문과 같다
+
+![브라우저에서 연 /v1/models 응답 — qwen2.5-1.5b 모델 하나, rayllm_metadata의 max_request_context_length가 4096](./screenshots/proof-w3-04-v1-models.jpg)
+
+#### 그런데 `/metrics`는 없다
+
+![같은 호스트의 :8000/metrics 응답 — {"detail":"Not Found"}](./screenshots/proof-w3-05-metrics-404.jpg)
+
+바로 위에서 `/v1/models`가 정상 응답한 같은 포트입니다. 6장 표의 404가 이것입니다.
+
+#### 기동 로그가 replica에 없다
+
+![Ray Dashboard Serve 탭의 Deployments 로그 뷰 — LLMDeployment replica의 STDOUT에 4줄만 있고 vLLM 엔진 기동 로그가 없다](./screenshots/proof-w3-06-replica-stdout-empty.jpg)
+
+![Ray Dashboard Actors 탭 — 액터 9개 ALIVE. _EngineBackgroundProcess(PID 377)와 ServeReplica:llm:LLMDeployment:qwen2_5-1_5b(PID 187)가 서로 다른 액터로 잡혀 있다](./screenshots/proof-w3-07-ray-actors.jpg)
+
+`_EngineBackgroundProcess`가 `ServeReplica`와 별개 액터(PID 377 vs 187)입니다. vLLM 엔진은 replica가 아니라 이 액터 안에서 돌고 로그도 그쪽 파일로 갑니다. 6장에서 "로그가 한 겹 안쪽"이라고 한 구조가 이것입니다.
+
+### 계층 2 — Triton + vLLM 백엔드
+
+#### 응답하는 쪽이 Triton이다
+
+![브라우저에서 연 :9000/v1/models 응답 — 모델 하나(id qwen), owned_by가 "Triton Inference Server"](./screenshots/proof-w3-10-triton-v1-models.jpg)
+
+`owned_by`가 `Triton Inference Server`입니다. 같은 OpenAI 규격이라도 응답을 만드는 주체가 Triton임이 여기 박혀 있습니다. 4장에서 "요청이 Triton을 거쳐 엔진으로 들어간다"고 한 구조입니다.
+
+#### `vllm:*`이 없고 `nv_*`만 있다
+
+![Triton :9000/metrics 전문 — nv_inference_request_success 2401, nv_inference_queue_duration_us 1179290, nv_gpu_utilization·nv_gpu_memory_used_bytes 등 nv_로 시작하는 이름만 나열되고 vllm: 로 시작하는 이름은 하나도 없다](./screenshots/proof-w3-11-triton-metrics.jpg)
+
+이 화면이 6장 표의 `0개 / nv_* 22개`입니다. 이름이 전부 `nv_`로 시작하고 `vllm:`은 한 줄도 없습니다.
+
+값도 살아 있습니다. 이 화면은 동시성 64로 2,400요청을 건 직후에 찍었고(2,243.6 tok/s, goodput 100%), 부하 전 0이던 카운터가 이렇게 올라갔습니다.
+
+| 지표 | 부하 전 | 부하 후 |
+|---|---|---|
+| `nv_inference_request_success` | 0 | 2,401 |
+| `nv_inference_count` | 0 | 2,401 |
+| `nv_inference_queue_duration_us` | 0 | 1,179,290 |
+
+누적 큐 대기 1,179,290µs를 2,401건으로 나누면 건당 약 491µs입니다. 6장에서 "큐에 밀렸나를 계층 층위에서 볼 수 있다"고 한 것이 이 값입니다. 대신 KV cache 사용률과 선점 횟수는 이 목록 어디에도 없습니다.
+
+### 계층 3 — KServe
+
+#### 응답하는 쪽이 vLLM 자신이다
+
+![브라우저에서 연 KServe 예측기 :30080/v1/models 응답 — id qwen, owned_by가 "vllm", root가 /mnt/models/hub/models--Qwen--Qwen2.5-1.5B-Instruct/snapshots/989aa7980e4cf806f80c7fef2b1adb7bc71aa306, max_model_len 4096](./screenshots/proof-w3-13-kserve-v1-models.jpg)
+
+여기서 `owned_by`는 `vllm`입니다. Triton 화면과 나란히 놓으면 4-5의 구분이 그대로 보입니다. **KServe는 요청을 중계하지 않고 vLLM 자신의 서버가 그대로 노출됩니다.**
+
+`root`가 `/mnt/models/hub/models--Qwen--...`인 것은 KServe가 `storageUri`로 붙여 준 HF 캐시 경로이고, `max_model_len`이 4096인 것은 본문 통제 변수와 같습니다.
+
+#### `vllm:*`이 그대로 남아 있다
+
+![KServe 예측기 :30080/metrics 중간 부분 — vllm:num_requests_running, vllm:num_requests_waiting, vllm:num_requests_waiting_by_reason, vllm:kv_cache_usage_perc, vllm:prefix_cache_queries_total 209650, vllm:prefix_cache_hits_total 38452, vllm:num_preemptions_total 등 vllm: 으로 시작하는 이름이 이어진다](./screenshots/proof-w3-14-kserve-metrics.jpg)
+
+6장 표의 `66개 (그대로)`가 이것입니다. 앞의 Triton 화면과 같은 자리에 **이름이 전부 `vllm:`으로 시작합니다.**
+
+특히 두 데이터 플레인 계층에서 잃는다고 적은 두 가지가 여기 그대로 있습니다.
+
+- `vllm:kv_cache_usage_perc` — KV cache 사용률
+- `vllm:num_preemptions_total` — 메모리가 모자라 요청이 밀려난 횟수
+
+`vllm:prefix_cache_queries_total 209650` / `vllm:prefix_cache_hits_total 38452`처럼 방금 건 부하가 값에 반영돼 있습니다. 이 부하는 2,400요청에 3,248.3 tok/s, goodput 100%였습니다.
+
+### 두 부하가 GPU에 닿은 모습
+
+![Prometheus DCGM_FI_DEV_GPU_UTIL 그래프 15분 구간 — 왼쪽 청록 계열이 16:36~16:37에 45%에서 65%로 올랐다 내려오고, 오른쪽 초록 계열이 16:43~16:44에 35%에서 99%로 올랐다 내려온다. 초록 시계열의 라벨에 exported_container="kserve-container", exported_namespace="llm-serving-lab", exported_pod="qwen-predictor-5c4f546d7-5g74b"가 붙어 있다](./screenshots/proof-w3-15-gpu-util-triton-kserve.jpg)
+
+한 그래프에 두 부하가 나란히 있습니다. 왼쪽 봉우리가 Triton, 오른쪽이 KServe입니다.
+
+읽을 것이 하나 더 있습니다. **오른쪽 시계열에만 `exported_pod="qwen-predictor-..."`가 붙어 있습니다.** KServe 예측기는 쿠버네티스 파드라 DCGM 지표에 출처가 박히지만, 도커로 띄운 Triton은 그 라벨이 없습니다. 계층을 고르면 관측 경로도 같이 정해진다는 이야기가 이 라벨 한 줄에 들어 있습니다.
+
+---
+
 ## 한계와 다음 단계
 
 1. 부하가 짧은 프롬프트 한 종류입니다. 2장의 결론("KV 상한을 흔들어도 처리량이 안 아프다")은 긴 프롬프트에서는 뒤집힐 수 있습니다. 오히려 그 조건이 KV 상한이 실제로 물리는 조건입니다.
@@ -434,10 +476,6 @@ replica의 STDOUT에는 네 줄뿐이고, `_EngineBackgroundProcess`가 `ServeRe
 6. Triton 구성에서는 토큰을 스트림 이벤트 수로 셌습니다. Triton 24.12 프론트엔드가 `stream_options`를 거부해 `usage`를 못 받기 때문입니다. 같은 서버에서 두 방식을 비교해 확인한 결과 c≤32에서 차이는 1.3% 안이었고 실제 토크나이저 대조에서도 46 대 47토큰(오차 2%)이었습니다.
 7. KV 예산은 정적 공식이 아니라 기동 시 프로파일링 결과입니다. 그래서 같은 설정으로 다시 띄워도 `Maximum concurrency`가 달라질 수 있고, 지난 편에서는 같은 구성이 두 배 차이로 갈린 적도 있습니다. 원인은 아직 못 밝혔습니다. 이번 측정에서는 짝마다 기동 로그의 KV 값이 일치하는 것을 확인하고 진행했습니다.
 8. WSL2에서 `pin_memory=False`로 동작합니다. 전 구성 같은 조건이라 비교에는 중립이지만 절대값은 낮게 나옵니다.
-
-![Grafana DCGM 대시보드 상단 — GPU Temperature가 유휴 46°C 대에서 측정 구간에만 60°C·69°C로 치솟는다. GPU Avg. Temp 게이지는 46.1°C](./screenshots/proof-w3-09-grafana-dcgm-temp.jpg)
-
-> ⚠️ 온도는 유휴 46°C에서 측정 구간에만 60·69°C로 오릅니다. 다만 같은 화면의 `GPU Power Usage`가 **최대 593 W**로 읽힙니다. 이 GPU는 70 W 제품이라 그대로 믿을 수 없는 값이고, 원인을 확인하지 않았으므로 **이 글에서 전력 수치는 쓰지 않았습니다.**
 9. chunked prefill은 하지 못했습니다. 다만 ray-llm 2.44.1의 vLLM 0.7.2는 V0 엔진이고 `chunked_prefill_enabled=False`가 기본이라 ON/OFF 비교가 가능한 환경임은 확인했습니다.
 10. KServe는 RawDeployment 모드입니다. Istio·Knative를 깔지 않았으므로 Serverless 모드의 scale-to-zero·트래픽 분할은 보지 못했습니다. 그 기능들은 요청 경로에 뭔가를 세워야 하는 일이라 켜면 계층 비용도 같이 생길 가능성이 높습니다. −2.2%는 RawDeployment의 값입니다.
 
