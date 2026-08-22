@@ -32,8 +32,11 @@ Last Updated: 2026-08-22
   - **백그라운드 태스크 강제 종료는 이번 세션에서 겪지 않았다.** WSL 안에서 `setsid`로 분리한 프로세스(keeper·이미지 풀·벤치마크)는 별도 `wsl.exe` 호출을 넘어 살아남았다.
   - Windows에서 `PYTHONIOENCODING=utf-8 py -3`로 게이트·테스트가 전부 돈다 (`Makefile`의 `PY` 항목 실마리).
 - **Verified**: `check_docs.py` green · `--only md` 975 nodes/81 docs · `pytest` 91 passed · 그림 2종 headless Chrome 렌더로 눈 확인 · 롤아웃마다 `/v1/models`와 기동 로그 양쪽으로 반영 확인.
-- **Blockers**: 없음. **노션 발행 + 링크 공유만 남음** (마감 08-23 09:00).
-- **Next**: 글 검토 → 노션 발행 → 과제 링크 공유.
+- **윤문·발행** (같은 날) — humanize-korean heavy 경로(진단→겨냥 윤문→finalize). 진단이 *논증 자체는 사람 글*로 보고 지배 패턴을 4개로 좁힘. 볼드 62→38 · 대구 17→7 · 연결어미 뒤 쉼표 24→1 · 대시 15→9. **수치 831개·헤딩 48개 전원 보존**(자체 게이트), 변경률 0.51%, finalize fidelity 위반 0건.
+  - ⚠️ `verify_gates.py`의 P3 golden FAIL 1건은 **오탐**. 이 글에 각주가 없다 — `1)` 패턴은 `(c=1)`·`(§5-1)`뿐. finalizer도 독립 확인.
+  - **노션 발행 완료** — https://app.notion.com/p/3c44c2420ac48157aaebe78f971e05c9. 표 21개 변환, 그림 2장 업로드, 발행 후 fetch로 전 수치 대조 확인.
+- **Blockers**: 없음. **과제 링크 공유만 남음** (마감 08-23 09:00, 사용자가 직접 공유).
+- **Next**: 링크 공유 → 4주차 예습 노트.
 
 ## 2026-08-16 — 2주차 마감 통과. **3주차 방향 확정 + 실습 문서 5편 작성**
 
