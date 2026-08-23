@@ -2,6 +2,32 @@
 
 Last Updated: 2026-08-23
 
+## 2026-08-23 — 3주차 마감 통과. **4주차(CH7·CH8) 착수 — 실습 시나리오 5편 + 설계**
+
+- **Status**: 게이트 green — 문서 3종 + labs **91건**. 인덱스 **1084 nodes / 92 docs**. 커밋 `dd8fc04` 푸시 완료(origin PRIVATE 확인 후).
+- **3주차 종료**: 노션 재발행 + 과제 링크 공유 완료. **마감 08-23 09:00 통과** — 3주 연속 제출.
+- ★ **4주차 축을 교재에서 찾았다.** 만들어 붙인 게 아니라 `Ch7.md:12`의 첫 질문이 그대로 축이다 — *"compute-bound vs memory-bound가 이 장 전체를 관통하는 단일 기준"*. 네 기법이 전부 조건부로만 이득이고 조건이 하나다. 그 조건이 코드 어디에 있는지는 `Ch8.md:9`가 답한다(`num_computed_tokens`). **CH7(측정)과 CH8(설명)이 한 글에 들어가는 이유가 여기서 나왔다.**
+- **Changed**
+  - `articles/조건부 최적화 실습 시나리오 (CH7·CH8).md` + `4주차-00`~`-04` 신규 6편(총 1,083줄). E1 추측 디코딩 / E2 chunked prefill / E3 prefix caching / E4 스케줄러 소스 해부.
+  - `docs/plans/2026-08-23-week4-conditional-optimization.md` 신규.
+  - `knowledge/07-aws-gpu-quota.md` 신규 — 절차·비용·정리 목록. `README.md`·`04-kickoff-checklist.md`에서 연결.
+  - `docs/{AGENT_BRIEF,STATUS,NEXT_PLAN}.md` — 3주차 완료 반영, Priority 0을 4주차로 교체.
+- ★ **`benchmark.py`를 읽고 설계 두 곳을 정정했다** (추측으로 계획을 세웠다가 뒤집힌 자리)
+  - **E3은 도구 수정이 필요 없다.** `prefill` 시나리오의 프롬프트가 같은 문단을 **24회 반복**한 긴 문맥이고(`benchmark.py:30`), 2주차에 만든 `--unique-prefix`(`:160`)가 UUID를 붙여 **일부러 적중을 막는다**. 서버 캐시 ON/OFF와 곱하면 2×2가 그대로 나온다. 계획에 있던 `[auto]` 선행 작업을 지웠다.
+  - **E2는 반대로 함정이 있었다.** 시나리오가 **순차 실행**이라(`run_scenario`가 시나리오마다 별도 executor) `--scenarios prefill,decode`로는 안 섞인다. 간섭을 재려는 실험인데 간섭이 안 생긴다. **두 프로세스 동시 실행**이 코드 수정 없는 유일한 방법이라 런북에 스크립트로 넣었다.
+- **런북에 박은 함정 방지 셋**
+  1. **E1에 워크로드 축 추가** — ngram은 출력이 입력을 되풀이할 때만 맞는다. `decode`만 재고 *"ngram은 효과 없다"* 고 쓰면 워크로드를 안 맞춘 것이지 기법이 나쁜 게 아니다. `decode`(반복 없음) × `prefill`(긴 문맥) 두 워크로드로 **조건이 동시성만이 아님**을 보인다.
+  2. **E1-1 KV 예산 표를 먼저 채우게 했다.** draft 팔은 0.5B가 VRAM을 먹어 KV가 준다. 이 표 없이는 "추측 디코딩 탓"과 "KV가 좁아진 탓"을 구별할 수 없다.
+  3. **기동 로그 + `spec_decode_*` 메트릭 두 곳 교차 확인**, 둘 다 비면 측정 금지. 3주차 `accelerator_type: null`과 같은 조용한 실패를 막는 자리.
+- **AWS GPU 쿼터 — CLI로 조회해 실태를 확인했다**
+  - `us-east-1`·`ap-northeast-2` 둘 다 `Running On-Demand G and VT instances = 0.0`, **신청 이력 없음**. 지금은 GPU 인스턴스를 아예 못 띄운다. 6주차(09-06) EKS가 여기 걸려 있다.
+  - 목표 인스턴스(`g6e.2xlarge`·`g6.12xlarge`·`g5.xlarge`)는 세 리전 모두에 있음을 `describe-instance-type-offerings`로 확인 → 선택 기준은 가용성이 아니라 워크숍 리전. **us-east-1 / 값 32**로 확정.
+  - **콘솔로 신청해야 한다** — `request-service-quota-increase`에는 사유 필드가 없고 GPU 쿼터는 사유가 승인 속도를 가른다.
+- **범위 확정**: 랩톱 GPU 1장(RTX 4080 12GB)만. 외부 GPU 없음. 비용은 따져봤으나(단일 GPU 실습 약 $6, TP=4 약 $19) **이번 주 A~D는 AWS를 써도 얻는 게 없다**는 판단.
+- **Verified**: `make check` green(문서 3종 + labs 91건, 이 맥에서는 `check-labs`도 됨) · `make index-md` 1084 nodes/92 docs · `git ls-files study/` 비어 있음(원문 커밋 밖) · 인덱스의 `study/` 문자열 2건은 경로 인용이지 발췌 아님 · `gh repo view` PRIVATE.
+- **Blockers**: 없음. **AWS 쿼터 신청은 사용자가 콘솔에서 직접** 해야 함.
+- **Next**: ① `df -h`로 3주차 잔해 이미지 정리(Triton 27.4GB + ray-llm 11.9GB) → ② `vllm --help`로 플래그·메트릭 이름 확인 → ③ **E1(추측 디코딩)**, 08-25(화) 예정.
+
 ## 2026-08-23 — 3주차 **서빙 계층 3종 가격표 완성**. 글 전면 재구성
 
 - **Status**: 측정 완료 · 원고 재작성 완료 · 윤문/발행 진행 중. 커밋 `c35ae8d`.
