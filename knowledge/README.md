@@ -18,6 +18,7 @@ knowledge/
 ├── 04-kickoff-checklist.md   ★ 시작 전 실행 체크리스트
 ├── 05-week1-prep.md          ★ 1주차 CH1~2 예습 노트
 ├── 06-week2-prep.md          ★ 2주차 CH3~4 예습 노트
+├── 07-aws-gpu-quota.md       ★ AWS GPU 쿼터 신청 절차 · 비용 · 정리 목록 (6주차 EKS용)
 │
 ├── subpages/                 ★ 노션 서브페이지·실측 기록 11종 정리
 │   ├── README.md             인덱스 · 주제 지도 · 읽는 순서
@@ -67,6 +68,7 @@ knowledge/
 | 시작 전 준비물 상세 | [03-study-rules.md](./03-study-rules.md) → [01-environment-setup.md](./01-environment-setup.md) |
 | **1주차 예습** | **[05-week1-prep.md](./05-week1-prep.md)** — CH1~2 핵심 미리보기 |
 | **2주차 예습** | **[06-week2-prep.md](./06-week2-prep.md)** — CH3~4 핵심 미리보기 |
+| **AWS GPU 쿼터를 신청해야 한다** | **[07-aws-gpu-quota.md](./07-aws-gpu-quota.md)** — 현재 값 `0`, 6주차(09-06) 전까지 필요 |
 | **자료가 너무 많다, 뭘 봐야 하나** | **[references/priority-guide.md](./references/priority-guide.md)** — 필수 12개만 추림 |
 | 그 자료가 무슨 내용인지 먼저 알고 싶다 | [references/deep-dives.md](./references/deep-dives.md) |
 | 이번 주 뭘 읽어야 하나 | [references/priority-guide.md](./references/priority-guide.md) 주차별 권장 |

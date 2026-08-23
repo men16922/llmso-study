@@ -17,18 +17,19 @@ Last Updated: 2026-08-23
 - **측정 원본** — `labs/wsl2-vllm-baseline/results/`에 2주차 B1·B2 8종 + **3주차 계층 3종과 각각의 짝**: `c3-rayserve-*`·`b3-*`·`b-direct-v072-*`(Ray Serve 짝) / `c3-triton-vllm-seqs64`·`b-direct-v055-*`(Triton 짝) / `c3-kserve-vllm-seqs64`·`b-direct-v0200-*`(KServe 짝) + `metrics-*.txt` 6종, 분석 3종. C2는 `labs/triton-dynamic-batching/results/` 16종.
 - `study/` — 노션 원문 로컬 사본. **gitignore + 인덱스 제외** (멤버 전용 자료). `Ch1~Ch6.md` + `LLM기초.md`.
 
-스터디 진행: **1·2주차 완료·제출 완료. 3주차(CH5·CH6) 계층 3종 측정 + 글 재작성 완료 — 노션 재발행·링크 공유 남음.**
+스터디 진행: **1·2·3주차 완료·제출 완료** (3주차 마감 08-23 통과). **4주차(CH7·CH8) 착수 — 마감 08-30 09:00.**
 
 ## Active Focus
 
 Authority: `docs/NEXT_PLAN.md`.
 
-0. **3주차 과제 제출** — 원고 재작성 완료. **남은 것은 노션 재발행(https://app.notion.com/p/3c44c2420ac48157aaebe78f971e05c9 갱신) + 링크 공유.** 마감 **2026-08-23 09:00**.
-1. 그다음: 4주차 예습 노트.
+0. **4주차 (CH7·CH8) 과제** — 축은 **조건부 최적화와 그 조건**(compute-bound vs memory-bound). 실험 4종: B 추측 디코딩(주인공) · A chunked prefill · C prefix caching · D vLLM 스케줄러 해부. 설계는 [`docs/plans/2026-08-23-week4-conditional-optimization.md`](./plans/2026-08-23-week4-conditional-optimization.md). 마감 **2026-08-30 09:00**.
+1. 선행: 플래그·메트릭 이름 확인 + `benchmark.py` 공유 프리픽스 옵션(`[auto]`).
+2. **AWS GPU 쿼터 신청** — 사용자가 콘솔에서 직접.
 
 ## Open Risks
 
-- **과제 미공유 1회 = 제명.** 다음 마감 **2026-08-23(일) 09:00**. 원고는 끝났고 **재발행 + 공유가 남았습니다.**
+- **과제 미공유 1회 = 제명.** 3주차까지 3회 전부 통과. 다음 마감 **2026-08-30(일) 09:00**.
 - ⚠️ **공백이 또 반복됐습니다** — 08-16 → 08-21 닷새. 이번에는 측정이 계획 추정보다 훨씬 빨라(벤치마크 1회 약 4분, `serveConfigV2` 롤아웃 20~60초) 한 세션에 셋을 다 넣었지만, 운이 좋았던 것에 가깝습니다. 4주차는 측정을 주중 앞쪽으로.
 - ~~`Maximum concurrency` 변동 원인 미확인~~ → **부분 규명.** `max_num_seqs`를 키우면 활성화 피크가 커져 KV 예산을 갉아먹습니다(0.26→0.48 GiB ⇒ KV 7.00→6.79 GiB). KV 예산은 정적 공식이 아니라 **기동 시 프로파일링 결과**입니다. 다만 이번 변동은 3%라 **2주차의 2배(59.50↔28.77)는 여전히 미확인**입니다.
 - **`vllm:*` 메트릭은 데이터 플레인 계층에서만 사라집니다.** Ray Serve(`:8000/metrics` 404)·Triton 둘 다 0개인데, KServe(RawDeployment)는 66개가 그대로 남습니다 — KServe는 요청 경로에 없기 때문입니다. 서버 측 교차검증이 필요한 실험은 KServe나 계층 없는 구성 위에서 설계하세요.
@@ -44,4 +45,5 @@ Authority: `docs/NEXT_PLAN.md`.
 - **교재 CH5의 KV 공식은 MHA 전제입니다** (`2 × 층수 × 어텐션 헤드 수 × head_dim × 정밀도`). Qwen2.5-1.5B는 **GQA**라 그대로 쓰면 안 맞습니다 — 손계산 시 `num_key_value_heads`를 쓸 것. 교재가 *"이후 장에서 MQA·GQA·MLA 소개"* 라 예고한 장이 곧 **이번 주 CH6**이라, 이 어긋남을 3주차 글의 핵심 절로 배치했습니다.
 - **C1이 노션 CH3 원문 대조로 재설계됐습니다.** 교재 서버는 `main.py:63/69/74`가 `async def` 안에서 동기 호출을 해 이벤트 루프가 막히고 동시 요청이 순차 처리됩니다. 배칭 축을 `--prompts-per-request`로 바꿨고, 동시성은 `async def`→`def` 수정 전후 비교로 씁니다. **이 발견 자체가 02편의 핵심**입니다.
 - **PDF 인덱스 재생성 사고** — `build_pageindex.py`를 `--only md` 없이 돌리면 LLM 한국어 요약이 날아갑니다. 게이트는 스키마만 보므로 이 회귀를 **잡지 못합니다**(`meta.summary_method` 회귀 검사는 미도입). 복구는 `enrich_summaries.py` 재실행(해시 캐시 있어 거의 공짜).
-- **AWS GPU 쿼터 미신청** — 6주차(09-06) EKS 실습용. 목표 시한 2026-08-23.
+- ⚠️ **AWS GPU 쿼터가 `0`으로 확인됐습니다** (2026-08-23 CLI 조회, us-east-1·ap-northeast-2 둘 다. 신청 이력 없음). **지금 상태로는 GPU 인스턴스를 아예 못 띄웁니다.** 6주차(09-06) EKS 실습이 여기 걸려 있습니다. 신청은 사용자가 콘솔에서 직접(us-east-1 / `L-DB2E81BA` / 값 32).
+- **4주차는 GPU 1장 범위로 확정** (2026-08-23). 멀티GPU 도전과제(TP/PP·2노드·MoE EP·실제 PD 분리)와 SGLang·TensorRT-LLM은 이번 주 제외 — 글의 한계 절에 "왜 못 재는지"로 명시.

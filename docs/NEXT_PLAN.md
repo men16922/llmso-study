@@ -2,17 +2,40 @@
 
 Last Updated: 2026-08-23
 
-> ✅ **2주차 마감 통과** (2026-08-16 09:00). 글 2편 노션 발행 + 링크 공유 완료.
+> ✅ **3주차 마감 통과** (2026-08-23 09:00). `서빙 최적화, 설정부터 만지면 안 되는 이유` 노션 발행 + 링크 공유 완료.
 >
-> ▶ **3주차 — 계층 3종 측정 + 글 재작성 완료 (2026-08-23).** 남은 것은 **노션 재발행 + 링크 공유**입니다. 마감 08-23 09:00.
-> 갱신할 페이지: https://app.notion.com/p/3c44c2420ac48157aaebe78f971e05c9
-> 원고는 `articles/서빙 최적화, 설정부터 만지면 안 되는 이유.md` — 이전 원고 `슬롯을 4배로...`를 **대체**합니다.
+> ▶ **4주차 (CH7·CH8) 진행 중.** 마감 **2026-08-30(일) 09:00**.
+> 축은 **조건부 최적화와 그 조건** — 설계는 [`docs/plans/2026-08-23-week4-conditional-optimization.md`](./plans/2026-08-23-week4-conditional-optimization.md).
 
 열린 작업만 담는 롤링 플랜입니다. 완료 이력은 `docs/COMPLETED_SUMMARY.md`.
 
 > **이 저장소에서 `[auto]`가 드문 이유**: 게이트는 링크·스키마·문법만 증명합니다. 스터디 문서의 **내용이 맞는가**(교재 챕터 대응, PDF 쪽수 인용)는 원문 대조가 필요해 오프라인으로 검증할 수 없습니다. 그래서 문서 집필은 원칙적으로 `[manual]`이고, `[auto]`는 게이트 자체를 두껍게 만드는 작업에 집중됩니다.
 
-## Priority 0 — 3주차 (CH5·CH6) · 마감 2026-08-23 (일) 09:00
+## Priority 0 — 4주차 (CH7·CH8) · 마감 2026-08-30 (일) 09:00
+
+스터디일 2026-08-23(모임 20:30). 범위는 **CH7 Advanced LLM Optimization Techniques** + **CH8 LLM Serving Frameworks**.
+
+설계·근거·함정·잘라내기 순서는 **[`docs/plans/2026-08-23-week4-conditional-optimization.md`](./plans/2026-08-23-week4-conditional-optimization.md)**,
+실행 런북은 **[`articles/조건부 최적화 실습 시나리오 (CH7·CH8)`](../articles/%EC%A1%B0%EA%B1%B4%EB%B6%80%20%EC%B5%9C%EC%A0%81%ED%99%94%20%EC%8B%A4%EC%8A%B5%20%EC%8B%9C%EB%82%98%EB%A6%AC%EC%98%A4%20%28CH7%C2%B7CH8%29.md)** 시리즈(00~04)에 있습니다. 여기에는 체크리스트만 둡니다.
+
+**글의 축**: CH7이 스스로 밝힌 단일 기준 — **compute-bound vs memory-bound**. 네 기법이 전부 "조건부로만 이득"이고 조건이 하나의 축이다. 그 조건이 코드 어디에 있는지는 CH8(vLLM 스케줄러)이 답한다. 3주차 결론(*구조가 설정의 상한을 정한다*)의 다음 칸.
+
+**범위 확정 (2026-08-23)**: 랩톱 GPU 1장만. 외부 GPU 없음. SGLang·TensorRT-LLM·멀티GPU 도전과제는 한계 절에 "왜 못 재는지"로 명시.
+
+- [ ] [auto] **⓪ 선행 — 플래그·메트릭 이름 확인.** `docker run --rm vllm/vllm-openai:v0.23.0 --help`로 `--speculative-config` 스키마 · prefix caching OFF 플래그 · `--max-num-batched-tokens` 하한 · `vllm:spec_decode_*` / `vllm:prefix_cache_*` 메트릭 이름을 **추측하지 말고 확인**. 3주차 `accelerator_type: null` 같은 조용한 실패를 막는 자리. ⚠️ **`df -h` 먼저.**
+- [ ] [auto] *(선택)* **`benchmark.py`에 `quote` 시나리오 추가** — 긴 문서 + "그대로 인용하며 요약". ngram 수용률의 최선값을 보려면 이게 가장 확실합니다. 순수 데이터라 오프라인 테스트 가능. **필수는 아닙니다** — 기존 `prefill`/`decode` 두 시나리오만으로도 워크로드 축은 섭니다.
+- [ ] [manual] **① E1 — 추측 디코딩** ★ 주인공. vanilla / ngram / draft-0.5B × 동시성 1·4·16·64. ITL·TPOT·처리량·**수용률**. 가설은 "저동시성 이득, 고동시성 역효과". 출발점은 `Ch7.md:949`의 교재 관측. ⚠️ draft 팔은 KV 예산이 vanilla와 달라지므로 기동 로그를 세 팔 전부 기록해 비교 가능 여부부터 판정.
+- [ ] [manual] **② E2 — chunked prefill.** `--max-num-batched-tokens` 512/2048/8192. **프리필 지배 요청과 디코드 지배 요청을 섞어서** 넣어야 간섭이 보인다. 3주차 이월분 ③-b 해소. PD 분리의 동기를 GPU 1장에서 설명하는 대역.
+- [ ] [manual] **③ E3 — prefix caching.** 서버 캐시 ON/OFF × 클라이언트 `--unique-prefix` ON/OFF = **2×2**. TTFT와 `prefix_cache_hits/queries`. **도구 수정 불필요** — `prefill` 시나리오와 `--unique-prefix`가 이미 있습니다.
+- [ ] [manual] **④ E4 — vLLM 스케줄러 해부.** `vllm/v1/core/sched/scheduler.py`를 읽고 A·B·C가 같은 토큰 예산 계산의 어느 항을 건드리는지 코드로 짚기. GPU 불필요 — 측정 대기 중 진행. **3주차 글과의 차별점.**
+- [ ] [manual] **⑤ 글 작성** — 이전 글의 8단계 구조(목적→문제 인식→원인→해결→가격표→순서→한계→결론) 유지.
+- [ ] [manual] **⑥ 노션 발행 + ⑦ 링크 공유** ★ 마감 **08-30 09:00**. 사용자가 직접 공유.
+
+**⚠️ 통제 변수**: A·B·C를 **전부 `vllm/vllm-openai:v0.23.0` 하나 위에서** 돈다. 이미 로컬에 있어 추가 다운로드 0. A를 ray-llm(0.7.2, V0)에서 돌리면 그것만 다른 엔진 숫자가 되어 같은 표에 못 넣는다 — 3주차에 데인 자리.
+
+**일정**: 08-24 선행 / 08-25 **B** / 08-26 A / 08-27 C+예비 / 08-28 분석·D / 08-29 초고 / 08-30 발행. B를 앞에 두는 이유는 유일하게 다운로드가 있고 실패 가능성이 가장 높아서.
+
+## Priority 4 — 3주차 (CH5·CH6) · 완료 (마감 2026-08-23 통과)
 
 스터디일 2026-08-16(모임 20:30). 범위는 **CH5 Challenges When Serving LLMs** + **CH6 Essential LLM Optimization Techniques**.
 
@@ -28,8 +51,8 @@ Last Updated: 2026-08-23
 - [x] [manual] **④-b Triton + vLLM 백엔드** (2026-08-23). `nvcr.io/nvidia/tritonserver:24.12-vllm-python-py3`의 OpenAI 호환 프론트엔드로 같은 벤치마크. 짝(같은 이미지, Triton 없음)과 `GPU blocks 15,326` 일치. **계층 비용 −12.6%, goodput 100%.**
 - [x] [manual] **④-c KServe + vLLM** (2026-08-23). KServe 0.20.0 RawDeployment. 짝과 `247,024 tokens / 60.31x` 일치. **계층 비용 −2.2%, goodput 100%, `vllm:*` 66개 보존.** 막힌 다섯 곳은 `labs/kserve-on-k8s/README.md`에.
 - [x] [manual] **⑤ 글 작성 → 전면 재구성** (2026-08-23). 이전 원고는 실험 나열로 읽혀 목적이 서지 않았다. **`articles/서빙 최적화, 설정부터 만지면 안 되는 이유.md`** 로 재작성 — 설정 축 vs 구조 축, 목적→문제 인식→원인→해결법. Triton dynamic batching과 KV 공식은 부록으로.
-- [ ] [manual] **⑥ 노션 재발행** — 기존 페이지(https://app.notion.com/p/3c44c2420ac48157aaebe78f971e05c9)를 새 원고로 갱신. 그림 3장(`fig-c3-layer-cost` 추가) + 스크린샷 9장.
-- [ ] [manual] **⑦ 과제 링크 공유** ★ 마감 **08-23 09:00**. 사용자가 직접 공유.
+- [x] [manual] **⑥ 노션 재발행** (2026-08-23). 기존 페이지를 새 원고로 갱신 + 2차 윤문 반영.
+- [x] [manual] **⑦ 과제 링크 공유 — 완료** (2026-08-23). **3주차 마감 통과.**
 
 **실제 경과**: 08-16 이후 닷새 공백 뒤 08-21~22 한 세션에 측정 3종 + 글까지. 측정이 계획 추정보다 훨씬 빨랐다(벤치마크 1회 약 4분, `serveConfigV2` 롤아웃 20~60초 — 파드를 갈지 않으므로). **2주차와 달리 범위를 줄이지 않았다.**
 
@@ -75,7 +98,11 @@ Last Updated: 2026-08-23
 
 ## Priority 2 — 남은 준비물
 
-- [ ] [manual] AWS GPU 쿼터 증설 신청 (EC2 `Running On-Demand G and VT instances`, 최소 8 vCPU). 6주차(09-06) EKS 실습용, 목표 시한 **2026-08-23**. 절차는 `knowledge/04-kickoff-checklist.md` ⑥.
+- [ ] [manual] **AWS GPU 쿼터 증설 신청 — 사용자가 콘솔에서 직접.** 2026-08-23 CLI 조회로 **현재 값이 us-east-1·ap-northeast-2 둘 다 `0`이고 신청 이력도 없음**을 확인했습니다. 즉 **지금은 GPU 인스턴스를 아예 못 띄웁니다.**
+  - 리전 **us-east-1** / 쿼터 `L-DB2E81BA` (`Running On-Demand G and VT instances`) / 신청 값 **32** (단위는 vCPU. `g6e.2xlarge`=8, `g6.12xlarge`=48)
+  - 콘솔: `https://us-east-1.console.aws.amazon.com/servicequotas/home/services/ec2/quotas/L-DB2E81BA` → Request increase at account level
+  - **CLI 말고 콘솔로 할 것** — `request-service-quota-increase`에는 사유 필드가 없는데 GPU 쿼터는 사유 유무가 승인 속도를 가릅니다.
+  - 상세 절차·비용·정리 목록: **[`knowledge/07-aws-gpu-quota.md`](../knowledge/07-aws-gpu-quota.md)**. 6주차(09-06) EKS 실습용. 승인 여부는 CLI로 조회 가능.
 
 ## Rules
 

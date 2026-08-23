@@ -82,7 +82,11 @@ python3 tools/search_index.py "attention"
 
 ## ⑥ AWS GPU 쿼터 — 8월 하순까지
 
+> 상세 절차·비용·정리 목록은 **[`07-aws-gpu-quota.md`](./07-aws-gpu-quota.md)** 에 있습니다. 아래는 요약입니다.
+
 **6주차(9/6) EKS 실습용**입니다. 표준 증설은 보통 몇 시간~며칠이면 승인되므로 지금 급하게 할 필요는 없습니다. **8월 셋째 주쯤(~8/23)** 신청해두면 거절 후 재신청할 여유까지 확보됩니다.
+
+> ⚠️ **2026-08-23 확인: 쿼터가 `0`이고 신청 이력이 없습니다.** `us-east-1`·`ap-northeast-2` 둘 다 `Running On-Demand G and VT instances = 0.0`입니다. **이 상태로는 GPU 인스턴스를 아예 못 띄웁니다** — 시간당 몇 달러짜리 짧은 실습조차 시작이 안 됩니다. 리전은 **us-east-1**로 정했습니다(교재 실습 기록도 us-east-1). 확인 명령은 아래 참조.
 
 - [ ] AWS 계정 준비 (없다면)
 - [ ] 쿼터 증설 신청 (아래 표)
@@ -93,13 +97,26 @@ python3 tools/search_index.py "attention"
 | 서비스 | **Amazon EC2** |
 | 쿼터 이름 | **Running On-Demand G and VT instances** |
 | 단위 | **vCPU 수** (인스턴스 대수가 아님) |
+| 쿼터 코드 | **`L-DB2E81BA`** |
+| 현재 값 | **0** (2026-08-23 확인) |
 | 목표 인스턴스 | `g6e.2xlarge` = **8 vCPU** |
-| 신청 값 | 최소 **8**, 여유 있게 **16~32** 권장 |
+| 신청 값 | **32** 권장 |
 
 ```
-AWS Console → Service Quotas → AWS services → Amazon Elastic Compute Cloud (Amazon EC2)
-→ "Running On-Demand G and VT instances" 검색 → Request increase at account level
+https://us-east-1.console.aws.amazon.com/servicequotas/home/services/ec2/quotas/L-DB2E81BA
+→ Request increase at account level → 32
 ```
+
+현재 값·신청 이력 확인 (읽기 전용):
+
+```bash
+aws service-quotas get-service-quota --service-code ec2 --quota-code L-DB2E81BA --region us-east-1
+aws service-quotas list-requested-service-quota-change-history-by-quota \
+  --service-code ec2 --quota-code L-DB2E81BA --region us-east-1
+```
+
+- **CLI로 신청하지 마세요.** `request-service-quota-increase`에는 **사유를 적는 필드가 없습니다.** GPU 쿼터는 사유 유무가 승인 속도를 크게 가르므로 콘솔로 신청하세요.
+- **왜 32인가**: 최소는 8이지만 8만 받으면 인스턴스 한 대에 묶여 실습 중 교체가 안 됩니다. 다만 `g6.12xlarge`(4×L4, TP=4 도전과제)는 **48 vCPU**라 32로도 부족합니다 — 0에서 48을 한 번에 부르면 사람 검토로 넘어가므로, 필요해지면 그때 증액하는 쪽이 승인 확률이 높습니다.
 
 - **리전을 확인하세요.** 쿼터는 리전별입니다. 워크숍을 돌릴 리전에 신청해야 합니다.
 - 신청 사유에는 "머신러닝 추론 워크숍 실습" 정도로 구체적으로 적으면 승인이 빠릅니다.
