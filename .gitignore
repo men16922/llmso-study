@@ -22,7 +22,6 @@ venv/
 # 저장소는 비공개지만, 원문 그대로의 전재는 스터디 규칙상 금지입니다
 # (knowledge/03-study-rules.md). 읽기용으로만 두고 커밋하지 않습니다.
 # tools/build_pageindex.py의 MD_SKIP_DIRS에도 같은 이유로 들어가 있습니다.
-study/
 
 # 임시
 *.tmp
