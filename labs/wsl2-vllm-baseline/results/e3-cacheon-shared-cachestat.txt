@@ -1,0 +1,1 @@
+e3-cacheon-shared            queries=   131736 hits=   128960 적중률=  97.9%

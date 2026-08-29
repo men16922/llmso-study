@@ -58,12 +58,13 @@ spec:
               --max-model-len "$MAX_MODEL_LEN"
               --gpu-memory-utilization "$GPU_MEMORY_UTILIZATION"
               --max-num-seqs "$MAX_NUM_SEQS"
+              $EXTRA_ARGS
           env:
             - name: MODEL_ID
               value: Qwen/Qwen2.5-1.5B-Instruct
             - name: SERVED_MODEL_NAME
               value: qwen2.5-1.5b
-            # 아래 3개는 실습 중 `kubectl set env`로 바꿔가며 롤아웃한다.
+            # 아래 4개는 실습 중 `kubectl set env`로 바꿔가며 롤아웃한다.
             # 예: kubectl -n llm-serving-lab set env deploy/vllm-baseline MAX_NUM_SEQS=64
             - name: MAX_NUM_SEQS
               value: "16"
@@ -71,6 +72,24 @@ spec:
               value: "4096"
             - name: GPU_MEMORY_UTILIZATION
               value: "0.85"
+            # 4주차(CH7·CH8) 추가 — 실험마다 다른 플래그를 붙이는 자리.
+            # args에서 `$EXTRA_ARGS`는 **따옴표 없이** 전개된다. 셸 단어 분리로
+            # 여러 플래그가 되기 때문이고, 따옴표를 씌우면 통째로 인자 하나가 되어
+            # vLLM이 "unrecognized arguments"로 죽는다.
+            #
+            # 아래 플래그 이름은 v0.23.0의 `vllm serve --help=all`에서 실제로
+            # 확인한 것이다 (원본: results/e-vllm-help.txt).
+            #
+            #   redeploy EXTRA_ARGS='--max-num-batched-tokens 512'
+            #   redeploy EXTRA_ARGS='--no-enable-prefix-caching'
+            #   redeploy EXTRA_ARGS='--spec-method ngram --spec-tokens 5'
+            #   redeploy EXTRA_ARGS='--spec-model Qwen/Qwen2.5-0.5B-Instruct --spec-tokens 5'
+            #   redeploy EXTRA_ARGS=''            # 원복 (vanilla)
+            #
+            # `--speculative-config '<JSON>'`도 있지만 평탄화된 `--spec-*`가 낫다 —
+            # 여기서는 단어 분리로 전달되므로 JSON에 공백이 하나라도 있으면 쪼개진다.
+            - name: EXTRA_ARGS
+              value: ""
           ports:
             - name: http
               containerPort: 8000

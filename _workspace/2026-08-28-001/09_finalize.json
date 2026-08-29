@@ -1,0 +1,34 @@
+{
+  "verdict": "accept",
+  "run_id": "2026-08-28-001",
+  "genre": "report",
+  "fidelity": {
+    "pass": true,
+    "method": "원문 전문 직접 대조(diff 비의존) + 수치 멀티셋 전수 비교",
+    "violations": [],
+    "checks": {
+      "tables_cellwise": "표 2개 11행 완전 동일",
+      "numerics": "26종 전수 일치 (243,696/235,440/140,832, 59.50x/57.48x/34.38x, -3.4/-42.2/40.1/-49.5/-84.9/-4.1/-60.9/0.0/100, 116.1/102.0/58.6/4,745.5/3,388.3/717.7/112.1/335.4/107.5/2,934.1/1,359.9/1,147.6, 12GB/1.5B/0.5B, 30초/45.6초)",
+      "proper_nouns_code_spans": "Qwen2.5-0.5B, vanilla/ngram/draft, `decode`x3 `prefill`x4 불변",
+      "headings_marks_quote": "H2 1개 · ★ 1개 · 인용문 블록 1개 · 구분선 위치 불변",
+      "claim_injection": "0건 — 추가 토큰 0개(삭제 2문자만)이므로 구조적으로 불가",
+      "footnotes": "해당 없음"
+    }
+  },
+  "naturalness": {
+    "residual": [
+      {
+        "id": "C-11",
+        "note": "본문 잔존 연결어미 뒤 쉼표 3곳 재검토 — 전부 통사 기능 보유, 보존 확정. ending_comma_rate z +2.02 미달은 윤문 부족이 아니라 지표 조건(report baseline 부재→essay 대체, 36문장 소표본) 문제로 판정."
+      }
+    ],
+    "over_polish": []
+  },
+  "corrections_applied": 0,
+  "p1_verdict": "윤문 콜의 두 보존 판단 모두 타당. 국소 보정 불필요.",
+  "discrepancies_noted": [
+    "오케스트레이터 전달 요약은 '3건 중 1건만 제거'였으나 실제 diff는 2건 제거·1건 보존(HUMANIZE-SUMMARY의 C-11 3→1과 일치). 전달 과정의 반전으로 보임.",
+    "verify_gates.py가 final.md 전체를 읽으면 HTML 주석 내 HUMANIZE-SUMMARY 산문(연결어미 뒤 쉼표 4곳·★ 1개 포함)이 지표에 섞임. 본문만(구분선 이전) 측정하는지 확인 권장."
+  ],
+  "note": "변경률 0.12% 입력에 대해 과윤문 리스크가 저윤문 리스크보다 크다는 전제를 유지. 의미 드리프트·격식 상향·상투구 주입·문학화 모두 0건이므로 무보정 통과."
+}

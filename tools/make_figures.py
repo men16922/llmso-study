@@ -212,19 +212,22 @@ def fig_log(fname, title, subtitle, key, ylab, files, scenario, slo=None):
     write(fname, out)
 
 
-def fig_cost(fname, title, subtitle, pairs, scenario, yticks):
-    """계층 비용(%)을 그린다.
+def fig_cost(fname, title, subtitle, pairs, scenario, yticks, unit="계층 비용 (%)"):
+    """짝 대비 차이(%)를 그린다.
 
-    pairs는 (계열이름, 짝이 되는 '계층 없음' 파일, '계층 위' 파일)이다.
-    각 계열이 자기 짝과만 비교되므로 엔진 버전 차이가 섞이지 않는다 —
-    구성끼리의 절대 처리량을 한 그림에 겹치면 생기는 혼입을 피하기 위한 것.
+    pairs는 (계열이름, 짝이 되는 '기준' 파일, '적용' 파일)이고,
+    4번째 원소로 시나리오를 따로 줄 수 있다(주면 인자 scenario를 덮어쓴다).
+    각 계열이 자기 짝과만 비교되므로 구성 간 절대값 차이가 섞이지 않는다 —
+    3주차에는 엔진 버전 혼입을, 4주차에는 워크로드 혼입을 막는 용도다.
     """
     n_series = len(pairs)
     xs = None
     series_pts = []
-    for _, base_f, layer_f in pairs:
-        base = {s["concurrency"]: s for s in load_summaries(base_f, scenario)}
-        lay = {s["concurrency"]: s for s in load_summaries(layer_f, scenario)}
+    for pair in pairs:
+        name, base_f, layer_f = pair[0], pair[1], pair[2]
+        scen = pair[3] if len(pair) > 3 else scenario
+        base = {s["concurrency"]: s for s in load_summaries(base_f, scen)}
+        lay = {s["concurrency"]: s for s in load_summaries(layer_f, scen)}
         levels = sorted(set(base) & set(lay))
         xs = levels if xs is None else xs
         series_pts.append([
@@ -241,7 +244,7 @@ def fig_cost(fname, title, subtitle, pairs, scenario, yticks):
         v = max(ymin, min(ymax, v))
         return y1 + (y0 - y1) * (1 - (v - ymin) / (ymax - ymin))
 
-    out = head(title, subtitle, [(i, SERIES[i][0]) for i in range(n_series)], "계층 비용 (%)")
+    out = head(title, subtitle, [(i, SERIES[i][0]) for i in range(n_series)], unit)
     for t in yticks:
         y = ypos(t)
         out.append(f'<line class="grid" x1="{ML}" y1="{y:.1f}" x2="{W - MR}" y2="{y:.1f}" stroke-width="1"/>')
@@ -423,6 +426,28 @@ def main():
         ],
         "short",
         [-80, -60, -40, -20, 0, 20],
+    )
+
+    # ── 4주차 — 추측 디코딩의 이득이 뒤집히는 지점 ──────────────────
+    # 같은 서버·같은 팔에서 워크로드만 다르다. 짝은 언제나 vanilla이므로
+    # 세로축은 "ngram이 vanilla 대비 얼마나 벌었나/잃었나"가 된다.
+    # 0% 선을 두 번 가로지르는 그림이 이 글의 한 장짜리 요약이다.
+    SERIES = [
+        ("prefill (수용률 100%)", "#1baf7a", "#199e70"),
+        ("decode (수용률 ~50%)", "#eb6834", "#d95926"),
+        ("(미사용)", "#2a78d6", "#3987e5"),
+    ]
+    fig_cost(
+        "fig-e1-spec-decode.svg",
+        "추측 디코딩 — 같은 기법, 정반대 결과",
+        "ngram(5토큰)을 vanilla와 비교 · 같은 서버·같은 이미지, 워크로드만 다름 · 각 지점 8요청 1회",
+        [
+            ("prefill", "e1-vanilla.json", "e1-ngram.json", "prefill"),
+            ("decode", "e1-vanilla.json", "e1-ngram.json", "decode"),
+        ],
+        "prefill",
+        [-80, -40, 0, 40, 80, 120, 160, 200],
+        unit="vanilla 대비 처리량 (%)",
     )
 
 

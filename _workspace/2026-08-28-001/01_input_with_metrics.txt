@@ -1,0 +1,71 @@
+[정량 사전 점수 v2.0 — v1.6 8지표(KatFish baseline) + v2.0 카운트형]
+risk_band: medium  (score 4)
+route_hint: light  (권고 — 사용자·오케스트레이터가 무시 가능)
+route_reason: 카운트형 어휘·피동 티 0건 · risk_band medium — 이미 잘 쓴 글, 단일 콜·최소 파이프라인 권장
+genre: report
+char_count: 1675
+warning: baseline_genre_null:report->essay
+
+[v1.6 지표]
+- comma_inclusion_rate: 0.31  (z=+0.24 vs report 인간 baseline)
+- comma_usage_rate: 0.39  (z=-1.04 vs report 인간 baseline)
+- ending_comma_rate: 0.60  (z=+7.11 vs report 인간 baseline)  ★ S1 트리거
+- comma_segment_length: 7.04  (z=+1.28 vs report 인간 baseline)  · S2 시그널
+- conclusion_pivot_count: 0
+- safe_balance_count: 0
+- hanja_nominalizer_density: 0.000  (z=-2.00 vs report 인간 baseline)
+- lexical_diversity: 0.69  (z=+0.78 vs report 인간 baseline)
+
+[v2.0 카운트형 지표 — 원값 / baseline calibration 전 z-score 해석 보류]
+- double_passive_count (이중 피동, 본진 A-8): 0
+- by_passive_count (~에 의해 피동, 본진 A-9): 0
+- pronoun_density (인칭 대명사 밀도, 본진 A-16): 0.000
+- have_make_literal_count (have/make 직역, 본진 A-7): 0
+- double_particle_count (이중 조사 결합, 본진 A-19): 0
+- relative_clause_nesting (관형절 3중+ 중첩 문장 수, 본진 A-18): 1
+- deul_overuse_rate ('-들' 남용률, 본진 A-17 hold): 0.000
+- 카운트 > 0 지표는 해당 본진 ID 처방(quick-rules.md·taxonomy)과 교차 확인 후 윤문할 것.
+
+[근거 사용 가이드]
+- 위 점수는 *근거 보조*다. 단독 판정 금지(보고서 명시).
+- z>1.0 지표는 quick-rules.md S1·S2 패턴과 교차 확인 후 윤문할 것.
+- ending_comma_rate가 ★ S1 트리거인 경우 C-11(연결어미 뒤 쉼표) 우선 손질.
+- conclusion_pivot 매치 토큰은 D-1·H-1 처방 적용 대상.
+
+[원문 시작]
+## 부록 D. draft 모델 팔 — 같은 저울에 못 올린 이유
+
+추측 디코딩에는 두 방식이 있습니다. **ngram**은 입력에 나온 조각을 되풀이해 찍고, **draft 모델**은 작은 모델(여기서는 Qwen2.5-0.5B)에게 찍게 합니다. 본문은 ngram만 다뤘는데, draft 팔도 재기는 했습니다. 결과가 본문에 못 들어간 이유를 적습니다.
+
+**KV 예산에서 이미 갈렸습니다.**
+
+| 팔 | GPU KV cache | Maximum concurrency | vanilla 대비 |
+|---|---|---|---|
+| vanilla | 243,696 tokens | 59.50x | — |
+| ngram | 235,440 tokens | 57.48x | −3.4% |
+| **draft 0.5B** | **140,832 tokens** | **34.38x** | **−42.2%** |
+
+12GB에 1.5B와 0.5B를 같이 올리는 순간 KV 예산의 **42%가 사라집니다.** 이 상태의 숫자는 "추측 디코딩의 값"이 아닙니다. 손해에서 추측 디코딩 탓과 KV가 좁아진 탓을 분리할 수 없기 때문입니다.
+
+측정값 자체는 이렇습니다. 수용률은 **40.1%**였습니다.
+
+| 워크로드 | c | vanilla | ngram | draft | draft 차이 | draft goodput |
+|---|---|---|---|---|---|---|
+| `decode` | 1 | 116.1 | 102.0 | 58.6 | **−49.5%** | 100% |
+| `decode` | 64 | 4,745.5 | 3,388.3 | 717.7 | **−84.9%** | **0.0%** |
+| `prefill` | 1 | 112.1 | 335.4 | 107.5 | −4.1% | 100% |
+| `prefill` | 64 | 2,934.1 | 1,359.9 | 1,147.6 | −60.9% | 100% |
+
+**그런데 이 팔이 본문의 축을 오히려 강화합니다.** 같은 "추측 디코딩"인데 두 방식이 예산에 정반대로 작용하기 때문입니다.
+
+- **ngram은 예산을 안 뺏습니다.** 모델을 추가하지 않으니 KV가 그대로고, 남는 자리만 씁니다. 그래서 `prefill` 저동시성에서 3배가 납니다.
+- **draft 모델은 예산 자체를 42% 줄이고 시작합니다.** 그래서 어느 워크로드·어느 동시성에서도 이득이 없습니다. ngram이 3배를 내던 `prefill` c=1에서조차 −4.1%입니다.
+
+조건이 "예산이 남는가"라면, **예산을 먹고 들어가는 방식은 출발부터 집니다.**
+
+★ 운영 관점에서 가장 무거운 숫자는 처리량이 아니라 **`decode` c=64의 goodput 0.0%**입니다. 64요청 전부가 e2e SLO(30초)를 놓쳤습니다(p95 45.6초). vanilla와 ngram은 같은 지점에서 100%였습니다. **12GB에서 1.5B에 0.5B draft를 얹는 구성은 고동시성에서 서비스가 안 되는 수준입니다.**
+
+> 더 큰 GPU라면 결론이 달라질 수 있습니다. KV 예산에 여유가 있으면 draft 모델의 −42%가 그만큼 아프지 않고, 수용률 40%가 ngram보다 나은 워크로드도 있을 것입니다. **이 부록이 말하는 것은 draft 방식이 나쁘다는 게 아니라, 예산이 빠듯한 GPU에서는 예산을 먹는 방식이 먼저 탈락한다는 것입니다.**
+
+---
+[원문 끝]

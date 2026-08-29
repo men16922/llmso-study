@@ -1,0 +1,152 @@
+{
+  "meta": {
+    "created_at": "2026-08-27T11:32:52.084301+00:00",
+    "base_url": "http://localhost:8000",
+    "api": "openai",
+    "endpoint": null,
+    "batching": null,
+    "model": "qwen2.5-1.5b",
+    "scenarios": [
+      "decode"
+    ],
+    "concurrency": [
+      8
+    ],
+    "requests_per_level": 8,
+    "warmup": 1,
+    "ttft_slo_s": 2.0,
+    "e2e_slo_s": 30.0,
+    "unique_prefix": false,
+    "prompts_per_request": 1,
+    "goodput_definition": "TTFT와 E2E SLO를 모두 만족한 요청 비율"
+  },
+  "summaries": [
+    {
+      "scenario": "decode",
+      "concurrency": 8,
+      "requests": 8,
+      "successes": 8,
+      "failures": 0,
+      "ttft_p50_s": 0.03966555049987619,
+      "ttft_p95_s": 0.04089881804995912,
+      "itl_p50_s": 0.009069462464285805,
+      "itl_p95_s": 0.009291223631680386,
+      "perceived_tps": 110.26011783364795,
+      "e2e_p50_s": 4.610587566500044,
+      "e2e_p95_s": 4.612107940150077,
+      "e2e_mean_s": 4.609635885374985,
+      "output_tokens": 4096,
+      "output_tok_per_s": 886.9435723742789,
+      "goodput_pct": 100.0,
+      "exact_usage_requests": 8,
+      "ttft_measured": true,
+      "wall_s": 4.618106638999961
+    }
+  ],
+  "requests": [
+    {
+      "scenario": "decode",
+      "concurrency": 8,
+      "request_id": 0,
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.03009043300016856,
+      "e2e_s": 4.603482128999985,
+      "output_tokens": 512,
+      "tokens_exact": true,
+      "error": null,
+      "itl_s": 0.009410231074380023
+    },
+    {
+      "scenario": "decode",
+      "concurrency": 8,
+      "request_id": 1,
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.040966388000015286,
+      "e2e_s": 4.612235071000214,
+      "output_tokens": 512,
+      "tokens_exact": true,
+      "error": null,
+      "itl_s": 0.009069424079365533
+    },
+    {
+      "scenario": "decode",
+      "concurrency": 8,
+      "request_id": 2,
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.04077333099985481,
+      "e2e_s": 4.6118718399998215,
+      "output_tokens": 512,
+      "tokens_exact": true,
+      "error": null,
+      "itl_s": 0.009069001809523667
+    },
+    {
+      "scenario": "decode",
+      "concurrency": 8,
+      "request_id": 3,
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.039901342000121076,
+      "e2e_s": 4.61105012400003,
+      "output_tokens": 512,
+      "tokens_exact": true,
+      "error": null,
+      "itl_s": 0.009069500849206078
+    },
+    {
+      "scenario": "decode",
+      "concurrency": 8,
+      "request_id": 4,
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.039429758999631304,
+      "e2e_s": 4.610992617999727,
+      "output_tokens": 512,
+      "tokens_exact": true,
+      "error": null,
+      "itl_s": 0.009070209809523916
+    },
+    {
+      "scenario": "decode",
+      "concurrency": 8,
+      "request_id": 5,
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.03908209000019269,
+      "e2e_s": 4.610182515000361,
+      "output_tokens": 512,
+      "tokens_exact": true,
+      "error": null,
+      "itl_s": 0.009068831361110781
+    },
+    {
+      "scenario": "decode",
+      "concurrency": 8,
+      "request_id": 6,
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.04065676100026394,
+      "e2e_s": 4.6092895560000215,
+      "output_tokens": 512,
+      "tokens_exact": true,
+      "error": null,
+      "itl_s": 0.009064653007935847
+    },
+    {
+      "scenario": "decode",
+      "concurrency": 8,
+      "request_id": 7,
+      "ok": true,
+      "status": 200,
+      "ttft_s": 0.03652259399996183,
+      "e2e_s": 4.607983229999718,
+      "output_tokens": 512,
+      "tokens_exact": true,
+      "error": null,
+      "itl_s": 0.00906993790873017
+    }
+  ]
+}

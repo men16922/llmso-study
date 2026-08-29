@@ -1,0 +1,5 @@
+(APIServer pid=1) INFO 08-28 11:18:05 [api_utils.py:273] non-default args: {'model_tag': 'Qwen/Qwen2.5-1.5B-Instruct', 'host': '0.0.0.0', 'model': 'Qwen/Qwen2.5-1.5B-Instruct', 'max_model_len': 4096, 'served_model_name': ['qwen2.5-1.5b'], 'gpu_memory_utilization': 0.85, 'max_num_batched_tokens': 512, 'max_num_seqs': 64}
+(APIServer pid=1) INFO 08-28 11:18:15 [scheduler.py:239] Chunked prefill is enabled with max_num_batched_tokens=512.
+(EngineCore pid=77) INFO 08-28 11:18:46 [kv_cache_utils.py:1744] GPU KV cache size: 244,000 tokens
+(EngineCore pid=77) INFO 08-28 11:18:46 [kv_cache_utils.py:1745] Maximum concurrency for 4,096 tokens per request: 59.57x
+(APIServer pid=1) INFO:     Application startup complete.

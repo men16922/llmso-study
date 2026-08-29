@@ -1,6 +1,6 @@
 # Next Plan
 
-Last Updated: 2026-08-23
+Last Updated: 2026-08-29
 
 > ✅ **3주차 마감 통과** (2026-08-23 09:00). `서빙 최적화, 설정부터 만지면 안 되는 이유` 노션 발행 + 링크 공유 완료.
 >
@@ -16,76 +16,56 @@ Last Updated: 2026-08-23
 스터디일 2026-08-23(모임 20:30). 범위는 **CH7 Advanced LLM Optimization Techniques** + **CH8 LLM Serving Frameworks**.
 
 설계·근거·함정·잘라내기 순서는 **[`docs/plans/2026-08-23-week4-conditional-optimization.md`](./plans/2026-08-23-week4-conditional-optimization.md)**,
+**남은 시간에 이걸 어떻게 끝낼 것인가(시간표·명령·중단 기준)는 [`docs/plans/2026-08-27-week4-execution.md`](./plans/2026-08-27-week4-execution.md)**,
 실행 런북은 **[`articles/조건부 최적화 실습 시나리오 (CH7·CH8)`](../articles/%EC%A1%B0%EA%B1%B4%EB%B6%80%20%EC%B5%9C%EC%A0%81%ED%99%94%20%EC%8B%A4%EC%8A%B5%20%EC%8B%9C%EB%82%98%EB%A6%AC%EC%98%A4%20%28CH7%C2%B7CH8%29.md)** 시리즈(00~04)에 있습니다. 여기에는 체크리스트만 둡니다.
+
+> ✅ 측정·글·윤문·노션 발행은 완료했습니다. 아래 체크리스트에서 열린 작업은 **⑦ 링크 공유**뿐입니다.
 
 **글의 축**: CH7이 스스로 밝힌 단일 기준 — **compute-bound vs memory-bound**. 네 기법이 전부 "조건부로만 이득"이고 조건이 하나의 축이다. 그 조건이 코드 어디에 있는지는 CH8(vLLM 스케줄러)이 답한다. 3주차 결론(*구조가 설정의 상한을 정한다*)의 다음 칸.
 
 **범위 확정 (2026-08-23)**: 랩톱 GPU 1장만. 외부 GPU 없음. SGLang·TensorRT-LLM·멀티GPU 도전과제는 한계 절에 "왜 못 재는지"로 명시.
 
-- [ ] [auto] **⓪ 선행 — 플래그·메트릭 이름 확인.** `docker run --rm vllm/vllm-openai:v0.23.0 --help`로 `--speculative-config` 스키마 · prefix caching OFF 플래그 · `--max-num-batched-tokens` 하한 · `vllm:spec_decode_*` / `vllm:prefix_cache_*` 메트릭 이름을 **추측하지 말고 확인**. 3주차 `accelerator_type: null` 같은 조용한 실패를 막는 자리. ⚠️ **`df -h` 먼저.**
-- [ ] [auto] *(선택)* **`benchmark.py`에 `quote` 시나리오 추가** — 긴 문서 + "그대로 인용하며 요약". ngram 수용률의 최선값을 보려면 이게 가장 확실합니다. 순수 데이터라 오프라인 테스트 가능. **필수는 아닙니다** — 기존 `prefill`/`decode` 두 시나리오만으로도 워크로드 축은 섭니다.
-- [ ] [manual] **① E1 — 추측 디코딩** ★ 주인공. vanilla / ngram / draft-0.5B × 동시성 1·4·16·64. ITL·TPOT·처리량·**수용률**. 가설은 "저동시성 이득, 고동시성 역효과". 출발점은 `Ch7.md:949`의 교재 관측. ⚠️ draft 팔은 KV 예산이 vanilla와 달라지므로 기동 로그를 세 팔 전부 기록해 비교 가능 여부부터 판정.
-- [ ] [manual] **② E2 — chunked prefill.** `--max-num-batched-tokens` 512/2048/8192. **프리필 지배 요청과 디코드 지배 요청을 섞어서** 넣어야 간섭이 보인다. 3주차 이월분 ③-b 해소. PD 분리의 동기를 GPU 1장에서 설명하는 대역.
-- [ ] [manual] **③ E3 — prefix caching.** 서버 캐시 ON/OFF × 클라이언트 `--unique-prefix` ON/OFF = **2×2**. TTFT와 `prefix_cache_hits/queries`. **도구 수정 불필요** — `prefill` 시나리오와 `--unique-prefix`가 이미 있습니다.
-- [ ] [manual] **④ E4 — vLLM 스케줄러 해부.** `vllm/v1/core/sched/scheduler.py`를 읽고 A·B·C가 같은 토큰 예산 계산의 어느 항을 건드리는지 코드로 짚기. GPU 불필요 — 측정 대기 중 진행. **3주차 글과의 차별점.**
-- [ ] [manual] **⑤ 글 작성** — 이전 글의 8단계 구조(목적→문제 인식→원인→해결→가격표→순서→한계→결론) 유지.
-- [ ] [manual] **⑥ 노션 발행 + ⑦ 링크 공유** ★ 마감 **08-30 09:00**. 사용자가 직접 공유.
+**⓪ 선행 (목 밤, 전부 `[auto]`)** — 상세는 실행 계획서 §6.
 
-**⚠️ 통제 변수**: A·B·C를 **전부 `vllm/vllm-openai:v0.23.0` 하나 위에서** 돈다. 이미 로컬에 있어 추가 다운로드 0. A를 ray-llm(0.7.2, V0)에서 돌리면 그것만 다른 엔진 숫자가 되어 같은 표에 못 넣는다 — 3주차에 데인 자리.
+- [x] [auto] **⓪-1 keeper 띄우기 + 클러스터 복구** (2026-08-27, 검증 완료). `Start-Process wsl.exe ... 'sleep','infinity' -WindowStyle Hidden -PassThru` — **독립 Windows 프로세스**라 창을 지킬 필요가 없습니다(100초 유휴 후 생존 PASS). 파드 전부 `Running`, GPU `0 MiB`. ❌ `.wslconfig`의 `vmIdleTimeout=-1`은 WSL 2.7.8.0에서 **안 먹습니다**(원복함) — 원인이 유휴 타이머가 아니라 "세션이 없으면 내린다"라서. ⚠️ **재부팅하면 keeper를 다시 띄우세요.**
+- [x] [auto] **⓪-2 플래그·메트릭 이름 확인** (2026-08-27). `results/e-vllm-help.txt`(1,714줄). ★ **v0.23.0은 JSON 대신 평탄화 플래그를 준다** — `--spec-method ngram` · `--spec-model` · `--spec-tokens`. `EXTRA_ARGS`의 단어 분리 함정을 통째로 피한다. `draft_model`이 `--spec-method` 선택지에 있어 **V1 지원 확인**. `--help`가 아니라 **`--help=all`**(그냥 `--help`는 그룹 이름만). help 뽑는 데도 GPU가 필요했다.
+- [x] [auto] **⓪-3 `EXTRA_ARGS` 패치** (2026-08-27). args 끝에 따옴표 없는 `$EXTRA_ARGS` + 빈 문자열 env. `labs/wsl2-vllm-baseline/test_manifest.py` 신규 — **게이트 91건 → 106건 green.** 핵심 가드(`test_extra_args_is_unquoted`)는 일부러 따옴표를 씌워 **역방향으로 검증**했다.
+- [x] [auto] **⓪-4 런북 정정** (2026-08-27). `4주차-00`~`-03`의 `docker` 계열 명령을 `redeploy`/`kubectl logs`로 전부 교체. `df -h` 절은 선택으로 강등하고 경계를 *"docker에 이미지를 받지 말 것"* 으로 이동.
+- [x] [auto] **⓪-5 스모크** (2026-08-27). 처리량 −4.4%/+0.4%, ITL +4.3%/+0.1%로 2주차 B1과 일치. `Maximum concurrency 59.50x` 동일. ⚠️ **`e2e`만 −39%인데 이건 출력 길이 차이**(2주차 51.1토큰 → 36.0토큰, `temperature=0`인데도). **`e2e`·wall time은 세션 간 비교 금지.**
+- [x] [auto] *(잘라냄)* **`benchmark.py` `quote` 시나리오** — 안 했습니다. `prefill`/`decode`만으로 워크로드 축이 섰습니다.
 
-**일정**: 08-24 선행 / 08-25 **B** / 08-26 A / 08-27 C+예비 / 08-28 분석·D / 08-29 초고 / 08-30 발행. B를 앞에 두는 이유는 유일하게 다운로드가 있고 실패 가능성이 가장 높아서.
+**측정 — 전부 완료 (2026-08-27 한 세션)**
+
+- [x] [manual] **① E1 — 추측 디코딩** ★ vanilla/ngram × `decode`·`prefill` × c=1·4·16·64. **결과: `prefill` +199.3%(c=1) → −53.7%(c=64), `decode` 전 구간 −12~−29%.** ★★ **워크로드별 수용률을 따로 재서 가설이 뒤집혔다** — `prefill` c=64는 **수용률 100.0%인데 −53.7%**. 손해의 원인이 "추측이 틀려서"가 아니라 **"맞아도 쓸 예산이 없어서"**. 합산 수용률 68.7%로는 아무것도 설명 못 했다. KV 예산 vanilla 59.50x vs ngram 57.48x(−3.4%)로 비교 성립 확인.
+- [x] [manual] **② E2 — chunked prefill.** 512 / 8192. **ITL 간섭은 청크와 무관(+16.3% vs +16.6%)한데 디코드 TTFT만 18배 갈림(+10.5% vs +188.9%).** 계획의 예상과 반대 — 청크가 사는 건 ITL이 아니라 **진입 지연**. 청크 512에서도 ITL +16.3%가 남는 것이 **PD 분리의 동기**. ⚠️ 첫 시도는 간섭 0이 나왔는데 **부하가 안 겹친 설계 결함**이었다(프리필 1초 / 디코드 5초). 배경 부하로 바꾸고 겹친 초를 매 회 기록.
+- [x] [manual] **③ E3 — prefix caching.** 2×2 · 64요청. **ON+공유만 다르다** — TTFT p50 8.0배·p95 11.3배·처리량 +71%, 적중률 97.9%. 나머지 세 칸은 구별 안 됨. **공유가 없으면 캐시는 이득도 손해도 아니다(1% 안).** 설명 못 한 관측 1건은 부록 B에(순서 효과 아님을 3회 반복으로 확인).
+- [x] [manual] **④ E4 — vLLM 스케줄러 해부.** `results/e4-scheduler.py`(2,422줄) + `e4-scheduler-notes.md`. ★ **소스 주석이 글의 주장을 그대로 말한다** — *"general enough to cover chunked prefills, prefix caching, speculative decoding"*. 셋이 같은 `token_budget`을 각각 상한·시작점·끝점에서 건드린다.
+- [x] [manual] **⑤ 글 작성** — `articles/켜면 이득인 최적화는 없다.md`. 8단계 구조 유지 + 부록 3종. 그림 `fig-e1-spec-decode.svg` 신규(`make_figures.py`의 `fig_cost`를 시나리오별 짝 비교로 확장).
+- [x] [manual] **⑥ 노션 발행 — 완료** (2026-08-27). <https://app.notion.com/p/3c94c2420ac48122a485ef00100c6234> · `CloudNetaStudy` 아래, 3주차 페이지와 형제. 표 8개·콜아웃 5개·목차·SVG 그림 정상. 1절의 "지난 글" 링크는 3주차 노션 페이지로 연결해 뒀습니다.
+- [x] [manual] **⑥-b 발행본 형태로 전면 재구성 + 실습 인증샷** (2026-08-29). ★ **로컬 원고와 노션 발행본이 다른 문서였다는 것을 3주차 대조로 발견.** 발행 시 거치던 변환 5단계 중 ①요약→callout 3불릿 ②헤딩 평서 발견문화 ③환경·한계·부록 토글 ④`결론` 장을 §8에 흡수까지 적용(⑤제목 중립화는 미적용). 표현도 정리 — em-dash 40→24 · ★ 2→0 · 이탤릭 인용 7→0 · "팔"→"구성" 16곳. **인증샷 4장 신규**(`proof-w4-01~04`) — E1·E2 두 구성으로 서버를 다시 띄워 찍었고 **KV 예산이 08-27과 소수점까지 동일**(235,440/57.48x · 244,000/59.57x)해 부록 C에 재현 확인 절로 넣었습니다. 로컬·노션 양쪽 반영 후 되읽기로 손실 0 확인.
+- [x] [manual] **⑥-c 구조·문체 명료화 + humanize A + 중립형 제목 반영** (2026-08-29). 제목을 `워크로드 조건이 vLLM 최적화 효과를 바꾸는 방식`으로 확정하고 질문→측정→해석→운영 판단 흐름을 강화했습니다. 변경률 24.14%·자체검증 6/6·등급 A. 노션 되읽기로 이미지 5·콜아웃 6·토글 3·표 12·코드 블록 7 유지, 수치 멀티셋 불일치 0.
+- [ ] [manual] **⑦ 링크 공유** ★ **사용자가 직접 — 에이전트 권한 밖입니다.** 마감 **08-30(일) 09:00**. 미공유 1회 = 제명.
+  - **왜 대신 못 하는가 (2026-08-27, 도구로 확인)**
+    - ★ **제출표에 접근할 수 없습니다 — 이게 결정적입니다.** `notion-get-teams`에 팀스페이스가 **`최병민 HQ` 하나뿐**이고(사용자 소유), `notion-list-shared-pages`는 **비어 있습니다.** CloudNet@ 스터디의 멤버 전용 워크스페이스는 이 연결(개인 워크스페이스 `d3427551-…`)에 잡히지 않습니다. 슬랙 `llmso`도 동일.
+    - 페이지의 **공개 여부는 판별하지 못했습니다.** 노션 자식 페이지는 부모 공유 설정을 상속하므로 3주차 페이지와 같은 부모 아래 있는 이 페이지도 이미 공개일 수 있으나, `WebFetch`가 SPA 셸만 돌려줘 확인 불가였습니다. **어느 쪽이든 공유 설정을 바꾸는 MCP 도구는 없습니다.**
+  - **사용자가 할 일**: ㉠ 페이지가 공개인지 확인(아니면 **공유 → 웹에 게시**) ㉡ 스터디 노션의 **과제 제출표 → 본인 이름 → URL 추가** ㉢ 페이지 스크린샷 1장 업로드.
+  - 발행된 페이지: <https://app.notion.com/p/3c94c2420ac48122a485ef00100c6234> (08-29 명료화·A등급 윤문본이 최신)
+- [x] [manual] **E1 draft-0.5B 팔 — 측정 완료** (2026-08-28). ★ **비교 가능성 판정에서 탈락했고, 그 자체가 결과였습니다.** KV 예산 **140,832 tokens / 34.38x = vanilla 대비 −42.2%**(ngram은 −3.4%). 12GB에 1.5B+0.5B를 같이 올리면 예산의 42%가 사라집니다. 수용률 40.1%. `decode` c=64에서 **goodput 0.0%**(e2e p95 45.6초, SLO 30초 초과) — vanilla·ngram은 같은 지점에서 100%. **ngram이 3배를 내던 `prefill` c=1에서조차 −4.1%.** 글에 **부록 D**로 넣고 한계 #4를 교체했습니다.
+
+**⚠️ 통제 변수**: E1·E2·E3를 **전부 `vllm/vllm-openai:v0.23.0` 하나 위에서, 2주차 B1과 같은 k3s 실행 경로로** 돈다. ray-llm(0.7.2, V0)로 새거나 docker로 갈아타면 그것만 다른 저울의 숫자가 된다 — 3주차에 데인 자리.
+
+**일정 (재조정)**: 08-27(목) 밤 ⓪ / 08-28(금) 저녁 **E1→E2** / 08-29(토) 오전 E3+예비, 오후 E4·분석, 밤 초고 / 08-30(일) 06:00~09:00 윤문·발행·공유. **중단 기준은 실행 계획서 §7에 미리 정해 뒀습니다.**
 
 ## Priority 4 — 3주차 (CH5·CH6) · 완료 (마감 2026-08-23 통과)
 
-스터디일 2026-08-16(모임 20:30). 범위는 **CH5 Challenges When Serving LLMs** + **CH6 Essential LLM Optimization Techniques**.
+결과 요약은 `docs/COMPLETED_SUMMARY.md`의 **M3**, 상세 이력은 [`docs/archive/progress-2026-08.md`](./archive/progress-2026-08.md)(08-22·08-23 항목), 설계·근거·함정은 [`docs/plans/2026-08-16-week3-triton-rayserve.md`](./plans/2026-08-16-week3-triton-rayserve.md)에 있습니다. 여기에는 **이월분만** 남깁니다.
 
-상세 설계·근거·표·함정은 **[`docs/plans/2026-08-16-week3-triton-rayserve.md`](./plans/2026-08-16-week3-triton-rayserve.md)** 에 있습니다. 여기에는 체크리스트만 둡니다.
-
-한 줄 근거: **Ray Serve는 CH4 공식 도전과제**(`study/Ch4.md:1381`), **Triton dynamic batching은 CH6 본문**(`study/Ch6.md:140` — vLLM엔 dynamic batching 모드가 없어 이 절은 vLLM으로 실측 불가), 과제 규칙도 *"혹은 LLM 관련 내용(혹은 도전과제)"*로 열려 있음(`study/Ch6.md:1039`).
-
-- [x] [manual] **① 준비** — 실측: ray-llm **11.9 GiB 다운로드**(280초) / Triton **디스크 27.4GB**(9.63GB는 다운로드 크기 — 계획서의 `~17GB`가 틀렸음). KubeRay operator 1.4.2.
-- [x] [manual] **② C3 — Ray Serve 배포 + 접점 ① 계층 오버헤드** (2026-08-21). ★ **통제 변수가 깨져 있어 설계를 바꿨음** — ray-llm의 vLLM은 0.7.2, B1은 0.23.0. 같은 이미지로 Ray 없이 띄운 **구성 B**를 추가해 3자 비교. **계층의 순수 가격 −32.6%**(순진한 비교 −39.3%는 7%p 과대계상). 고정 오버헤드가 아니라 포화 전 11% / 후 31%.
-- [x] [manual] **③ CH5 + 도전과제 2** — 스윕 4행 완료. `Maximum concurrency` 14.28x~64.02x로 4.5배 흔들리는데 **처리량은 ±17%**. 기동 로그 4종 전부 파일로 저장(`c3-startup-*.txt`). GQA 손계산이 네 설정 전부에서 로그와 소수점 둘째 자리까지 일치.
 - [ ] [manual] **③-b 도전과제 3 (chunked prefill)** — **다음 편 이월.** 다만 확인해둔 것: ray-llm 2.44.1의 vLLM 0.7.2는 **V0 엔진**이고 `chunked_prefill_enabled=False`가 기본이라 **ON/OFF 비교가 가능한 환경**이다(V1에서 기본 ON일 것을 걱정했으나 해당 없음).
-- [x] [manual] **④ C2 — Triton dynamic batching** (2026-08-22). `--verify`로 배치 축 열림 확인(✅). 대조군 평균 배치 **정확히 1.00**. 같은 20ms가 동시성 1에서 1/9, 32에서 2.3배.
-- [x] [manual] **④-b Triton + vLLM 백엔드** (2026-08-23). `nvcr.io/nvidia/tritonserver:24.12-vllm-python-py3`의 OpenAI 호환 프론트엔드로 같은 벤치마크. 짝(같은 이미지, Triton 없음)과 `GPU blocks 15,326` 일치. **계층 비용 −12.6%, goodput 100%.**
-- [x] [manual] **④-c KServe + vLLM** (2026-08-23). KServe 0.20.0 RawDeployment. 짝과 `247,024 tokens / 60.31x` 일치. **계층 비용 −2.2%, goodput 100%, `vllm:*` 66개 보존.** 막힌 다섯 곳은 `labs/kserve-on-k8s/README.md`에.
-- [x] [manual] **⑤ 글 작성 → 전면 재구성** (2026-08-23). 이전 원고는 실험 나열로 읽혀 목적이 서지 않았다. **`articles/서빙 최적화, 설정부터 만지면 안 되는 이유.md`** 로 재작성 — 설정 축 vs 구조 축, 목적→문제 인식→원인→해결법. Triton dynamic batching과 KV 공식은 부록으로.
-- [x] [manual] **⑥ 노션 재발행** (2026-08-23). 기존 페이지를 새 원고로 갱신 + 2차 윤문 반영.
-- [x] [manual] **⑦ 과제 링크 공유 — 완료** (2026-08-23). **3주차 마감 통과.**
-
-**실제 경과**: 08-16 이후 닷새 공백 뒤 08-21~22 한 세션에 측정 3종 + 글까지. 측정이 계획 추정보다 훨씬 빨랐다(벤치마크 1회 약 4분, `serveConfigV2` 롤아웃 20~60초 — 파드를 갈지 않으므로). **2주차와 달리 범위를 줄이지 않았다.**
 
 ## Priority 3 — 2주차 (CH3·CH4) · 완료
 
-- [x] [manual] `knowledge/06-week2-prep.md` 작성 — 완료 (2026-08-09). PDF 해당 구간을 직접 추출해 읽고 작성했고, 인용 쪽수는 물리 페이지 기준으로 `search_index.py` 출력과 일치. 교재의 Triton·RAG·에이전틱은 이 PDF가 다루지 않아 "어긋날 수 있는 지점" 표로 명시.
-- [ ] [manual] 모임(오늘 20:30) 후 — 노트의 "스터디 중 확인할 질문" 5개가 강의에서 채워졌는지 확인하고, 안 채워진 것은 과제 소재로 이월.
-- [x] [manual] **2주차 과제 — 완료.** 2편 시리즈로 노션 발행 + 링크 공유 (마감 2026-08-16 09:00 통과).
-  - [x] B1·B2 전 구간 실측 (2026-08-15). `short`·`decode` × slots 1/16/64 + B2 큐 부하. 결과 8종 + 타임라인 + 환경 기록 + 메트릭 목록이 `labs/wsl2-vllm-baseline/results/`에.
-  - [x] 표 4개 + 파레토 + 지연 공식 검증 + 서버 측 큐 궤적까지 채우고 해석 작성 → `articles/Continuous Batching이 처리량을 높이는 방식.md` (8단계 템플릿 전부 + 한계 6개 + 재현 부록)
-  - [x] **증빙 보강** (2026-08-15). 계획의 산출물 중 빠져 있던 *"concurrency 대비 latency·throughput 그래프"*를 채움 — `tools/make_figures.py`(표준 라이브러리만)가 결과 JSON에서 SVG 3종 생성. 서버 측 원본은 `results/b2-prometheus.{json,txt}`. 글에 5-9 「측정 증거」 절 추가.
-  - [x] **증빙 캡처 3장 확보** (2026-08-15). Prometheus 콘솔 실제 캡처. `b1-timeline.txt`의 구간 시각으로 부하 종료 6시간 뒤에 되짚어 촬영.
-  - [x] **윤문 + 어조 통일 + 본문 전면 재작성** (2026-08-15). 개념·용어는 사용자 개정판 기준, 근거(그래프·캡처·전체 표·부록)는 복원.
-  - [x] **노션 발행** (2026-08-15). 2편 모두. 1편↔2편 양방향 연결.
-  - [x] **과제 링크 2개 공유 완료** (2026-08-16)
-  - ⚠️ **분량이 큼.** 잘라내는 순서를 시나리오 머리말에 명시해 뒀음: C3-4 → C1의 `bs` 축 → C2의 20ms 지점 (각각의 핵심 결론은 남음)
-  - **C3 = CH4 도전과제(RayService)**. 따라하기가 되지 않게 두 접점으로 붙임 — ① B1(직접 vLLM) ↔ C3(Ray Serve로 감싼 vLLM) 계층 오버헤드 ② C2(Triton `dynamic_batching`) ↔ C3(`@serve.batch`) 같은 두 노브
-  - **GPU·8000 포트가 하나뿐**이라 B1·B2 / C1 / C2 / C3는 서로 배타적. 세션 전환 시 앞의 것을 반드시 내릴 것
-  - ★ **C1이 재설계됐습니다.** 노션 CH3 원문에서 확인 — 교재 서버는 `main.py:63/69/74`가 `async def` 안에서 동기 호출을 해 uvicorn 이벤트 루프가 막히고 **동시 요청이 순차 처리**됩니다(강의 `[실습4]`도 같은 관측). 따라서 배칭 축은 **요청당 프롬프트 수**(`--prompts-per-request`)이고, 동시성 축은 `async def`→`def` 수정 전후 비교로 씁니다
-  - 글의 축: **배칭 4종(없음/static/dynamic/continuous)을 전부 실측해 예습 노트 §1 표를 숫자로 채운다.** dynamic이 전제하는 "요청들이 같은 시간 걸린다"가 LLM에서 깨지는 것이 결론
-  - 7주 실행 계획(노션)의 이번 주 산출물은 공개 글 **`Continuous Batching이 처리량을 높이는 방식`** + concurrency 대비 latency·throughput 그래프. 글은 계획의 **8단계 템플릿**을 따를 것 — 특히 `7. 운영 관점`(비용·안정성·확장성·복잡도)을 빼먹지 말 것
-  - 계획의 공통 규칙 반영 완료: ITL/TPOT 지표, 환경 기록 목록(`0-6`), 반복 3회 타협안(`0-7`)
-  - **세션 순서 고정**: ① B1·B2(안전판) → ② C1 → ③ C2 → ④ C3. 세션 ① 시작 시 Triton(~17GB)·ray-llm(~10GB) 이미지 풀과 C1 venv 설치를 백그라운드로 걸어둘 것
-  - B3~B5는 다음 편으로 이월 (시나리오 문서 뒤쪽에 설계 보존). B1의 `results/b1-timeline.txt`가 B4의 입력이므로 **반드시 남길 것**
-- [x] [auto] **실습 도구 일체 완성** (2026-08-09). 노트북에서는 **실행과 기록만** 하면 됨. 게이트 91건 green.
-  - `benchmark.py --api book` — 교재 서버 어댑터. 프롬프트 에코 보정 · TTFT 없는 엔드포인트의 goodput 판정 · 네 엔드포인트 동일 계수법을 `BookApiTest`가 검증
-  - `benchmark.py` ITL/TPOT 추가 — `itl_p50_s` · `perceived_tps`. 스터디 공통 지표 요구사항
-  - `redeploy.sh` — 롤아웃 실패 감지 · `/v1/models` 폴링 · `mark`로 타임라인 기록
-  - `summarize_results.py` — 결과 JSON → 마크다운 표 + 파레토(SLO 충족·최적 경계 표시)
-  - `summarize_results.py --formula` — 교재 CH4의 `E2E = TTFT + ITL×(N-1)` 검증. **잔차 = 큐 대기 + 네트워크**라 Prometheus 없이 B4의 질문에 답함
-  - `summarize_results.py --delta` — 두 구성의 차이·차이% 열 (C3 계층 오버헤드용)
-  - `labs/triton-dynamic-batching/` — `export_mobilenet_onnx.py` · `make_config.py` · `triton_load.py` · `triton_metrics.py` · `sweep.sh` + 테스트 19건
-  - `labs/rayserve-on-k8s/` — `rayservice-qwen.yaml`(B1과 동일 조건, `ManifestTest`가 통제 변수 감시) · `mobilenet_serve.py`(`@serve.batch`) + 테스트 10건
+과제 제출은 `docs/COMPLETED_SUMMARY.md`의 **M2**, 실습 도구 일체는 **M4**, 상세 이력은 [`docs/archive/progress-2026-08.md`](./archive/progress-2026-08.md)(08-15·08-16 항목). 여기에는 **이월분만** 남깁니다.
+
 - [ ] [auto] **`Makefile`의 `PY`를 이 머신에서 쓸 수 있게 만들기.** WSL의 `python3`(3.14)에 **pip 자체가 없어** `make check-labs`가 그대로 실패합니다. 2026-08-15에는 Windows Python 3.12에 `pytest`·`pyyaml`을 설치해 91건을 확인했습니다. Done: 이 머신에서 `make check`가 문서+labs 91건까지 한 번에 통과.
 - [ ] [manual] **C1 선행 — WSL2에서 환경 준비.** ① 교재 저장소 `orca3/llm-model-inference` 클론 + `ch03/single_model_llm_serving` venv 설치(`vllm==0.9.0.1`, 8~10GB·30~40분) ② `model_worker.py:48`의 `max_new_tokens=50`을 20으로 맞춰 엔드포인트 간 출력 토큰 수 정렬. 이 정렬을 빠뜨리면 처리량 비교가 2.5배 왜곡됨.
 - [ ] [manual] **C2 선행 — Triton 이미지 풀 + ONNX export.** 저장소의 `densenet_onnx`는 `max_batch_size: 0` + `reshape`로 배치 축이 1에 고정돼 **dynamic batching을 켤 수 없음**. `export_mobilenet_onnx.py --verify`로 배치 축 열린 mobilenet_v2를 뽑아야 함. 이미지 풀(~17GB)은 세션 1에서 백그라운드로.

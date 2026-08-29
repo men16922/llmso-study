@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="470" viewBox="0 0 780 470" role="img" aria-label="추측 디코딩 — 같은 기법, 정반대 결과">
+<style>
+  .surface { fill: #fcfcfb; }
+  .ink     { fill: #0b0b0b; }
+  .ink2    { fill: #52514e; }
+  .muted   { fill: #898781; }
+  .grid    { stroke: #e1e0d9; }
+  .axis    { stroke: #c3c2b7; }
+  .s0 { stroke: #1baf7a; } .f0 { fill: #1baf7a; }
+  .s1 { stroke: #eb6834; } .f1 { fill: #eb6834; }
+  .s2 { stroke: #2a78d6; } .f2 { fill: #2a78d6; }
+  @media (prefers-color-scheme: dark) {
+    .surface { fill: #1a1a19; }
+    .ink     { fill: #ffffff; }
+    .ink2    { fill: #c3c2b7; }
+    .muted   { fill: #898781; }
+    .grid    { stroke: #2c2c2a; }
+    .axis    { stroke: #383835; }
+    .s0 { stroke: #199e70; } .f0 { fill: #199e70; }
+    .s1 { stroke: #d95926; } .f1 { fill: #d95926; }
+    .s2 { stroke: #3987e5; } .f2 { fill: #3987e5; }
+  }
+  text { font-family: system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .tick { font-size: 12px; font-variant-numeric: tabular-nums; }
+  .lbl  { font-size: 13px; }
+  .ttl  { font-size: 17px; font-weight: 600; }
+  .sub  { font-size: 13px; }
+  .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+</style>
+<rect class="surface" width="780" height="470"/>
+<text class="ttl ink" x="66" y="26">추측 디코딩 — 같은 기법, 정반대 결과</text>
+<text class="sub ink2" x="66" y="46">ngram(5토큰)을 vanilla와 비교 · 같은 서버·같은 이미지, 워크로드만 다름 · 각 지점 8요청 1회</text>
+<circle class="f0" cx="71" cy="66" r="5"/>
+<text class="lbl ink" x="82" y="70">prefill (수용률 100%)</text>
+<circle class="f1" cx="244" cy="66" r="5"/>
+<text class="lbl ink" x="255" y="70">decode (수용률 ~50%)</text>
+<text class="lbl muted" x="66" y="92">vanilla 대비 처리량 (%)</text>
+<line class="grid" x1="66" y1="412.0" x2="662" y2="412.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="416.0" text-anchor="end">-80</text>
+<line class="grid" x1="66" y1="368.0" x2="662" y2="368.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="372.0" text-anchor="end">-40</text>
+<line class="grid" x1="66" y1="324.0" x2="662" y2="324.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="328.0" text-anchor="end">+0</text>
+<line class="grid" x1="66" y1="280.0" x2="662" y2="280.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="284.0" text-anchor="end">+40</text>
+<line class="grid" x1="66" y1="236.0" x2="662" y2="236.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="240.0" text-anchor="end">+80</text>
+<line class="grid" x1="66" y1="192.0" x2="662" y2="192.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="196.0" text-anchor="end">+120</text>
+<line class="grid" x1="66" y1="148.0" x2="662" y2="148.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="152.0" text-anchor="end">+160</text>
+<line class="grid" x1="66" y1="104.0" x2="662" y2="104.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="108.0" text-anchor="end">+200</text>
+<line class="axis" x1="66" y1="324.0" x2="662" y2="324.0" stroke-width="1.5"/>
+<text class="tick muted" x="66.0" y="432" text-anchor="middle">1</text>
+<text class="tick muted" x="264.7" y="432" text-anchor="middle">4</text>
+<text class="tick muted" x="463.3" y="432" text-anchor="middle">16</text>
+<text class="tick muted" x="662.0" y="432" text-anchor="middle">64</text>
+<text class="lbl muted" x="364" y="456" text-anchor="middle">동시 요청 수</text>
+<path class="line s0" d="M66.0,104.8 L264.7,154.2 L463.3,232.4 L662.0,383.0"/>
+<circle class="f0" cx="66.0" cy="104.8" r="4"/>
+<circle class="f0" cx="264.7" cy="154.2" r="4"/>
+<circle class="f0" cx="463.3" cy="232.4" r="4"/>
+<circle class="f0" cx="662.0" cy="383.0" r="4"/>
+<circle class="f0" cx="674.0" cy="383.0" r="4.5"/>
+<text class="lbl ink" x="684.0" y="387.5">prefill (수용률 100%)</text>
+<path class="line s1" d="M66.0,337.3 L264.7,337.1 L463.3,343.1 L662.0,355.5"/>
+<circle class="f1" cx="66.0" cy="337.3" r="4"/>
+<circle class="f1" cx="264.7" cy="337.1" r="4"/>
+<circle class="f1" cx="463.3" cy="343.1" r="4"/>
+<circle class="f1" cx="662.0" cy="355.5" r="4"/>
+<circle class="f1" cx="674.0" cy="355.5" r="4.5"/>
+<text class="lbl ink" x="684.0" y="360.0">decode (수용률 ~50%)</text>
+</svg>
