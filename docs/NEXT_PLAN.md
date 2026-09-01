@@ -1,17 +1,49 @@
 # Next Plan
 
-Last Updated: 2026-08-29
+Last Updated: 2026-08-30
 
-> ✅ **3주차 마감 통과** (2026-08-23 09:00). `서빙 최적화, 설정부터 만지면 안 되는 이유` 노션 발행 + 링크 공유 완료.
+> ⚠️ **4주차 마감(2026-08-30 09:00)이 지났습니다.** 글·노션 발행은 끝났고 **⑦ 링크 공유만 사용자 몫**이었습니다 — **공유했는지 먼저 확인하세요.** 미공유 1회 = 제명. 아래 Priority 5.
 >
-> ▶ **4주차 (CH7·CH8) 진행 중.** 마감 **2026-08-30(일) 09:00**.
-> 축은 **조건부 최적화와 그 조건** — 설계는 [`docs/plans/2026-08-23-week4-conditional-optimization.md`](./plans/2026-08-23-week4-conditional-optimization.md).
+> ▶ **5주차 (CH9·CH10) 착수.** 스터디 모임 2026-08-30(일) 20:30 종료 · 마감 **2026-09-06(일) 09:00**.
+> 축은 **"빨라졌다"의 원인 귀속** — 설계·시간표·중단 기준은 [`docs/plans/2026-08-30-week5-attribution.md`](./plans/2026-08-30-week5-attribution.md).
 
 열린 작업만 담는 롤링 플랜입니다. 완료 이력은 `docs/COMPLETED_SUMMARY.md`.
 
 > **이 저장소에서 `[auto]`가 드문 이유**: 게이트는 링크·스키마·문법만 증명합니다. 스터디 문서의 **내용이 맞는가**(교재 챕터 대응, PDF 쪽수 인용)는 원문 대조가 필요해 오프라인으로 검증할 수 없습니다. 그래서 문서 집필은 원칙적으로 `[manual]`이고, `[auto]`는 게이트 자체를 두껍게 만드는 작업에 집중됩니다.
 
-## Priority 0 — 4주차 (CH7·CH8) · 마감 2026-08-30 (일) 09:00
+## Priority 0 — 5주차 (CH9·CH10) · 마감 2026-09-06 (일) 09:00
+
+스터디일 2026-08-30(모임 20:30, 종료). 범위는 **CH9 LLM Optimization in Practice** + **CH10 Advancements in LLM Serving**.
+
+설계·근거·한계·실험 설계·시간표·중단 기준은 **[`docs/plans/2026-08-30-week5-attribution.md`](./plans/2026-08-30-week5-attribution.md)**. 여기에는 체크리스트만 둡니다.
+
+**글의 축**: `study/Ch9.md:10`의 첫 질문 — *"처리량이 올랐다는 건 GPU가 더 빨리 계산해서인가, 아니면 그냥 덜 다시 계산해서인가?"* 교재가 스스로 답을 내놓는다(AWQ 2.7배인데 **GEMM 커널 시간은 거의 동일**). 4주차가 **조건**(언제 이득인가)을 쟀다면 5주차는 **인과**(왜 이득인가)를 커널 타임라인에서 귀속시킨다. 확인 도구는 CH10의 3계층 프로파일링.
+
+**범위 확정**: 랩톱 GPU 1장(RTX 4080 Laptop 12GB)만. CH9 본편(Qwen3-14B · L40S · A100 x8)은 **AWS 쿼터 `0`이라 재현 불가** — 한계 절에 "왜 못 재는지"로 명시. TP=2·PP=2·MoE EP·NVLink 비교도 제외.
+
+**⓪ 선행 (08-31 월 밤, 전부 `[auto]`)**
+
+- [ ] [auto] **⓪-1 keeper + 클러스터 복구** — `Start-Process wsl.exe ... 'sleep','infinity' -WindowStyle Hidden -PassThru`. 재부팅했다면 필수. 파드 `Running` · GPU `0 MiB` 확인.
+- [ ] [auto] **⓪-2 양자화 팔 확보** — v0.23.0이 지원하는 `--quantization` 값 확인(`vllm serve --help=all`) + 모델 사전 다운로드(FP8 → GPTQ → AWQ 순으로 시도). Done: 팔 하나가 기동 로그까지 뜬다.
+- [ ] [auto] **⓪-3 ★ Nsight 권한 확인** — 컨테이너 안에서 Nsight Systems가 붙는지(`SYS_ADMIN` / 호스트 프로파일링). **1시간 넘기지 말 것** — 막히면 F2를 PyTorch Profiler 단독으로 축소. Done: 짧은 캡처 1건이 `.nsys-rep`로 떨어진다.
+- [ ] [auto] **⓪-4 스모크** — 4주차 baseline 재확인(KV 예산 `Maximum concurrency` 기록). `e2e`·wall time은 세션 간 비교 금지.
+
+**측정**
+
+- [ ] [manual] **① F1 — 양자화: 처리량은 올랐는데 커널은 그대로인가** ★ 주인공, **자르지 않음**. BF16 vs 양자화 × `prefill`·`decode` × c=1·4·16. 처리량 변화율과 **GEMM 누적시간 변화율이 따로 노는가**가 판정. 실패 시 대체안은 설계 문서 §8.
+- [ ] [manual] **② F2 — 3계층 프로파일링**: Nsight Systems → PyTorch Profiler → Nsight Compute. 4주차 E2에서 청크 512에도 남던 **ITL +16.3%가 타임라인의 어디인지** 짚는다. "지표로는 안 보였는데 타임라인에서 보였다" 1건 확보가 성공 기준.
+- [ ] [manual] **③ F3 — 수평 확장**: `replica=1` vs `replica=2`(각 `gpu_memory_utilization` 0.45) + 앞단 **LiteLLM Proxy**(CH10 도전과제 겸용). CH9의 *"horizontal scaling이 유리"* 가 GPU 1장에서 **어디서 뒤집히는지**. 핵심 지표는 복제본 **KV 예산 합**.
+- [ ] [manual] **④ F4 — Multi-LoRA (선택)** — 09-04(금) 밤까지 F1~F3가 안 닫히면 **착수 금지**. 잘라내기 1순위.
+- [ ] [manual] **⑤ 글 작성** — 처음부터 **노션 발행본 형태**로(변환 5단계 선반영). 그림은 `tools/make_figures.py`, 인증샷 `proof-w5-*`.
+  - 「한계」 절에 **한 문단 추가**: *왜 이 실험은 이 머신에서만 가능한가* — Nsight도 vLLM 최적화 커널도 **CUDA 전용**이라 F2는 애플 실리콘에서 **원리상 재현 불가**. 추가 측정 0회. 배경은 [`docs/plans/2026-09-01-unified-memory-vs-vram.md`](./plans/2026-09-01-unified-memory-vs-vram.md) §2·§10.
+- [ ] [manual] **⑥ 노션 발행** — `tools/md_to_notion.py --toggle-h2` + 콜아웃 후처리. 4주차 페이지와 형제로.
+- [ ] [manual] **⑦ 링크 공유** ★ **사용자가 직접 — 에이전트 권한 밖**(제출표가 스터디 멤버 전용 워크스페이스라 이 노션 연결로 안 잡힙니다). 마감 **09-06(일) 09:00**.
+
+**⚠️ 통제 변수**: 4주차 저울을 그대로 씁니다 — `vllm/vllm-openai:v0.23.0` · k3s containerd 경로 · `EXTRA_ARGS` 한 곳 · 팔마다 KV 예산 기록 후 **비교 성립 판정 먼저**. `docker run` 금지.
+
+**일정**: 08-31(월) ⓪ / 09-01(화) F1 / 09-02(수) F1 프로파일링 / 09-03(목) F2 / 09-04(금) F3·F4 판단 / 09-05(토) 분석·초고 / 09-06(일) 06:00–09:00 윤문·발행·공유. **중단 기준은 설계 문서 §8에 미리 정해 뒀습니다.**
+
+## Priority 5 — 4주차 (CH7·CH8) · ⚠️ 마감 2026-08-30 09:00 **경과, 공유 확인 필요**
 
 스터디일 2026-08-23(모임 20:30). 범위는 **CH7 Advanced LLM Optimization Techniques** + **CH8 LLM Serving Frameworks**.
 
@@ -83,6 +115,12 @@ Last Updated: 2026-08-29
   - 콘솔: `https://us-east-1.console.aws.amazon.com/servicequotas/home/services/ec2/quotas/L-DB2E81BA` → Request increase at account level
   - **CLI 말고 콘솔로 할 것** — `request-service-quota-increase`에는 사유 필드가 없는데 GPU 쿼터는 사유 유무가 승인 속도를 가릅니다.
   - 상세 절차·비용·정리 목록: **[`knowledge/07-aws-gpu-quota.md`](../knowledge/07-aws-gpu-quota.md)**. 6주차(09-06) EKS 실습용. 승인 여부는 CLI로 조회 가능.
+
+- [ ] [manual] **통합 메모리 vs VRAM 비교 (G 시리즈) — 설계만 완료, 착수 보류.** 이 랩톱(M4 Max 48GB)과 WSL2 랩톱(RTX 4080 12GB)을 놓고 *"메모리도 3배 크고 대역폭도 높은데 왜 서빙에서는 지는가"* 를 묻습니다. 설계·교란 통제·중단 기준은 **[`docs/plans/2026-09-01-unified-memory-vs-vram.md`](./plans/2026-09-01-unified-memory-vs-vram.md)**.
+  - ⛔ **5주차 마감(09-06 09:00) 전에는 착수 금지.** 과제가 우선입니다.
+  - **5주차 과제로는 안 씁니다** — 통제 변수가 무너지고(5주차 축인 *원인 귀속*과 정반대), CH9·CH10 범위 밖이며, 남은 시간이 없습니다. 판단 근거는 계획서 §0.
+  - 실행 트리거 둘 중 먼저 오는 것: **(A)** 5주차 ⑦ 종료 후 **별도 블로그 글** / **(B)** **AWS 쿼터가 `0`인 채 6주차 EKS가 막히면 비상 대안**(판단 시점 09-06 모임 직후, 위 쿼터 항목과 연동).
+  - 비용 전제: `labs/wsl2-vllm-baseline/benchmark.py`가 **OpenAI 호환 + `--base-url`** 이라 맥 엔드포인트에 **코드 수정 0**으로 붙습니다. 이 전제가 깨지면(계획서 ⓪-2) 중단.
 
 ## Rules
 
