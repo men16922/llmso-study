@@ -426,3 +426,19 @@ E1 스크립트는 동시성 1·16·24·32·48·64를 순회하고, 각 지점�
 - [vLLM — Optimization and Tuning](https://docs.vllm.ai/en/latest/configuration/optimization.html)
 - vLLM V1 스케줄러 소스: `vllm/v1/core/sched/scheduler.py` (v0.23.0)
 - 실측 원본: `labs/wsl2-vllm-baseline/results/` (`e1-*`, `e1b-*`, `e2-*`, `e3-*`, `e-analysis.md`, `e4-scheduler-notes.md`)
+
+<!-- HUMANIZE-SUMMARY
+원본 글자수: 19,675자
+윤문본 글자수: 19,691자
+변경률: 13.11%
+카테고리별 탐지: A-15 8→0, C-10 1→0, D-1 0→0, E-1 3→0, F-4 4→1, J-1 2→2(수치 강조로 의도적 보존)
+자체검증: 6/6 통과
+등급: A — S1 잔존 0건, S2 잔존 2건 이하, 변경률 13.11%
+주요 변경:
+- "세 결과를 하나의 판단표로 묶었다" → "최적화별 손익을 가르는 조건"
+- 작성자의 작업을 설명하는 제목 → 독자가 얻게 될 결론을 드러내는 제목
+- "예산의 언어로 옮기면" → 기능이 토큰 예산에 미치는 영향을 직접 서술
+- vanilla·vs 반복 → 첫 등장만 기준 구성(vanilla)으로 설명하고 이후 한국어로 통일
+- 영어 소스 인용 선행 → 한국어 해석을 먼저 제시하고 원문을 근거로 배치
+-->
+

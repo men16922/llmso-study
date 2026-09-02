@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>vLLM ngram 기동 로그</title>
+<style>
+  html,body{margin:0;background:#101418;color:#d8dee9;font:18px/1.55 Consolas,"D2Coding",monospace}
+  main{padding:34px 42px}
+  .bar{color:#8fbcbb;margin-bottom:20px}.cmd{color:#a3be8c}.key{color:#88c0d0;font-weight:700}.warn{color:#ebcb8b}.dim{color:#7f8c98}
+  pre{white-space:pre-wrap;word-break:break-word;margin:0}
+</style>
+<main>
+  <div class="bar">llmso-study / llm-serving-lab / 2026-08-29</div>
+  <pre><span class="cmd">$ kubectl -n llm-serving-lab logs deploy/vllm-baseline | grep -E 'non-default args|speculative|GPU KV cache size|Maximum concurrency'</span>
+
+(APIServer pid=1) INFO 08-29 09:08:59 non-default args:
+{'model_tag': 'Qwen/Qwen2.5-1.5B-Instruct', 'max_model_len': 4096,
+ 'gpu_memory_utilization': 0.85, 'max_num_seqs': 64,
+ <span class="key">'spec_method': 'ngram', 'spec_tokens': 5</span>}
+
+(APIServer pid=1) WARNING 08-29 09:09:11
+<span class="warn">max_num_scheduled_tokens is set to 2048 based on the speculative decoding settings.</span>
+<span class="warn">This may lead to suboptimal performance.</span>
+
+(EngineCore pid=76) INFO 08-29 09:09:19
+speculative_config=SpeculativeConfig(<span class="key">method='ngram', num_spec_tokens=5</span>)
+
+(EngineCore pid=76) INFO 08-29 09:09:44
+<span class="key">GPU KV cache size: 235,440 tokens</span>
+<span class="key">Maximum concurrency for 4,096 tokens per request: 57.48x</span>
+
+<span class="dim">source: kubectl logs · vllm/vllm-openai:v0.23.0</span></pre>
+</main>
+</html>
