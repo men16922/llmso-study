@@ -10,8 +10,14 @@ set -euo pipefail
 # Nsight Systems는 컨테이너 안에 nsys 바이너리가 있어야 하므로 ⓪에서 먼저 확인하고,
 # 없으면 ②까지로 축소한다(설계의 중단 기준).
 #
-# vLLM은 VLLM_TORCH_PROFILER_DIR이 설정돼 있을 때만 /start_profile · /stop_profile을
-# 연다. 트레이스는 PVC 위(허깅페이스 캐시 마운트)에 떨어뜨려 파드가 죽어도 남긴다.
+# ★ v0.23.0에서 VLLM_TORCH_PROFILER_DIR은 없어졌다. 첫 시도에서 서버가
+#   "Unknown vLLM environment variable"을 찍고 /start_profile이 404를 냈다.
+#   프로파일러 설정이 --profiler-config.* CLI 플래그로 옮겨갔기 때문이다
+#   (vllm/config/profiler.py의 ProfilerConfig).
+#
+# 트레이스는 PVC 위(허깅페이스 캐시 마운트)에 떨어뜨려 파드가 죽어도 남긴다.
+# 크기 관리는 iteration 옵션으로 한다 — with_stack을 끄고(기본이 켜짐, 트레이스가
+# 몇 배로 커진다), 앞 20 iteration을 버리고, 100 iteration만 담는다.
 
 cd "$(dirname "$0")"
 source redeploy.sh
@@ -19,12 +25,18 @@ source redeploy.sh
 PROF_DIR=/root/.cache/huggingface/profiles
 NS=llm-serving-lab
 
+PROF_ARGS="--profiler-config.profiler=torch"
+PROF_ARGS="$PROF_ARGS --profiler-config.torch_profiler_dir=$PROF_DIR"
+PROF_ARGS="$PROF_ARGS --profiler-config.torch_profiler_with_stack=false"
+PROF_ARGS="$PROF_ARGS --profiler-config.ignore_frontend=true"
+PROF_ARGS="$PROF_ARGS --profiler-config.delay_iterations=20"
+PROF_ARGS="$PROF_ARGS --profiler-config.max_iterations=100"
+
 profile_arm() {  # profile_arm <tag> <extra_args>
   local tag="$1" extra="$2"
   echo "=== F2 $tag $(date -u +%H:%M:%S) UTC ==="
 
-  redeploy GPU_MEMORY_UTILIZATION=0.85 EXTRA_ARGS="$extra" \
-           VLLM_TORCH_PROFILER_DIR="$PROF_DIR"
+  redeploy GPU_MEMORY_UTILIZATION=0.85 EXTRA_ARGS="$extra $PROF_ARGS"
 
   kubectl -n "$NS" logs deploy/vllm-baseline \
     | grep -E 'Available KV cache memory|GPU KV cache size|Maximum concurrency' \
@@ -65,7 +77,7 @@ kubectl -n "$NS" get pod -l app=vllm-baseline -o name >/dev/null
 profile_arm bf16 ''
 profile_arm quant '--quantization fp8'
 
-# 프로파일러 env를 원복한다. 켜 둔 채로 두면 다음 실험의 저울이 달라진다.
-redeploy GPU_MEMORY_UTILIZATION=0.85 EXTRA_ARGS='' VLLM_TORCH_PROFILER_DIR-
+# 프로파일러를 원복한다. 켜 둔 채로 두면 다음 실험의 저울이 달라진다.
+redeploy GPU_MEMORY_UTILIZATION=0.85 EXTRA_ARGS=''
 
 echo "=== F2 done $(date -u +%H:%M:%S) UTC ==="

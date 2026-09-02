@@ -1,0 +1,5 @@
+total 984
+drwxr-xr-x 2 root root   4096 Sep  2 10:01 .
+drwxrwxrwx 5 root root   4096 Sep  2 10:01 ..
+-rw-r--r-- 1 root root  20657 Sep  2 10:01 profiler_out_0.txt
+-rw-r--r-- 1 root root 971657 Sep  2 10:01 rank0.1788343260507295369.pt.trace.json.gz

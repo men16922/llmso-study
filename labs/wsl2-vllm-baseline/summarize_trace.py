@@ -27,9 +27,13 @@ from collections import defaultdict
 # 커널 이름 → 역할. 앞에서부터 처음 걸리는 것으로 분류한다.
 # 정밀도가 바뀌면 커널 이름이 통째로 달라지기 때문에, 이름이 아니라 역할로 묶어야
 # BF16과 FP8을 같은 줄에 놓을 수 있다.
+# ★ 어텐션이 GEMM보다 먼저 와야 한다. Flash Attention 커널은 이름의 템플릿 인자에
+#   `cutlass::bfloat16_t` 같은 타입이 들어가서, GEMM을 먼저 검사하면 통째로 GEMM으로
+#   빨려 들어간다(실제로 첫 집계에서 13.56ms가 잘못 묶였다).
 BUCKETS = [
-    ("GEMM (선형 계층)", ("cutlass", "gemm", "scaled_mm", "sm90", "sm80", "ampere", "cublas", "nvjet")),
-    ("어텐션", ("attention", "flash", "paged", "fmha", "mla")),
+    ("어텐션·KV 캐시", ("flash_fwd", "flash_bwd", "paged_attention", "attention",
+                    "fmha", "mla", "reshape_and_cache", "concat_and_cache")),
+    ("GEMM (선형 계층)", ("cutlass", "gemm", "gemv", "scaled_mm", "sm90", "sm80", "ampere", "cublas", "nvjet")),
     ("정규화·활성화", ("rms_norm", "layernorm", "silu", "gelu", "act_and_mul")),
     ("양자화·스케일", ("quant", "scale", "fp8", "dequant")),
     ("임베딩·샘플링", ("embedding", "sampling", "topk", "softmax", "argmax", "gather")),

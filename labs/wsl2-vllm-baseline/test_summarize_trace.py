@@ -21,7 +21,13 @@ import summarize_trace as st
         ("nvjet_tst_128x64_64x5_1x3_h_bz_coopA_NTn", "GEMM (선형 계층)"),
         # FP8로 바뀌면 이름이 통째로 달라진다 — 그래도 같은 역할로 묶여야 한다
         ("void vllm::scaled_mm_c3x<...>", "GEMM (선형 계층)"),
-        ("flash_fwd_splitkv_kernel", "어텐션"),
+        ("flash_fwd_splitkv_kernel", "어텐션·KV 캐시"),
+        # ★ 회귀 방지 — Flash Attention 커널 이름에는 템플릿 인자로 cutlass 타입이
+        #   들어간다. GEMM을 먼저 검사하면 어텐션 시간이 통째로 GEMM에 빨려 들어간다.
+        ("void flash::flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<128, 64, cutlass::bfloat16_t>>",
+         "어텐션·KV 캐시"),
+        # KV 캐시 쓰기는 어텐션 경로다. 이름에 flash가 들어가지만 flash_fwd는 아니다.
+        ("void vllm::reshape_and_cache_flash_kernel<__nv_bfloat16>", "어텐션·KV 캐시"),
         ("void vllm::rms_norm_kernel<...>", "정규화·활성화"),
         ("void vllm::act_and_mul_kernel<...>", "정규화·활성화"),
         ("void vllm::dynamic_scaled_int8_quant_kernel", "양자화·스케일"),
