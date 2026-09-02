@@ -1,0 +1,5 @@
+$ kubectl -n llm-serving-lab exec <pod> -- sh -c "command -v nsys ncu"
+NOT_FOUND
+
+$ ... -- python3 -c "import vllm.envs as e; print([k for k in dir(e) if 0x50 and (chr(80)+chr(82)+chr(79)+chr(70)) in k])"
+['VLLM_CUSTOM_SCOPES_FOR_PROFILING', 'VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS', 'VLLM_NVTX_SCOPES_FOR_PROFILING']

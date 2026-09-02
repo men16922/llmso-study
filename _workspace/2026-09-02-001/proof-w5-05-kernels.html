@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>줄어든 시간은 전부 선형 계층에 있었다</title>
+<style>
+  html,body{margin:0;background:#101418;color:#d8dee9;font:16px/1.5 Consolas,"D2Coding",monospace}
+  main{padding:28px 36px}
+  .bar{color:#8fbcbb;margin-bottom:16px;font-size:14px}
+  .cmd{color:#a3be8c}.key{color:#88c0d0;font-weight:700}.dim{color:#7f8c98}
+  .warn{color:#ebcb8b;font-weight:700}.flat{color:#b48ead;font-weight:700}
+  pre{white-space:pre-wrap;margin:0;font-size:14.5px}
+  table{border-collapse:collapse;margin:16px 0 4px;font-size:15px}
+  td,th{padding:6px 24px 6px 0;text-align:right}
+  th{color:#7f8c98;font-weight:400;border-bottom:1px solid #2c3540}
+  td:first-child,th:first-child{text-align:left}
+  td{font-variant-numeric:tabular-nums}
+  tr.hl td{color:#ebcb8b;font-weight:700}
+  tr.zero td{color:#b48ead}
+</style>
+<main>
+  <div class="bar">llmso-study / F2 PyTorch Profiler · 2026-09-02 · vLLM v0.23.0 · RTX 4080 Laptop (Ada, sm89)</div>
+  <pre><span class="cmd">$ python3 summarize_trace.py results/f2-traces/bf16 results/f2-traces/quant \
+      --labels BF16,FP8 --normalize flash_fwd_splitkv_kernel</span>
+
+<span class="dim">단위: 'flash_fwd_splitkv_kernel' 호출 1회당 (BF16 1,624회 / FP8 2,744회로 나눔)
+── 정규화 없이 총합만 보면 503.1 ms vs 622.8 ms 라서 FP8이 24% "더" 쓴 것으로 읽힌다.
+   두 트레이스가 담은 구간이 58스텝과 98스텝으로 다르기 때문이다. ──</span></pre>
+
+  <table>
+    <tr><th>역할</th><th>BF16 (스텝당)</th><th>FP8 (스텝당)</th><th>차이</th></tr>
+    <tr class="hl"><td>GEMM — 선형 계층</td><td>279.54 us</td><td>202.21 us</td><td>−27.7%</td></tr>
+    <tr class="zero"><td>어텐션 · KV 캐시</td><td>14.79 us</td><td>14.78 us</td><td>−0.1%</td></tr>
+    <tr><td>복사·형변환</td><td>7.25 us</td><td>7.24 us</td><td>−0.2%</td></tr>
+    <tr><td>정규화·활성화</td><td>5.51 us</td><td>0.08 us</td><td>−98.6%</td></tr>
+    <tr><td>그 외</td><td>2.68 us</td><td>2.66 us</td><td>−0.7%</td></tr>
+    <tr class="hl"><td>합계</td><td>309.77 us</td><td>226.96 us</td><td>−26.7%</td></tr>
+  </table>
+
+  <pre><span class="dim">── 커널이 바뀌었다 ──</span>
+BF16 : void cutlass::Kernel2&lt;<span class="key">cutlass_80_wmma_tensorop_bf16</span>_s16816...&gt;
+FP8  : void cutlass::Kernel2&lt;<span class="warn">enable_sm89_to_sm90</span>&lt;cutlass::gemm...&gt;&gt;
+       triton_red_fused__to_copy_<span class="warn">abs_clamp_cutlass_scaled_mm</span>_...</pre>
+
+  <div class="dim" style="margin-top:14px">
+  합계 <span class="warn">−26.7%</span>는 밖에서 잰 ITL <span class="warn">−24.7%</span>와 맞는다 — 서로 다른 두 계측이 같은 값을 가리켰다.<br>
+  줄어든 시간은 전부 선형 계층에 있고 <span class="flat">어텐션·KV 캐시 경로는 −0.1%로 미동도 없다.</span><br>
+  KV 캐시는 여전히 BF16이고, 양자화가 손댄 곳은 <span class="warn">가중치를 읽는 자리</span>뿐이었다.<br><br>
+  정규화·활성화 −98.6%는 그 일이 없어진 게 아니다 — 활성화를 8비트로 낮추는 절댓값·클램프·스케일이<br>
+  정규화와 한 커널로 합쳐졌다. 역양자화 비용까지 포함해서도 GEMM 경로는 −27.7%다.
+  </div>
+</main>
+</html>

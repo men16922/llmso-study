@@ -106,12 +106,30 @@ def main():
     ap.add_argument("paths", nargs="+", help="트레이스 파일 또는 디렉터리 (1개 또는 2개)")
     ap.add_argument("--top", type=int, default=12, help="커널 이름별 상위 몇 개까지 보일지")
     ap.add_argument("--labels", help="쉼표로 구분한 계열 이름 (예: BF16,FP8)")
+    ap.add_argument(
+        "--normalize",
+        help="이 문자열이 든 커널의 호출 수로 나눠 비교한다 (예: flash_fwd_splitkv_kernel). "
+             "두 트레이스가 담은 스텝 수가 다르면 총합 비교는 부호까지 거꾸로 읽힌다",
+    )
     args = ap.parse_args()
 
     labels = (args.labels.split(",") if args.labels
               else [os.path.basename(p.rstrip("/\\")) for p in args.paths])
 
     summaries = [summarize(p) for p in args.paths]
+
+    # ★ 정규화가 없으면 이 비교는 거짓말을 한다. 프로파일 구간의 길이는 트레이스마다
+    #   다르다(실측에서 BF16 56스텝 vs FP8 96스텝). 총합만 놓고 보면 FP8이 GEMM에
+    #   시간을 22% "더" 쓴 것처럼 보이지만, 스텝당으로 나누면 29% 덜 쓴다.
+    #   그래서 어텐션 커널 호출 수처럼 스텝 수에 비례하는 값으로 나눈다.
+    units = []
+    for (_, by_name, _, _) in summaries:
+        n = sum(cnt for name, (_, cnt) in by_name.items() if args.normalize and args.normalize in name)
+        units.append(n if n else 1)
+    if args.normalize and any(u == 1 for u in units):
+        print(f"!! '{args.normalize}'에 걸리는 커널이 없는 트레이스가 있습니다 — 정규화 없이 비교합니다",
+              file=sys.stderr)
+        units = [1] * len(units)
 
     for label, (files, by_name, _, total) in zip(labels, summaries):
         print(f"\n=== {label} — GPU 커널 시간 상위 {args.top} ===")
@@ -129,13 +147,24 @@ def main():
         return 0
 
     (_, _, ba, ta), (_, _, bb, tb) = summaries[0], summaries[1]
+    ua, ub = units
+    if args.normalize:
+        print(f"  단위: '{args.normalize}' 호출 1회당 (BF16 {ua:,}회 / FP8 {ub:,}회로 나눔)")
+        unit = "us"
+        scale_a, scale_b = ua, ub
+    else:
+        print("  단위: 트레이스 총합 (정규화 없음 — 구간 길이가 다르면 오해를 부른다)")
+        unit = "ms"
+        scale_a = scale_b = 1000.0
+
     print(f"  {'역할':<18} {labels[0]:>12} {labels[1]:>12} {'차이':>10}")
     for label in sorted(set(ba) | set(bb), key=lambda k: -(ba.get(k, [0])[0])):
-        a, b = ba.get(label, [0.0, 0])[0], bb.get(label, [0.0, 0])[0]
+        a = ba.get(label, [0.0, 0])[0] / scale_a
+        b = bb.get(label, [0.0, 0])[0] / scale_b
         diff = f"{100 * (b / a - 1):+.1f}%" if a else "—"
-        print(f"  {label:<18} {a / 1000:>9.2f} ms {b / 1000:>9.2f} ms {diff:>10}")
-    print(f"  {'합계':<18} {ta / 1000:>9.2f} ms {tb / 1000:>9.2f} ms "
-          f"{100 * (tb / ta - 1):>+9.1f}%")
+        print(f"  {label:<18} {a:>9.2f} {unit} {b:>9.2f} {unit} {diff:>10}")
+    a, b = ta / scale_a, tb / scale_b
+    print(f"  {'합계':<18} {a:>9.2f} {unit} {b:>9.2f} {unit} {100 * (b / a - 1):>+9.1f}%")
     return 0
 
 

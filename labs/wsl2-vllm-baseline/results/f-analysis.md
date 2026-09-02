@@ -181,3 +181,79 @@ prefill이 더 빨리 주는 것은 애초에 연산 바운드라 그 비중이 
 c=64 두 칸의 재현폭은 1.9%·4.4%다. 이 랩의 c=64는 10%까지 흔들리므로 추세 확인에만 썼다.
 
 원본: `f1c-{bf16,quant}-r{1,2}.json` · `-startup.txt`
+
+## F2 — 줄어든 시간은 전부 선형 계층에 있었다
+
+### 도구를 두 번 갈아탔다
+
+설계는 Nsight Systems → PyTorch Profiler → Nsight Compute 3계층이었는데 첫 계층이 없다.
+
+```
+$ kubectl -n llm-serving-lab exec <pod> -- sh -c "command -v nsys ncu"
+NOT_FOUND
+```
+
+`vllm/vllm-openai:v0.23.0` 이미지에 Nsight 바이너리가 들어 있지 않다. 권한이 아니라 **부재**라
+컨테이너 안에서 해결할 방법이 없다. 설계의 중단 기준대로 PyTorch Profiler 단독으로 축소.
+
+그 경로도 한 번 막혔다. `VLLM_TORCH_PROFILER_DIR`은 v0.23.0에서 **없어졌다**.
+
+```
+WARNING [envs.py:2088] Unknown vLLM environment variable detected: VLLM_TORCH_PROFILER_DIR
+curl: (22) The requested URL returned error: 404   # /start_profile
+```
+
+설정이 `--profiler-config.*` CLI 플래그로 옮겨갔다(`vllm/config/profiler.py`의 `ProfilerConfig`).
+옮겨간 자리에 `delay_iterations`·`max_iterations`가 있어 트레이스를 1 MB 아래로 묶을 수 있었다.
+`torch_profiler_with_stack`은 **기본이 켜져 있고** 트레이스를 몇 배로 불린다 — 껐다.
+
+원본: `f2-tooling.txt`
+
+### 총합 비교는 부호까지 거꾸로 읽힌다
+
+|  | BF16 | FP8 |
+|---|---|---|
+| 총 GPU 커널 시간 | 503.1 ms | 622.8 ms |
+
+이대로면 FP8이 24% **더** 쓴 것이 된다. 두 트레이스가 담은 구간의 길이가 다르기 때문이다 —
+어텐션 커널 호출이 BF16 1,624회 / FP8 2,744회이고, 모델이 28층이니 각각 58스텝·98스텝이다.
+`summarize_trace.py --normalize`가 이 나눗셈을 한다.
+
+| 역할 | BF16 (스텝당) | FP8 (스텝당) | 차이 |
+|---|---|---|---|
+| GEMM — 선형 계층 | 279.54 us | 202.21 us | **−27.7%** |
+| 어텐션 · KV 캐시 | 14.79 us | 14.78 us | **−0.1%** |
+| 복사·형변환 | 7.25 us | 7.24 us | −0.2% |
+| 정규화·활성화 | 5.51 us | 0.08 us | −98.6% |
+| 그 외 | 2.68 us | 2.66 us | −0.7% |
+| **합계** | **309.77 us** | **226.96 us** | **−26.7%** |
+
+세 가지가 나온다.
+
+1. **합계 −26.7%가 밖에서 잰 ITL −24.7%와 맞는다.** 서로 다른 두 계측이 같은 값을 가리켰다.
+2. **줄어든 시간은 전부 선형 계층이다.** 어텐션·KV 캐시 경로는 −0.1%로 미동도 없다.
+   KV 캐시는 여전히 BF16이고 양자화가 손댄 곳은 가중치를 읽는 자리뿐이다 — F1b 결과가 여기 그대로 보인다.
+3. **정규화·활성화 −98.6%는 그 일이 없어진 게 아니다.** FP8 팔에
+   `triton_red_fused__to_copy_abs_clamp_cutlass_scaled_mm...`이 있다 — 활성화를 8비트로 낮추는
+   절댓값·클램프·스케일이 정규화와 한 커널로 합쳐졌다. 역양자화 비용은 GEMM 경로 안으로 들어갔고,
+   **그것까지 포함해 −27.7%**다.
+
+### 교재와 다른 결과
+
+CH9은 Nsight 딥다이브에서 *양자화 전후 GEMM 커널 실행시간이 거의 같았다*고 적었고, 그것이
+"원인은 연산이 아니라 메모리"라는 결론의 근거다. 이 랩에서는 GEMM 경로가 27.7% 빨라졌고
+그게 감소분의 거의 전부다. 모순은 아니다 — 커널이 바뀌었기 때문이다.
+
+```
+BF16 : void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_...>
+FP8  : void cutlass::Kernel2<enable_sm89_to_sm90<cutlass::gemm...>>
+```
+
+`sm89`는 Ada 텐서코어다. **FP8은 같은 커널을 빨리 돌린 게 아니라 다른 커널로 갈아탄 것**이고
+그 커널이 8비트를 네이티브로 받는다. 가중치만 4비트로 저장하고 계산 직전에 되돌리는 W4A16
+계열이라면 GEMM 자체는 그대로일 수 있다.
+
+> 양자화가 어디서 버는지는 **방식과 하드웨어**가 정한다. 같은 "양자화"로 두 경우를 묶으면
+> 원인을 잘못 짚게 된다.
+
+원본: `f2-traces/{bf16,quant}/` · 집계 `f2-kernel-compare.txt`
