@@ -504,5 +504,56 @@ def main():
     )
 
 
+    # ── 5주차 — KV 예산 축은 아무것도 설명하지 못했다 ────────────────
+    # 가로축은 기동 로그의 `Maximum concurrency`(= KV 예산), 세로축은 decode c=16 처리량.
+    # BF16 스윕이 그린 것은 곡선이 아니라 **평평한 선**이다. 예산을 3.8배 늘려도
+    # 처리량이 안 움직였기 때문이고, 그래서 이 그림은 "곡선 위/아래"가 아니라
+    # **"선을 세로로 벗어난 점만이 무언가를 했다"** 로 읽힌다.
+    #
+    # 4주차 팔 셋은 추가 측정 없이 기존 results/에서 그대로 가져온다. 같은 랩·같은
+    # 이미지·같은 decode c=16이라 같은 축에 올릴 수 있다.
+    SERIES = [
+        ("BF16 (기준)", "#2a78d6", "#3987e5"),
+        ("FP8 양자화", "#1baf7a", "#199e70"),
+        ("4주차 추측 디코딩", "#eb6834", "#d95926"),
+    ]
+
+    def _conc(fname):
+        import re
+        with open(os.path.join(RESULTS, fname), encoding="utf-8") as f:
+            return float(re.search(r"per request: ([\d.]+)x", f.read()).group(1))
+
+    def _tps(fname, scenario="decode", conc=16):
+        for s in load_summaries(fname, scenario):
+            if s["concurrency"] == conc:
+                return s["output_tok_per_s"]
+        raise KeyError(fname)
+
+    def _mean_tps(pattern):
+        import glob as _g
+        vals = [_tps(os.path.basename(f)) for f in sorted(_g.glob(os.path.join(RESULTS, pattern)))]
+        return sum(vals) / len(vals)
+
+    sweep = [("f1a2-mem%s-startup.txt" % t, "f1a2-mem%s-decode.json" % t)
+             for t in ("45", "55", "65", "75", "85")]
+    curve = [(_conc(st), _tps(js)) for st, js in sweep]
+
+    frozen_conc = _conc("f1b-quant-frozen-startup.txt")
+    points = [
+        (_conc("f1b-bf16-startup.txt"), _mean_tps("f1b-bf16-r*.json"), "BF16 기본", 0, -16),
+        (_conc("f1b-quant-startup.txt"), _mean_tps("f1b-quant-r*.json"), "FP8 기본", 1, -16),
+        (frozen_conc, _mean_tps("f1b-quant-frozen-r*.json"), "FP8 · 예산 동결", 1, 30),
+        (_conc("e1-ngram-startup.txt"), _tps("e1-ngram.json"), "4주차 ngram", 2, 12),
+        (_conc("e1-draft-startup.txt"), _tps("e1-draft.json"), "4주차 draft-0.5B", 2, 0),
+    ]
+    fig_scatter_curve(
+        "fig-f1-kv-budget-curve.svg",
+        "KV 예산을 3.8배 늘려도 처리량은 그 자리에 있었다",
+        "Qwen2.5-1.5B · vLLM v0.23.0 · RTX 4080 Laptop · decode c=16 · 점선은 BF16 예산 스윕 5점",
+        "처리량 (tok/s)", "KV 예산 — 기동 로그의 Maximum concurrency (x)",
+        curve, points,
+        [0, 15, 30, 45, 60, 75], [0, 600, 1200, 1800, 2400],
+    )
+
 if __name__ == "__main__":
     main()

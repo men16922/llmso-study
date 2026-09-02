@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="470" viewBox="0 0 780 470" role="img" aria-label="KV 예산을 3.8배 늘려도 처리량은 그 자리에 있었다">
+<style>
+  .surface { fill: #fcfcfb; }
+  .ink     { fill: #0b0b0b; }
+  .ink2    { fill: #52514e; }
+  .muted   { fill: #898781; }
+  .grid    { stroke: #e1e0d9; }
+  .axis    { stroke: #c3c2b7; }
+  .s0 { stroke: #2a78d6; } .f0 { fill: #2a78d6; }
+  .s1 { stroke: #1baf7a; } .f1 { fill: #1baf7a; }
+  .s2 { stroke: #eb6834; } .f2 { fill: #eb6834; }
+  @media (prefers-color-scheme: dark) {
+    .surface { fill: #1a1a19; }
+    .ink     { fill: #ffffff; }
+    .ink2    { fill: #c3c2b7; }
+    .muted   { fill: #898781; }
+    .grid    { stroke: #2c2c2a; }
+    .axis    { stroke: #383835; }
+    .s0 { stroke: #3987e5; } .f0 { fill: #3987e5; }
+    .s1 { stroke: #199e70; } .f1 { fill: #199e70; }
+    .s2 { stroke: #d95926; } .f2 { fill: #d95926; }
+  }
+  text { font-family: system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .tick { font-size: 12px; font-variant-numeric: tabular-nums; }
+  .lbl  { font-size: 13px; }
+  .ttl  { font-size: 17px; font-weight: 600; }
+  .sub  { font-size: 13px; }
+  .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+</style>
+<rect class="surface" width="780" height="470"/>
+<text class="ttl ink" x="66" y="26">KV 예산을 3.8배 늘려도 처리량은 그 자리에 있었다</text>
+<text class="sub ink2" x="66" y="46">Qwen2.5-1.5B · vLLM v0.23.0 · RTX 4080 Laptop · decode c=16 · 점선은 BF16 예산 스윕 5점</text>
+<circle class="f0" cx="71" cy="66" r="5"/>
+<text class="lbl ink" x="82" y="70">BF16 (기준)</text>
+<circle class="f1" cx="170" cy="66" r="5"/>
+<text class="lbl ink" x="181" y="70">FP8 양자화</text>
+<circle class="f2" cx="253" cy="66" r="5"/>
+<text class="lbl ink" x="264" y="70">4주차 추측 디코딩</text>
+<text class="lbl muted" x="66" y="92">처리량 (tok/s)</text>
+<line class="grid" x1="66" y1="412.0" x2="662" y2="412.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="416.0" text-anchor="end">0</text>
+<line class="grid" x1="66" y1="335.0" x2="662" y2="335.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="339.0" text-anchor="end">600</text>
+<line class="grid" x1="66" y1="258.0" x2="662" y2="258.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="262.0" text-anchor="end">1,200</text>
+<line class="grid" x1="66" y1="181.0" x2="662" y2="181.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="185.0" text-anchor="end">1,800</text>
+<line class="grid" x1="66" y1="104.0" x2="662" y2="104.0" stroke-width="1"/>
+<text class="tick muted" x="56" y="108.0" text-anchor="end">2,400</text>
+<line class="axis" x1="66" y1="412" x2="662" y2="412" stroke-width="1"/>
+<text class="tick muted" x="66.0" y="432" text-anchor="middle">0</text>
+<text class="tick muted" x="185.2" y="432" text-anchor="middle">15</text>
+<text class="tick muted" x="304.4" y="432" text-anchor="middle">30</text>
+<text class="tick muted" x="423.6" y="432" text-anchor="middle">45</text>
+<text class="tick muted" x="542.8" y="432" text-anchor="middle">60</text>
+<text class="tick muted" x="662.0" y="432" text-anchor="middle">75</text>
+<text class="lbl muted" x="364" y="456" text-anchor="middle">KV 예산 — 기동 로그의 Maximum concurrency (x)</text>
+<path class="line" d="M190.3,196.4 L277.4,195.7 L364.6,196.9 L451.7,196.3 L538.8,196.8" stroke="#898781" stroke-dasharray="5 4"/>
+<circle cx="190.3" cy="196.4" r="3.5" fill="#898781"/>
+<circle cx="277.4" cy="195.7" r="3.5" fill="#898781"/>
+<circle cx="364.6" cy="196.9" r="3.5" fill="#898781"/>
+<circle cx="451.7" cy="196.3" r="3.5" fill="#898781"/>
+<circle cx="538.8" cy="196.8" r="3.5" fill="#898781"/>
+<circle class="f0" cx="538.8" cy="195.2" r="6.5"/>
+<circle class="surface" cx="538.8" cy="195.2" r="2.4"/>
+<circle class="f0" cx="550.8" cy="179.2" r="4.5"/>
+<text class="lbl ink" x="560.8" y="183.7">BF16 기본</text>
+<circle class="f1" cx="623.9" cy="122.1" r="6.5"/>
+<circle class="surface" cx="623.9" cy="122.1" r="2.4"/>
+<circle class="f1" cx="635.9" cy="106.1" r="4.5"/>
+<text class="lbl ink" x="645.9" y="110.6">FP8 기본</text>
+<circle class="f1" cx="550.3" cy="121.3" r="6.5"/>
+<circle class="surface" cx="550.3" cy="121.3" r="2.4"/>
+<circle class="f1" cx="562.3" cy="151.3" r="4.5"/>
+<text class="lbl ink" x="572.3" y="155.8">FP8 · 예산 동결</text>
+<circle class="f2" cx="522.8" cy="238.0" r="6.5"/>
+<circle class="surface" cx="522.8" cy="238.0" r="2.4"/>
+<circle class="f2" cx="534.8" cy="250.0" r="4.5"/>
+<text class="lbl ink" x="544.8" y="254.5">4주차 ngram</text>
+<circle class="f2" cx="339.2" cy="306.0" r="6.5"/>
+<circle class="surface" cx="339.2" cy="306.0" r="2.4"/>
+<circle class="f2" cx="351.2" cy="306.0" r="4.5"/>
+<text class="lbl ink" x="361.2" y="310.5">4주차 draft-0.5B</text>
+</svg>

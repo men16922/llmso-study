@@ -1,0 +1,4 @@
+attempt 1: conc=70.20x -> next util=0.7204
+attempt 2: conc=55.99x -> next util=0.7656
+attempt 3: conc=60.95x -> next util=0.7474
+frozen 성립: 60.95x vs 기준 59.50x (오차 5% 이내), util=0.7656
