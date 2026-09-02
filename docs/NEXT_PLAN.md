@@ -4,7 +4,7 @@ Last Updated: 2026-09-02
 
 > ⚠️ **4주차 마감(2026-08-30 09:00)이 지났습니다.** 글·노션 발행은 끝났고 **⑦ 링크 공유만 사용자 몫**이었습니다 — **공유했는지 먼저 확인하세요.** 미공유 1회 = 제명. 아래 Priority 5.
 >
-> ▶ **5주차 (CH9·CH10) — ⚠️ ⓪ 선행 미착수로 이틀 지연.** 마감 **2026-09-06(일) 09:00**(약 3일 12시간).
+> ▶ **5주차 (CH9·CH10) — 측정 전량 완료 · 글 완성 (2026-09-02).** 남은 것은 **⑥ 노션 발행 + ⑦ 링크 공유**. 마감 **2026-09-06(일) 09:00**.
 > 축은 **"빨라졌다"의 원인 귀속** — 설계·시간표·중단 기준은 [`docs/plans/2026-08-30-week5-attribution.md`](./plans/2026-08-30-week5-attribution.md)(**2026-09-02 §5~§9 개정**).
 > ★ **개정 요지**: F1을 관찰에서 **제거 실험**으로 바꿨습니다 — *양자화의 이득을 되돌려 놓을 수 있는가*. F3는 곡선 위 검증점으로 흡수, **F4는 잘라냈습니다**.
 
@@ -26,21 +26,21 @@ Last Updated: 2026-09-02
 
 **⓪ 선행 (⚠️ 09-02 수 밤으로 재조정, 전부 `[auto]`)**
 
-- [ ] [auto] **⓪-1 keeper + 클러스터 복구** — `Start-Process wsl.exe ... 'sleep','infinity' -WindowStyle Hidden -PassThru`. 재부팅했다면 필수. 파드 `Running` · GPU `0 MiB` 확인.
-- [ ] [auto] **⓪-2 양자화 팔 확보** — v0.23.0이 지원하는 `--quantization` 값 확인(`vllm serve --help=all`) + 모델 사전 다운로드(FP8 → GPTQ → AWQ 순으로 시도). Done: 팔 하나가 기동 로그까지 뜬다.
-- [ ] [auto] **⓪-3 ★ Nsight 권한 확인** — 컨테이너 안에서 Nsight Systems가 붙는지(`SYS_ADMIN` / 호스트 프로파일링). **1시간 넘기지 말 것** — 막히면 F2를 PyTorch Profiler 단독으로 축소. Done: 짧은 캡처 1건이 `.nsys-rep`로 떨어진다.
-- [ ] [auto] **⓪-4 스모크** — 4주차 baseline 재확인(KV 예산 `Maximum concurrency` 기록). `e2e`·wall time은 세션 간 비교 금지.
+- [x] [auto] **⓪-1 keeper + 클러스터 복구** — `Start-Process wsl.exe ... 'sleep','infinity' -WindowStyle Hidden -PassThru`. 재부팅했다면 필수. 파드 `Running` · GPU `0 MiB` 확인.
+- [x] [auto] **⓪-2 양자화 팔 확보** — **FP8이 첫 시도에 떴습니다.** `--quantization fp8`은 BF16 체크포인트를 기동 시 W8A8로 바꿔 **추가 다운로드 0**이고, 모델·이미지·실행 경로가 그대로라 통제가 오히려 세졌습니다. KV 예산 6.51→7.68 GiB, `Maximum concurrency` 59.50x→70.20x. GPTQ·AWQ는 시도하지 않았습니다.
+- [x] [auto] **⓪-3 ★ Nsight — 권한이 아니라 부재였습니다.** `command -v nsys ncu` → `NOT_FOUND`. `vllm/vllm-openai:v0.23.0` 이미지에 바이너리가 아예 없어 컨테이너 안에서는 방법이 없습니다. 중단 기준대로 **PyTorch Profiler 단독으로 축소**했고, F1b가 이미 결론을 내고 있어 손실이 없었습니다. 증거 `results/f2-tooling.txt`.
+- [x] [auto] **⓪-4 스모크** — 4주차 baseline 재확인(KV 예산 `Maximum concurrency` 기록). `e2e`·wall time은 세션 간 비교 금지.
 
 **측정** — F1은 세 갈래입니다. **F1a가 좌표계를 만들고, F1b가 결론을 내고, F1c가 반증을 찾습니다.**
 
-- [ ] [manual] **①-a F1a — KV 예산 곡선** ★ **좌표계**. BF16 한 팔로 `redeploy GPU_MEMORY_UTILIZATION=...` 4~5점 스윕(`k8s/vllm-baseline.yaml:59`, 매니페스트 수정 0). 각 점에서 기동 로그 `Maximum concurrency` + `decode` c=16 처리량. Done: 곡선 하나가 그려진다.
-- [ ] [manual] **①-b F1b — 양자화의 이득을 되돌린다 (제거 실험)** ★★ **이번 주의 핵심, 자르지 않음**. 양자화 팔의 `gpu_memory_utilization`을 조여 `Maximum concurrency`를 BF16의 **±5% 안**으로 맞춘다. 세 팔 — ①BF16 기본 ②양자화 기본 ③**양자화-예산동결**. ③이 ①로 주저앉으면 이득은 전부 메모리, ②에 가까우면 커널 이득이 실재(교재와 다른 결론). ★ **이게 서면 Nsight 없이도 글의 결론이 선다.**
-- [ ] [manual] **①-c F1c — 양자화가 지는 구간 찾기**. 4주차 E1과 **같은 격자**(`prefill`·`decode` × c=1·4·16·64, 추가 도구 0). W4A16은 compute-bound에서 역양자화가 순비용이라 `prefill` 고동시성에서 **부호가 뒤집힐 수 있다**. 뒤집히면 4주차(수용률 100%인데 −53.7%)와 대칭. 안 뒤집혀도 결과.
-- [ ] [manual] **② F2 — 3계층 프로파일링** (Nsight Systems → PyTorch Profiler → Nsight Compute). **과녁 1순위는 F1c에서 양자화가 지는 그 한 점** — "왜 여기선 지는가"를 커널에서 특정. 뒤집힘이 안 나오면 2순위로 4주차 잔여 숙제(청크 512에도 남던 **ITL +16.3%**). 성공 기준은 *"지표로는 안 보였는데 타임라인에서 보였다"* 1건. **CH10 도전과제 950·956 커버.**
-- [ ] [manual] **③ F3 — 복제 2개 = 곡선 위의 검증점**. `replica=1` vs `replica=2`(각 `gpu_memory_utilization` 0.45) + 앞단 **LiteLLM Proxy**. **F1a 곡선이 예측한 처리량과 실측이 맞는가**가 판정. **CH10 도전과제 954·955 커버** — 자를 때도 라우팅 없이 두 포트 직접 호출로 곡선 점은 확보.
+- [x] [manual] **①-a F1a — KV 예산 "곡선"이 아니라 평평한 선이 나왔습니다.** 예산을 **3.80배**(64,048→243,696토큰) 돌렸는데 `decode` c=16 변동 **0.5%**, `prefill` c=64 변동 **5.3%(추세 없음)**. `util 0.90`은 기동 불가(자유 메모리 10.79 GiB = 요구량). ~~원문~~ ★ **좌표계**. BF16 한 팔로 `redeploy GPU_MEMORY_UTILIZATION=...` 4~5점 스윕(`k8s/vllm-baseline.yaml:59`, 매니페스트 수정 0). 각 점에서 기동 로그 `Maximum concurrency` + `decode` c=16 처리량. Done: 곡선 하나가 그려진다.
+- [x] [manual] **①-b F1b — 되돌렸는데 되돌아가지 않았습니다.** ①BF16 59.50x 1,689.3 / ②FP8 70.20x 2,258.8(+33.7%) / ③**FP8 예산동결 60.95x 2,261.0(+33.8%)**. **예산 기여분 0%.** ITL −24.7%. ~~원문~~ ★★ **이번 주의 핵심, 자르지 않음**. 양자화 팔의 `gpu_memory_utilization`을 조여 `Maximum concurrency`를 BF16의 **±5% 안**으로 맞춘다. 세 팔 — ①BF16 기본 ②양자화 기본 ③**양자화-예산동결**. ③이 ①로 주저앉으면 이득은 전부 메모리, ②에 가까우면 커널 이득이 실재(교재와 다른 결론). ★ **이게 서면 Nsight 없이도 글의 결론이 선다.**
+- [x] [manual] **①-c F1c — 지는 구간은 없었고 크기만 줄었습니다.** 8칸 전부 이득(**+11.1% ~ +35.4%**), decode 34.6→15.1% / prefill 33.5→11.1%. ~~원문~~. 4주차 E1과 **같은 격자**(`prefill`·`decode` × c=1·4·16·64, 추가 도구 0). W4A16은 compute-bound에서 역양자화가 순비용이라 `prefill` 고동시성에서 **부호가 뒤집힐 수 있다**. 뒤집히면 4주차(수용률 100%인데 −53.7%)와 대칭. 안 뒤집혀도 결과.
+- [x] [manual] **② F2 — 스텝당 GEMM −27.7%, 어텐션·KV −0.1%, 합계 −26.7%(ITL −24.7%와 일치).** 교재와 다른 결과 1건(커널이 바뀜: Ada FP8 `enable_sm89_to_sm90`). Nsight 계층은 부재로 생략 — **도전과제 950·956은 PyTorch Profiler로만 커버**. ~~원문~~ (Nsight Systems → PyTorch Profiler → Nsight Compute). **과녁 1순위는 F1c에서 양자화가 지는 그 한 점** — "왜 여기선 지는가"를 커널에서 특정. 뒤집힘이 안 나오면 2순위로 4주차 잔여 숙제(청크 512에도 남던 **ITL +16.3%**). 성공 기준은 *"지표로는 안 보였는데 타임라인에서 보였다"* 1건. **CH10 도전과제 950·956 커버.**
+- [ ] [manual] **③ F3 — 미착수(우선순위 하향).** GPU 1장에 파드 둘을 올리려면 device plugin이 광고하는 `nvidia.com/gpu: 1`을 우회해야 해서 매니페스트 변경이 필요합니다. **통제 변수(매니페스트 수정 0)를 깨는 비용**이 도전과제 954·955 커버보다 크다고 봤습니다. ~~원문~~. `replica=1` vs `replica=2`(각 `gpu_memory_utilization` 0.45) + 앞단 **LiteLLM Proxy**. **F1a 곡선이 예측한 처리량과 실측이 맞는가**가 판정. **CH10 도전과제 954·955 커버** — 자를 때도 라우팅 없이 두 포트 직접 호출로 곡선 점은 확보.
 - [x] [manual] **④ F4 — Multi-LoRA — 잘라냄** (2026-09-02 확정). 도전과제 커버리지 손실 **0**(`Ch10.md:957`은 Multi-Model 서빙이지 Multi-LoRA가 아니고, Multi-LoRA는 도전과제 목록에 없음).
-- [ ] [manual] **④-b 그림 `fig-f1-kv-budget-curve.svg`** — 가로 KV 예산 · 세로 처리량. BF16 곡선 위에 양자화 기본 / **양자화-예산동결** / `replica=2` / ★ **4주차 draft-0.5B(−42.2%)·ngram(−3.4%)** 를 얹는다(4주차 분은 기존 `results/`에서, **추가 측정 0회**). `tools/make_figures.py`에 `fig_kv_budget_curve` 추가.
-- [ ] [manual] **⑤ 글 작성** — 처음부터 **노션 발행본 형태**로(변환 5단계 선반영). 인증샷 `proof-w5-*`.
+- [x] [manual] **④-b 그림 `fig-f1-kv-budget-curve.svg`** — 4주차 ngram·draft-0.5B를 추가 측정 0회로 얹었습니다. 스윕이 평평한 선이라 "가로로 움직인 것은 아무것도 못 바꿨고 세로로 벗어난 점만 무언가를 했다"로 읽힙니다. ~~원문~~ — 가로 KV 예산 · 세로 처리량. BF16 곡선 위에 양자화 기본 / **양자화-예산동결** / `replica=2` / ★ **4주차 draft-0.5B(−42.2%)·ngram(−3.4%)** 를 얹는다(4주차 분은 기존 `results/`에서, **추가 측정 0회**). `tools/make_figures.py`에 `fig_kv_budget_curve` 추가.
+- [x] [manual] **⑤ 글 작성 — [`articles/처리량이 올랐다면 무엇이 빨라진 것인가.md`](../articles/처리량이%20올랐다면%20무엇이%20빨라진%20것인가.md)**(약 540줄), 인증샷 `proof-w5-01~06`. ~~원문~~ — 처음부터 **노션 발행본 형태**로(변환 5단계 선반영). 인증샷 `proof-w5-*`.
   - 「한계」 절에 **한 문단 추가**: *왜 이 실험은 이 머신에서만 가능한가* — Nsight도 vLLM 최적화 커널도 **CUDA 전용**이라 F2는 애플 실리콘에서 **원리상 재현 불가**. 추가 측정 0회. 배경은 [`docs/plans/2026-09-01-unified-memory-vs-vram.md`](./plans/2026-09-01-unified-memory-vs-vram.md) §2·§10.
   - 「한계」 절에 **한 문단 더**: 양자화 포맷의 최전선은 **FP4/Blackwell**로 옮겨갔고 이 랩은 FP8·AWQ까지다. 다만 *이득이 커널이 아니라 메모리에서 온다*는 구조는 포맷이 바뀌어도 남는다.
 - [ ] [manual] **⑥ 노션 발행** — `tools/md_to_notion.py --toggle-h2` + 콜아웃 후처리. 4주차 페이지와 형제로.

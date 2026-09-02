@@ -24,13 +24,16 @@ PREFILL_ARGS=(
   --warmup 2 --unique-prefix --ttft-slo 2 --e2e-slo 60
 )
 
+# ★ 리다이렉트는 while 루프가 아니라 서브셸에 붙여야 한다. `( while ...; done > 파일 ) &`
+#   로 쓰면 서브셸 자신의 fd 1이 명령 치환 파이프를 계속 쥐고 있어 $( )가 EOF를 못 받고,
+#   호출한 스크립트가 영원히 멈춘다 — 첫 실행에서 실제로 그렇게 멈췄다.
 sample_start() {  # sample_start <파일>
   ( while :; do
       curl -fsS http://127.0.0.1:8000/metrics 2>/dev/null \
         | grep -E '^vllm:(num_requests_running|num_requests_waiting|kv_cache_usage_perc|num_preemptions_total)\{' \
         | sed "s/^/$(date -u +%H:%M:%S) /"
       sleep 0.4
-    done > "$1" ) &
+    done ) > "$1" &
   echo $!
 }
 
