@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>FP8 양자화가 KV 예산에 준 것</title>
+<style>
+  html,body{margin:0;background:#101418;color:#d8dee9;font:17px/1.5 Consolas,"D2Coding",monospace}
+  main{padding:30px 38px}
+  .bar{color:#8fbcbb;margin-bottom:18px;font-size:15px}
+  .cmd{color:#a3be8c}.key{color:#88c0d0;font-weight:700}.dim{color:#7f8c98}.win{color:#a3be8c;font-weight:700}
+  pre{white-space:pre-wrap;word-break:break-word;margin:0}
+  table{border-collapse:collapse;margin:20px 0 6px}
+  td,th{padding:7px 18px 7px 0;text-align:left}
+  th{color:#7f8c98;font-weight:400;border-bottom:1px solid #2c3540}
+  td.n{font-variant-numeric:tabular-nums}
+</style>
+<main>
+  <div class="bar">llmso-study / llm-serving-lab / 2026-09-02 · vllm/vllm-openai:v0.23.0 · RTX 4080 Laptop 12,282 MiB</div>
+  <pre><span class="cmd">$ kubectl -n llm-serving-lab logs deploy/vllm-baseline | grep -E 'KV cache memory|KV cache size|Maximum concurrency'</span>
+
+<span class="dim">── BF16 (EXTRA_ARGS='', gpu_memory_utilization=0.85) ──</span>
+INFO 09-02 09:09:42 [gpu_worker.py:480]     Available KV cache memory: <span class="key">6.51 GiB</span>
+INFO 09-02 09:09:42 [kv_cache_utils.py:1744] GPU KV cache size: <span class="key">243,696 tokens</span>
+INFO 09-02 09:09:42 [kv_cache_utils.py:1745] Maximum concurrency for 4,096 tokens per request: <span class="key">59.50x</span>
+
+<span class="dim">── FP8 (EXTRA_ARGS='--quantization fp8', 같은 util 0.85) ──</span>
+INFO 09-02 09:11:18 [gpu_worker.py:480]     Available KV cache memory: <span class="win">7.68 GiB</span>
+INFO 09-02 09:11:18 [kv_cache_utils.py:1744] GPU KV cache size: <span class="win">287,536 tokens</span>
+INFO 09-02 09:11:18 [kv_cache_utils.py:1745] Maximum concurrency for 4,096 tokens per request: <span class="win">70.20x</span></pre>
+
+  <table>
+    <tr><th>항목</th><th>BF16</th><th>FP8</th><th>차이</th></tr>
+    <tr><td>KV 캐시 메모리</td><td class="n">6.51 GiB</td><td class="n">7.68 GiB</td><td class="n win">+1.17 GiB</td></tr>
+    <tr><td>KV 캐시 토큰</td><td class="n">243,696</td><td class="n">287,536</td><td class="n win">+43,840</td></tr>
+    <tr><td>Maximum concurrency</td><td class="n">59.50x</td><td class="n">70.20x</td><td class="n win">+18.0%</td></tr>
+  </table>
+  <div class="dim">양자화가 준 것은 여기까지다 — 가중치가 작아진 만큼 KV 예산이 늘었다.<br>
+  그 예산이 처리량으로 바뀌는지는 별개의 질문이고, 이 글의 나머지가 그것을 다룬다.</div>
+</main>
+</html>
