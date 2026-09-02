@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>꺾이는 점은 2.48x에 있었다</title>
+<style>
+  html,body{margin:0;background:#101418;color:#d8dee9;font:16px/1.5 Consolas,"D2Coding",monospace}
+  main{padding:28px 36px}
+  .bar{color:#8fbcbb;margin-bottom:16px;font-size:14px}
+  .cmd{color:#a3be8c}.dim{color:#7f8c98}.warn{color:#ebcb8b;font-weight:700}
+  .bad{color:#bf616a;font-weight:700}.ok{color:#a3be8c;font-weight:700}
+  pre{white-space:pre-wrap;margin:0;font-size:14.5px}
+  table{border-collapse:collapse;margin:16px 0 4px;font-size:15px}
+  td,th{padding:6px 20px 6px 0;text-align:right}
+  th{color:#7f8c98;font-weight:400;border-bottom:1px solid #2c3540}
+  td:first-child,th:first-child{text-align:left}
+  td{font-variant-numeric:tabular-nums}
+  tr.knee td{color:#bf616a;font-weight:700}
+  tr.full td:nth-child(5){color:#ebcb8b;font-weight:700}
+</style>
+<main>
+  <div class="bar">llmso-study / F1d 예산 하한 스윕 · 2026-09-02 · prefill c=64 · --unique-prefix · 부하 중 0.4초 간격 샘플링</div>
+  <pre><span class="cmd">$ for util in 0.33 0.36 0.40 0.45 0.85; do redeploy GPU_MEMORY_UTILIZATION=$util; benchmark; done</span>
+<span class="dim">   (부하 중 vllm:kv_cache_usage_perc · num_requests_waiting · num_preemptions_total 수집)</span></pre>
+
+  <table>
+    <tr><th>util</th><th>KV 예산 (토큰)</th><th>Max concurrency</th><th>프롬프트 (tok/s)</th><th>KV 사용률 최대</th><th>대기 최대</th><th>선점</th></tr>
+    <tr class="knee"><td>0.33</td><td>10,144</td><td>2.48x</td><td>8,306</td><td>0.998</td><td>60</td><td>4</td></tr>
+    <tr><td>0.36</td><td>23,616</td><td>5.77x</td><td>11,833</td><td>0.961</td><td>57</td><td>0</td></tr>
+    <tr class="full"><td>0.40</td><td>41,584</td><td>10.15x</td><td>12,828</td><td>0.990</td><td>58</td><td>0</td></tr>
+    <tr class="full"><td>0.45</td><td>64,048</td><td>15.64x</td><td>12,814</td><td>0.995</td><td>61</td><td>0</td></tr>
+    <tr><td>0.85</td><td>243,696</td><td>59.50x</td><td>12,686</td><td>0.439</td><td>59</td><td>0</td></tr>
+  </table>
+
+  <div class="dim" style="margin-top:14px">
+  <span class="bad">꺾입니다 — 다만 2.48x에서입니다.</span> 프리필 요청 넷을 겨우 담을 예산이 되자 처리량 −35%,<br>
+  TTFT 4.45초 → 7.68초, 그리고 vLLM이 자리 잡은 요청을 <span class="bad">네 번 쫓아냈습니다</span>(선점).<br>
+  10.15x 위로는 다시 평평합니다 — 평평한 선은 구간을 잘못 고른 결과가 아니었습니다.<br><br>
+  ★ <span class="warn">KV 사용률이 1에 붙는 것 자체는 문제가 아닙니다.</span> util 0.40·0.45는 사용률이 0.99인데도<br>
+  처리량이 예산 여섯 배인 0.85와 같습니다. 캐시는 있는 만큼 씁니다.<br>
+  모자란 신호는 사용률이 아니라 <span class="warn">num_preemptions_total</span>입니다 — 선점이 0인 동안은<br>
+  사용률 99%든 44%든 처리량이 같았고, 선점이 난 지점에서만 떨어졌습니다.
+  </div>
+</main>
+</html>
