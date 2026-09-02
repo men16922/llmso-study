@@ -18,12 +18,13 @@ def heading(chunk):
 
 
 def key(chunk):
-    m = re.match(r'## (\d+)\.', chunk)
+    # "## 2." 와 "## 2-B." 를 같이 받는다. 2-B는 2 바로 뒤에 와야 한다.
+    m = re.match(r'## (\d+)(?:-([A-Z]))?\.', chunk)
     if m:
-        return (0, int(m.group(1)))
+        return (0, int(m.group(1)), m.group(2) or '')
     if chunk.startswith('## 부록'):
-        return (1, 0)
-    return (2, 0)
+        return (1, 0, '')
+    return (2, 0, '')
 
 
 def main():
