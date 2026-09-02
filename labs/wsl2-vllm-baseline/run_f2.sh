@@ -34,9 +34,12 @@ profile_arm() {  # profile_arm <tag> <extra_args>
   python3 benchmark.py --base-url http://127.0.0.1:8000 --scenarios decode \
     --concurrency 4 --requests-per-level 4 --warmup 1 --output /tmp/f2-warm.json >/dev/null 2>&1 || true
 
+  # 프로파일 구간은 짧게 잡는다. decode 512토큰짜리를 그대로 트레이싱하면 스텝마다
+  # 커널 수백 개가 쌓여 트레이스가 기가바이트로 간다. short(64토큰)로도 디코드
+  # 스텝의 커널 구성은 같으므로 연산자별 평균을 뽑는 데 충분하다.
   curl -fsS -X POST http://127.0.0.1:8000/start_profile
   python3 benchmark.py --base-url http://127.0.0.1:8000 \
-    --scenarios decode --concurrency 8 --requests-per-level 8 --warmup 0 \
+    --scenarios short --concurrency 8 --requests-per-level 16 --warmup 0 \
     --output "results/f2-${tag}-load.json"
   curl -fsS -X POST http://127.0.0.1:8000/stop_profile
 

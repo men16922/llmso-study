@@ -58,4 +58,12 @@ for util in 0.33 0.36 0.40 0.45 0.85; do
     > "results/f1d-${tag}-metrics.txt" || true
 done
 
+# 프리필 프롬프트가 정확히 몇 토큰인지 확정한다. 글에서 "요청당 KV 수요"를
+# 계산할 때 이 값을 쓰는데, 벤치마크 결과 JSON에는 프롬프트 토큰이 안 남는다.
+# 서버 누적 카운터의 차이로 잰다 — prefix cache가 합치지 못하게 --unique-prefix.
+before="$(curl -fsS http://127.0.0.1:8000/metrics | grep -oE '^vllm:prompt_tokens_total\{[^}]*\} [0-9.]+' | grep -oE '[0-9.]+$')"
+python3 benchmark.py --base-url http://127.0.0.1:8000 --scenarios prefill   --concurrency 1 --requests-per-level 4 --warmup 0 --unique-prefix   --output /tmp/f1d-probe.json >/dev/null
+after="$(curl -fsS http://127.0.0.1:8000/metrics | grep -oE '^vllm:prompt_tokens_total\{[^}]*\} [0-9.]+' | grep -oE '[0-9.]+$')"
+python3 -c "print(f'prefill 프롬프트 토큰/요청 = {(float('$after') - float('$before')) / 4:.0f}')"   | tee results/f1d-prompt-tokens.txt
+
 echo "=== F1d done $(date -u +%H:%M:%S) UTC ==="
