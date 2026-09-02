@@ -1,8 +1,32 @@
 # Progress Log
 
-Last Updated: 2026-09-01
+Last Updated: 2026-09-02
 
 > 오래된 항목은 [`docs/archive/progress-2026-08.md`](./archive/progress-2026-08.md)로 옮겼습니다. 여기에는 최신 증분만 둡니다.
+
+## 2026-09-02 — 5주차 실험 설계를 **확인에서 반증으로** 개정 + `study/` 가드레일 복구
+
+- **Status**: 게이트 green — 문서 3종 + labs **106건**. 인덱스 재생성 **1207 nodes / 98 docs**(`--only md`, Inference Engineering의 `llm-claude-code-korean` 보존 확인). 측정 없음, 커밋 없음.
+- ★ **`study/` 가드레일이 깨져 있던 것을 발견하고 복구했습니다.** ① 5주차 원문 `Ch9.md`(2,392줄)·`Ch10.md`(956줄)가 **`knowledge/`에 미추적으로** 놓여 있었습니다 — `knowledge/`는 커밋 대상이고 `MD_SKIP_DIRS`에도 없어서, 그대로 뒀으면 **다음 커밋에 원문이 들어가고 인덱스에 발췌가 박혔을 자리**입니다. `study/`로 옮겼습니다. ② `.gitignore`에서 **`study/` 패턴 줄이 사라져 있었고**(주석만 남음) 커밋 `ae10b8e "study"`에서 **`study/Ch1~Ch8.md` + `LLM기초.md` 9개가 실제로 커밋**됐습니다. 패턴은 복구했지만 **이미 추적 중인 9개는 아직 그대로**입니다 — `git rm --cached`가 필요합니다.
+- **5주차 F1을 관찰에서 제거 실험(ablation)으로 바꿨습니다.** 사용자가 *"실험 시나리오를 더 흥미롭게 할 수 없냐"* 고 물어 재설계 — 초판은 교재 주장(*"GEMM 커널 시간은 거의 동일"*)을 **확인**하는 구조라 결론이 시작 전에 이미 보였습니다. 4주차가 값어치를 가진 건 **가설이 뒤집혀서**(수용률 100%인데 −53.7%)였습니다.
+  - **F1a** KV 예산 곡선 — `redeploy GPU_MEMORY_UTILIZATION=...` 4~5점 스윕으로 좌표계를 만든다.
+  - **F1b ★ 예산 동결 제거 실험** — 양자화 팔의 `Maximum concurrency`를 BF16의 ±5%로 깎고 **이득이 사라지는지** 본다. 관찰이 아니라 *"이득을 껐다 켰다 할 수 있다"*.
+  - **F1c** — `prefill` 고동시성에서 **부호가 뒤집히는지** 사냥(W4A16은 compute-bound에서 역양자화가 순비용).
+- ★ **개정의 실질 이득은 안전판입니다.** 초판 최대 리스크가 *"컨테이너 안 Nsight 권한이 안 잡히면 축이 흔들린다"* 였는데, **F1b는 Nsight 없이 결론을 냅니다.** F2가 통째로 날아가도 글이 섭니다.
+- **F3는 흡수, F4는 잘라냈습니다.** F3(`replica=2`)는 예산이 반이므로 **F1a 곡선 위의 검증점**이 됩니다. F4(Multi-LoRA) 절단 비용은 **0** — `study/Ch10.md:957`은 **Multi-Model(멀티모달) 서빙**이지 Multi-LoRA가 아니고, Multi-LoRA는 도전과제 목록에 없습니다.
+- **도전과제 대조를 처음으로 전수로 했습니다** (`Ch10.md:948~957`, 8종). F2가 950·956을, F3가 954·955를 덮고, 952는 3분의 1(`Router→Replica=2`)만. **951(MoE, GPU 4장)은 불가**, **953(Semantic Router)·957(Multi-Model)은 설계에 없음** — F4를 자른 자리의 대체 후보는 953입니다.
+- **그림 하나로 합칩니다** — 가로 KV 예산 · 세로 처리량. BF16 곡선 위에 양자화 기본 / 예산동결 / `replica=2` / ★ **4주차 draft-0.5B(−42.2%)·ngram(−3.4%)** 를 얹습니다(4주차 분은 기존 `results/`에서, **추가 측정 0회**). 4주차 결론(토큰 예산)과 5주차 결론(KV 예산)이 한 화면에서 이어집니다.
+- **Changed**
+  - `docs/plans/2026-08-30-week5-attribution.md` — **§5~§9 전면 교체**(147→183줄) + 개정 배너 + §0을 "사흘 지남"으로 갱신.
+  - `docs/NEXT_PLAN.md` — Priority 0 측정 체크리스트를 F1a·F1b·F1c 구조로 교체, 일정 재조정(09-02 ⓪+F1a / 09-03 F1b+F1c / 09-04 F2 / 09-05 F3·초고), 잘라내기 순서 갱신, 「한계」 절에 **FP4/Blackwell 문단** 추가 지시.
+  - `docs/DECISIONS.md` — 2026-09-02 항목 신규(근거 5·대가 3·되돌리는 법).
+  - `docs/AGENT_BRIEF.md`·`docs/STATUS.md` — 개정 반영, 지연 하루→이틀, `study/` 가드레일 사고 기록.
+  - `.gitignore:25` — `study/` 복구. `knowledge/Ch{9,10}.md` → `study/`.
+  - `index/knowledge_structure.json` 재생성.
+- **Verified**: `make check` green(문서 3종 + labs 106건). `git check-ignore`로 `study/Ch9.md`·`Ch10.md`가 `.gitignore:25`에 잡히는 것 확인. `make index-md` 후 `summary_method` 4종 전수 확인(보강본 보존). 계획서의 인용 줄번호를 옮긴 파일에 대조 — `Ch10.md:500`·`:950`·`Ch9.md:84`는 정확, **`Ch9.md:10`은 한 줄 밀려 `:9`로 정정**. **GPU 측정은 하지 않았습니다.**
+- **Blockers**: ⚠️ **4주차 ⑦ 링크 공유 여전히 미확인**(마감 08-30 09:00에서 사흘 경과). 5주차 ⓪ 선행 미착수 — **이틀 지연**, 마감까지 3일 12시간. `study/Ch1~Ch8` 9개가 아직 추적 중(`git rm --cached` 대기). AWS 쿼터 `0` 유지.
+- **Next**: 4주차 제출 확인 → 09-02 밤 ⓪ 선행(keeper → Nsight 권한 1h 상한 → 양자화 팔) + F1a 곡선 스윕.
+
 
 ## 2026-09-01 — 맥 vs GPU 비교를 5주차에서 빼고 **설계만 확보** + 게이트 구멍 하나 메움
 

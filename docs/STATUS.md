@@ -1,6 +1,6 @@
 # Status
 
-Last Updated: 2026-09-01
+Last Updated: 2026-09-02
 
 ## Current Baseline
 
@@ -17,20 +17,22 @@ Last Updated: 2026-09-01
 - `tools/` — 인덱싱 3종 + **`make_figures.py`**(결과 JSON → SVG) + **`md_to_notion.py`**(마크다운 → 노션 변환). 둘 다 외부 의존성 없음.
 - **4주차 측정 원본** (2026-08-27) — `labs/wsl2-vllm-baseline/results/`에 `e-vllm-help.txt`(플래그 확정 근거) · `e0-smoke.json` · `e1-{vanilla,ngram}.json` + 기동로그·메트릭 · `e1-accept-*`(워크로드별 수용률) · `e2-mnbt{512,8192}-*` · `e3-cache{on,off}-{shared,unique}.json` + 적중률 · `e4-scheduler.py`. **분석 2종: [`e-analysis.md`](../labs/wsl2-vllm-baseline/results/e-analysis.md) · [`e4-scheduler-notes.md`](../labs/wsl2-vllm-baseline/results/e4-scheduler-notes.md).**
 - **측정 원본** — `labs/wsl2-vllm-baseline/results/`에 2주차 B1·B2 8종 + **3주차 계층 3종과 각각의 짝**: `c3-rayserve-*`·`b3-*`·`b-direct-v072-*`(Ray Serve 짝) / `c3-triton-vllm-seqs64`·`b-direct-v055-*`(Triton 짝) / `c3-kserve-vllm-seqs64`·`b-direct-v0200-*`(KServe 짝) + `metrics-*.txt` 6종, 분석 3종. C2는 `labs/triton-dynamic-batching/results/` 16종.
-- `study/` — 노션 원문 로컬 사본. **gitignore + 인덱스 제외** (멤버 전용 자료). `Ch1~Ch10.md` + `LLM기초.md`. **`Ch9`·`Ch10`은 2026-08-30 추가**했고, `Ch10.md`는 라이브 노션 페이지와 **전량 일치**함을 대조로 확인했습니다(라이브-only 라인 0건).
+- `study/` — 노션 원문 로컬 사본. **gitignore + 인덱스 제외** (멤버 전용 자료). `Ch1~Ch10.md` + `LLM기초.md`. `Ch10.md`는 라이브 노션 페이지와 **전량 일치**함을 대조로 확인했습니다(라이브-only 라인 0건).
+  - ⚠️ **2026-09-02에 `Ch9`·`Ch10`이 `knowledge/`에 있는 것을 발견해 `study/`로 옮기고 `.gitignore`의 `study/` 줄을 복구했습니다.** 커밋 `ae10b8e`에서 그 줄이 사라져 있었고, 그때 **`study/Ch1~Ch8.md` + `LLM기초.md` 9개가 실제로 커밋됐습니다** — 아직 추적 중이라 `git rm --cached`로 해제해야 가드레일이 실제로 섭니다. 5주차 과제 원문(`Ch10.md:938` 과제 규정, `:948~957` 도전과제 8종)이 여기 있습니다.
 
-스터디 진행: **1·2·3주차 완료·제출 완료** (3주차 마감 08-23 통과). **4주차(CH7·CH8) — 측정·글·노션 발행 완료, ⚠️ 링크 공유 여부 미확인(마감 08-30 09:00 경과).** **5주차(CH9·CH10) 착수 — 마감 09-06 09:00.**
+스터디 진행: **1·2·3주차 완료·제출 완료** (3주차 마감 08-23 통과). **4주차(CH7·CH8) — 측정·글·노션 발행 완료, ⚠️ 링크 공유 여부 미확인(마감 08-30 09:00 경과).** **5주차(CH9·CH10) 착수 — 마감 09-06 09:00, ⚠️ ⓪ 선행 미착수로 이틀 지연.**
 
 ## Active Focus
 
 Authority: `docs/NEXT_PLAN.md`.
 
 0. ⚠️ **4주차 ⑦ 링크 공유 — 마감(08-30 09:00) 경과, 공유 여부 미확인.** 글·노션 발행은 08-29에 끝났습니다(`워크로드 조건이 vLLM 최적화 효과를 바꾸는 방식`, humanize A). **이 확인이 5주차 착수보다 먼저입니다.** 미공유 1회 = 제명.
-1. **5주차 (CH9·CH10) — 계획 수립 완료, 측정 미착수.** 마감 **2026-09-06 09:00**. 설계·시간표·중단 기준은 [`docs/plans/2026-08-30-week5-attribution.md`](./plans/2026-08-30-week5-attribution.md).
-   - **축**: `study/Ch9.md:10`의 첫 질문 — *"처리량이 올랐다는 건 GPU가 더 빨리 계산해서인가, 덜 다시 계산해서인가"*. 4주차가 **조건**(언제 이득)을 쟀다면 5주차는 **인과**(왜 이득)를 커널 타임라인에서 귀속시킵니다. 교재 근거: AWQ 2.7배인데 **GEMM 커널 시간은 거의 동일**.
-   - **실험**: F1 양자화(★ 주인공, 자르지 않음) · F2 3계층 프로파일링(Nsight Systems → PyTorch Profiler → Nsight Compute, **CH10 공식 도전과제**) · F3 복제2 + LiteLLM · F4 Multi-LoRA(선택).
+1. **5주차 (CH9·CH10) — 계획 수립 완료 + 2026-09-02 §5~§9 개정, 측정 미착수(⚠️ 이틀 지연).** 마감 **2026-09-06 09:00**. 설계·시간표·중단 기준은 [`docs/plans/2026-08-30-week5-attribution.md`](./plans/2026-08-30-week5-attribution.md).
+   - **축**: `study/Ch9.md:9`의 첫 질문 — *"처리량이 올랐다는 건 GPU가 더 빨리 계산해서인가, 덜 다시 계산해서인가"*. 4주차가 **조건**(언제 이득)을 쟀다면 5주차는 **인과**(왜 이득)를 귀속시킵니다.
+   - ★ **09-02 개정 — 확인에서 반증으로.** 초판은 교재 주장을 확인하는 구조라 결론이 시작 전에 보였습니다. **F1a** KV 예산 곡선(좌표계) · **F1b ★ 예산 동결 제거 실험**(양자화의 이득을 되돌려 놓는다 — **Nsight 없이 결론이 서므로 글의 안전판**) · **F1c** 양자화가 지는 구간 사냥. **F2**는 과녁을 *"F1c에서 지는 그 한 점"* 으로, **F3**는 곡선 위 검증점으로 흡수, **F4는 잘라냈습니다**(도전과제 손실 0). 근거·대가는 `docs/DECISIONS.md` 2026-09-02.
    - **⓪에서 먼저 뚫을 것 2개**: 컨테이너 안 **Nsight 권한**(1시간 초과 시 PyTorch Profiler 단독으로 축소) · **v0.23.0의 양자화 커널 지원**(FP8 → GPTQ → AWQ 1회씩).
-   - 4주차가 남긴 두 공백이 그대로 재료입니다 — `iteration_tokens_total` 오독, 청크 512에도 남던 **ITL +16.3%**.
+   - **F1a·F1b가 쓰는 노브**: `GPU_MEMORY_UTILIZATION`이 매니페스트의 일급 env(`labs/wsl2-vllm-baseline/k8s/vllm-baseline.yaml:59`)라 `redeploy` 한 줄로 KV 예산을 돌립니다. 매니페스트 수정 0.
+   - 4주차가 남긴 두 공백이 그대로 재료입니다 — `iteration_tokens_total` 오독, 청크 512에도 남던 **ITL +16.3%**(F2 2순위 과녁).
 2. **AWS GPU 쿼터 신청** — 사용자가 콘솔에서 직접. **6주차(09-06) EKS가 걸려 있어 이번 주가 사실상 마감.**
 3. **통합 메모리 vs VRAM 비교(G 시리즈) — 설계만 완료, 착수 보류.** 5주차 과제로는 안 씁니다(통제 변수 붕괴 + 범위 밖 + 시간). 트리거는 5주차 종료 후 별도 글, 또는 **쿼터가 `0`인 채 6주차 EKS가 막히면 비상 대안**. [`docs/plans/2026-09-01-unified-memory-vs-vram.md`](./plans/2026-09-01-unified-memory-vs-vram.md)
 
