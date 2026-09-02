@@ -25,6 +25,7 @@ Last Updated: 2026-09-03
 - **Grafana는 쓰지 않았습니다** — 로그인이 필요하고 비밀번호를 대신 입력하지 않습니다. 익명 접근도 꺼져 있습니다(`grafana.ini`에 설정 없음). 필요하면 사용자가 직접 로그인해 DCGM 대시보드를 캡처하면 됩니다.
 - ⚠️ **조립기가 이전 편집을 두 번 덮어썼습니다.** `_workspace/.../assemble.py`는 `sections/`를 우선하도록 만들어 두었는데, 글에 직접 넣은 편집(5장 커널 이미지·7-1 선점 지침·부록 4건)이 재조립에서 날아갔습니다. `sections/` 쪽에 다시 적용해 복구했고 전수 대조로 확인했습니다. **이후 편집은 글에 직접** 합니다.
 - **Changed**: `articles/처리량이 올랐다면 무엇이 빨라진 것인가.md`(589줄, 5-B장 신설) · `articles/screenshots/proof-w5-07~09.png` · `labs/wsl2-vllm-baseline/run_f5.sh`·`_pf_dashboards.sh` · `results/f5-*` · `results/f-analysis.md`(F5 절) · `_workspace/2026-09-02-001/prom_shot.py`.
+- **Changed (문서 정리, 체크포인트)**: `docs/NEXT_PLAN.md` **148→131줄** — Priority 0에서 완료분(⓪ 4건·F1a~F1d·F2·F5·그림·글)을 걷어내고 **열린 것만**(⑥ 발행 · ⑦ 공유 · Grafana 선택 · F3 이월) 남겼습니다. 낡은 일정·계획 시제도 결과 시제로 교체. `docs/AGENT_BRIEF.md`의 `▶ NEXT SESSION:`을 *"⓪ 선행 미착수"* 에서 *"발행·공유만 남음"* 으로 갱신(57→59줄). `docs/DECISIONS.md`에 2026-09-03 항목(되짚기 대신 재측정 · Grafana 미사용).
 - **Verified**: 게이트 green. 배포는 기준선(BF16 · util 0.85 · **59.50x**)으로 복구. 대시보드 수치와 클라이언트 수치 대조(+33.2% vs +33.7%).
 - **Blockers**: 4주차 ⑦ 링크 공유 미확인. 5주차 ⑥ 노션 발행·⑦ 공유 남음. 포트포워딩(9009·3000)이 백그라운드로 떠 있습니다 — `pkill -f _pf_dashboards.sh`로 정리합니다.
 - **Next**: 노션 발행 → 링크 공유.
