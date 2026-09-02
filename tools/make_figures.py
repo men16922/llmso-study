@@ -336,6 +336,59 @@ def write(fname, lines):
     print(f"  ✓ articles/figures/{fname}")
 
 
+def fig_scatter_curve(fname, title, subtitle, unit, xlab, curve, points,
+                      xticks, yticks):
+    """가로축이 연속량인 산점도 + 추세선. 5주차 KV 예산 좌표계용.
+
+    다른 그림들과 달리 가로축이 범주(동시성 1/4/16/64)가 아니라 연속량이다.
+    KV 예산은 util에 따라 26.60x·37.57x처럼 임의의 값으로 나오므로 등간격에
+    억지로 놓으면 기울기가 거짓말을 한다.
+
+    curve  — [(x, y), ...] 스윕이 만든 좌표계. 선으로 잇는다.
+    points — [(x, y, 라벨, 슬롯, dy), ...] 곡선 위에 얹어 읽을 팔들.
+             곡선 위에 앉으면 "메모리만 샀다", 벗어나면 "다른 무언가를 했다".
+    """
+    x0, x1 = ML, W - MR
+    y0, y1 = H - MB, MT
+    xmin, xmax = xticks[0], xticks[-1]
+    ymax = yticks[-1]
+
+    def px(v):
+        return x0 + (x1 - x0) * (v - xmin) / (xmax - xmin)
+
+    def py(v):
+        return y1 + (y0 - y1) * (1 - v / ymax)
+
+    legend = sorted({(slot, SERIES[slot][0]) for _, _, _, slot, _ in points})
+    out = head(title, subtitle, legend, unit)
+
+    for t in yticks:
+        y = py(t)
+        out.append(f'<line class="grid" x1="{x0}" y1="{y:.1f}" x2="{x1}" y2="{y:.1f}" stroke-width="1"/>')
+        out.append(f'<text class="tick muted" x="{x0 - 10}" y="{y + 4:.1f}" text-anchor="end">{t:,}</text>')
+    out.append(f'<line class="axis" x1="{x0}" y1="{y0}" x2="{x1}" y2="{y0}" stroke-width="1"/>')
+    for t in xticks:
+        x = px(t)
+        out.append(f'<text class="tick muted" x="{x:.1f}" y="{y0 + 20}" text-anchor="middle">{t}</text>')
+    out.append(f'<text class="lbl muted" x="{(x0 + x1) / 2:.0f}" y="{H - 14}" text-anchor="middle">{esc(xlab)}</text>')
+
+    # 좌표계 — 스윕이 그린 선. 회색으로 눕혀 두고 주인공은 얹는 점으로 둔다.
+    if curve:
+        d = "M" + " L".join(f"{px(x):.1f},{py(min(y, ymax)):.1f}" for x, y in curve)
+        out.append(f'<path class="line" d="{d}" stroke="{MUTED[0]}" stroke-dasharray="5 4"/>')
+        for x, y in curve:
+            out.append(f'<circle cx="{px(x):.1f}" cy="{py(min(y, ymax)):.1f}" r="3.5" fill="{MUTED[0]}"/>')
+
+    for x, y, label, slot, dy in points:
+        cx, cy = px(x), py(min(y, ymax))
+        out.append(f'<circle class="f{slot}" cx="{cx:.1f}" cy="{cy:.1f}" r="6.5"/>')
+        out.append(f'<circle class="surface" cx="{cx:.1f}" cy="{cy:.1f}" r="2.4"/>')
+        draw_series_label(out, cx, cy, f"f{slot}", label, dy=dy)
+
+    out.append("</svg>")
+    write(fname, out)
+
+
 def main():
     global SERIES
     short = [f"b1-slots-{s}-short.json" for s in SLOTS]
