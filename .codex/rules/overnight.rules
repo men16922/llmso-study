@@ -2,11 +2,35 @@
 # Copy to .codex/rules/overnight.rules. Rules are an additional guardrail; the
 # runner still re-runs the gate externally and reverts phantom-success commits.
 
+# 2026-09-05: the user explicitly authorized changing this rule and pushing
+# reviewed commits to origin/main. Unattended work alone is not publication consent.
 prefix_rule(
-    pattern = ["git", "push"],
+    pattern = ["git", "push", "origin", "main"],
+    decision = "allow",
+    justification = "The user authorized publishing reviewed commits to this repository's origin/main.",
+    match = ["git push origin main"],
+    not_match = ["git push", "git push upstream main", "git push origin other"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", ["--force", "-f", "--force-with-lease", "--mirror", "--delete"]],
     decision = "forbidden",
-    justification = "The overnight loop must never push. Review locally first, then push manually.",
-    match = ["git push", "git push origin main"],
+    justification = "Force pushes and remote deletion are outside the approved publication scope.",
+    match = ["git push --force origin main", "git push --delete origin main"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "origin", ["--force", "-f", "--force-with-lease", "--mirror", "--delete"]],
+    decision = "forbidden",
+    justification = "Force pushes and remote deletion are outside the approved publication scope.",
+    match = ["git push origin --force main", "git push origin --delete main"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "origin", "main", ["--force", "-f", "--force-with-lease", "--mirror", "--delete"]],
+    decision = "forbidden",
+    justification = "Force pushes and remote deletion are outside the approved publication scope.",
+    match = ["git push origin main --force", "git push origin main --delete"],
 )
 
 prefix_rule(
