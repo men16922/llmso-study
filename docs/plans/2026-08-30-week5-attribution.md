@@ -170,7 +170,7 @@ F1이 세 갈래로 늘었고 이틀 밀린 상태라 착수하지 않습니다.
 - `results/f2-*.{nsys-rep,json}` + PyTorch Profiler trace
 - `results/f3-{replica1,replica2}*.json`
 - 분석 `results/f-analysis.md`
-- 글 `articles/<제목>.md` + **그림 `articles/figures/fig-f1-kv-budget-curve.svg`** + 인증샷 `articles/screenshots/proof-w5-*.jpg`
+- 글 `articles/<제목>.md` + **그림 `articles/figures/fig-f1-kv-budget-curve.svg`** + **실증 스크린샷은 Prometheus 대시보드 캡처만** (`articles/screenshots/proof-w5-07~09.png`). 터미널 로그를 렌더링한 카드는 스크린샷이 아니므로 만들지 않습니다(2026-09-03 사용자 지적, `CLAUDE.md` 실증 스크린샷 규칙).
 
 ## 10. 병행 작업 (과제 외, 이번 주 안에)
 

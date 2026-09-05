@@ -26,7 +26,7 @@ Last Updated: 2026-09-03
 
 **완료분(2026-09-02~03)은 여기서 뺐습니다** — ⓪ 선행 4건 · F1a·F1b·F1c·F1d·F2·F5 · 그림 · 글까지 끝났습니다. 결과와 수치는 [`docs/PROGRESS_LOG.md`](./PROGRESS_LOG.md) 2026-09-02 (2)·2026-09-03 항목과 [`labs/wsl2-vllm-baseline/results/f-analysis.md`](../labs/wsl2-vllm-baseline/results/f-analysis.md)에 있습니다. 여기에는 **열린 것만** 둡니다.
 
-- [ ] [manual] **⑥ 노션 발행** — `tools/md_to_notion.py --toggle-h2` + 콜아웃 후처리. 4주차 페이지와 형제로. 변환본은 `_workspace/2026-09-02-001/notion/`에 이미 있습니다. ⚠️ **외부 발행이므로 사용자 확인 후에.**
+- [x] [manual] **⑥ 노션 발행 — 완료** (2026-09-03, 사용자 요청). <https://app.notion.com/p/3d04c2420ac481c89ce1de666fbf9fbe> · `CloudNetaStudy` 아래, 4주차 페이지와 형제. 이미지 4장(SVG 그림 1 + Prometheus 캡처 3)을 `create-file-upload`로 올리고 `file-upload://` 참조로 삽입. 콜아웃 1·토글 3·표 17. 발행용 변환본은 `_workspace/2026-09-02-001/notion/publish.md`. **2026-09-04 humanize(heavy·리포트·적극, 등급 A) 반영본으로 같은 페이지를 교체.**
 - [ ] [manual] **⑦ 링크 공유** ★ **사용자가 직접 — 에이전트 권한 밖**(제출표가 스터디 멤버 전용 워크스페이스라 이 노션 연결로 안 잡힙니다). 마감 **09-06(일) 09:00**.
 - [ ] [manual] **(선택) Grafana 패널 캡처** — 로그인이 필요해 에이전트가 못 합니다. 사용자가 로그인하면 DCGM 대시보드를 캡처해 글 5-B장에 붙일 수 있습니다. 포트포워딩은 `labs/wsl2-vllm-baseline/_pf_dashboards.sh`.
 - [ ] [manual] **(이월) F3 — 복제 2개.** GPU 1장에 파드 둘을 올리려면 device plugin이 광고하는 `nvidia.com/gpu: 1`을 우회해야 해 **매니페스트를 고쳐야** 하는데, 이번 주 통제 변수가 *"매니페스트 수정 0"* 이었습니다. 근거는 [`docs/DECISIONS.md`](./DECISIONS.md) 2026-09-02 (2). **CH10 도전과제 954·955 미커버** — 되살릴 때는 별도 매니페스트(`k8s/vllm-replica2.yaml`)로.
