@@ -1,0 +1,11 @@
+{
+  "match": true,
+  "images": 6,
+  "tables": 14,
+  "toggles": 13,
+  "edited": "2026-09-05T06:45:36.774Z",
+  "normalization": "서식 공백, 이스케이프, bold 경계 분할, 이미지 URL 서명과 기존 alt 제외",
+  "public_render": "새 공개 탭에서 핵심 결론 및 13개 접기 확인, 처리량 근거 접기 열기 및 실측 이미지 표시 확인",
+  "local_checks": "build_pageindex.py --only md, check_docs.py, git diff --check",
+  "gpu_measurement": false
+}

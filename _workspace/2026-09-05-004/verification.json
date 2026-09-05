@@ -1,0 +1,66 @@
+{
+  "checks": {
+    "five_main_sections": true,
+    "three_visible_tables": true,
+    "seven_independent_toggles": true,
+    "six_images": true,
+    "image_files_exist": true,
+    "no_signed_urls_in_local": true,
+    "no_member_source_links_in_public": true,
+    "rounded_percentages": true,
+    "kernel_units": true,
+    "fig-w5-fp8-ablation.svg_valid_svg": true,
+    "fig-w5-fp8-paths.svg_valid_svg": true,
+    "explicit_raw_data_limit": true,
+    "explicit_quality_limit": true,
+    "explicit_profiling_limit": true,
+    "no_full_step_label_for_309us": true,
+    "no_exact_zero_attribution": true,
+    "no_single_book_experiment_conflation": true,
+    "followup_experiments_documented": true,
+    "notion_body_matches": true,
+    "notion_table_cells_match": true,
+    "notion_code_blocks_match": true,
+    "humanize_protected_content": true
+  },
+  "calculations": {
+    "fp8_gain_pct": 33.71218848043569,
+    "reduced_budget_gain_pct": 33.842419937252124,
+    "budget_residual_pct": 2.43697478991598,
+    "itl_reduction_pct": 24.742268041237114,
+    "bf16_kernel_ms_per_step": 8.674137931034483,
+    "fp8_kernel_ms_per_step": 6.355102040816326,
+    "kernel_reduction_pct": 26.73505896097259,
+    "prefill_reduction_pct": 34.52624940879709,
+    "ttft_ratio": 1.7263938848920863,
+    "gemm_share_pct": 93.38244173409012,
+    "bf16_cv_pct": 0.19534718522464925,
+    "prometheus_gain_pct": 33.20615167879786
+  },
+  "structure": {
+    "before_visible_tables": 12,
+    "after_visible_tables": 3,
+    "after_total_tables": 14,
+    "before_visible_chars": 16375,
+    "after_visible_chars": 5778
+  },
+  "article_sha256": "c03f0f42c53074c7188edaf5802babfad28d9c8aacd8f6d6ed5b39c9e77741d6",
+  "verification_scope": "GPU 실험 재실행을 제외한 기존 기록의 산술·출처·문서 구조·발행 본문 일치 검증",
+  "manual_render_review": {
+    "public_page": "https://atlantic-andesaurus-8b9.notion.site/FP8-3d04c2420ac481c89ce1de666fbf9fbe",
+    "new_public_load_has_updated_intro_and_five_sections": true,
+    "diagram_and_chart_rendered": true,
+    "seven_toggles_collapsed_by_default": true,
+    "profiling_and_prometheus_toggles_opened_successfully": true,
+    "old_mixed_public_view_resolved_on_new_load": true,
+    "local_preview_all_seven_toggles": true
+  },
+  "offline_gate": {
+    "command": "make check PY=/tmp/w5-review-venv/bin/python",
+    "lab_tests_passed": 106,
+    "document_gate": true,
+    "bash_blocks_syntax_checked": 3,
+    "benchmark_cli_options_parsed": true,
+    "live_gpu_experiment": false
+  }
+}

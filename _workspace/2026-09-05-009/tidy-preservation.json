@@ -1,0 +1,11 @@
+{
+  "merged_entries": 15,
+  "current_entries": 5,
+  "archived_entries": 10,
+  "old_draft_sha256": "0a092989f375c10d325f26a36d11672de2876a8ba427fdc1dce36da1ddec24c2",
+  "remote_base": "d37fbae",
+  "context_versions": [
+    "local",
+    "remote"
+  ]
+}
