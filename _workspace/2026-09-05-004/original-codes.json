@@ -1,0 +1,13 @@
+[
+  "```plain text\nValueError: Free memory on device cuda:0 (10.79/11.99 GiB) on startup is less than\ndesired GPU memory utilization (0.9, 10.79 GiB).\n```",
+  "```plain text\nattempt 1: conc=70.20x -> next util=0.7204\nattempt 2: conc=55.99x -> next util=0.7656\nattempt 3: conc=60.95x -> 성립 (기준 59.50x 대비 오차 2.4%, ±5% 이내)\n```",
+  "```plain text\n$ kubectl -n llm-serving-lab exec <pod> -- sh -c \"command -v nsys ncu\"\nNOT_FOUND\n```",
+  "```plain text\nWARNING [envs.py:2088] Unknown vLLM environment variable detected: VLLM_TORCH_PROFILER_DIR\n$ curl -X POST .../start_profile\ncurl: (22) The requested URL returned error: 404\n```",
+  "```plain text\n--profiler-config.profiler=torch\n--profiler-config.torch_profiler_dir=/root/.cache/huggingface/profiles\n--profiler-config.torch_profiler_with_stack=false\n--profiler-config.delay_iterations=20 --profiler-config.max_iterations=100\n```",
+  "```plain text\nBF16 : void cutlass::Kernel2<cutlass_80_wmma_tensorop_bf16_...>\nFP8  : void cutlass::Kernel2<enable_sm89_to_sm90<cutlass::gemm...>>\n```",
+  "```plain text\nGPU KV cache size: 243,696 tokens\nMaximum concurrency for 4,096 tokens per request: 59.50x\n```",
+  "```bash\n# 기동 로그에서 Maximum concurrency 숫자만 꺼낸다\nread_conc() {\n  kubectl -n llm-serving-lab logs deploy/vllm-baseline \\\n    | grep -oE 'Maximum concurrency for [0-9,]+ tokens per request: [0-9.]+x' \\\n    | tail -1 | grep -oE '[0-9.]+x$' | tr -d 'x'\n}\n```",
+  "```bash\n# 공통 — 2주차 기준선과 같은 k3s 배포. 이미지는 containerd에 이미 있는 것을 쓴다\n# (docker run으로 받으면 ~10GB를 새로 받고, 2주차와 다른 저울이 된다).\nkubectl apply -f k8s/vllm-baseline.yaml\nsource redeploy.sh\n\n# F1a — KV 예산 스윕. 배포 한 번에 두 워크로드를 이어 잰다.\n./run_f1a2.sh          # util 0.45 ~ 0.85, decode c=16 + prefill c=64(--unique-prefix)\n\n# F1b — 제거 실험. 예산 동결 팔의 util은 스크립트가 찾는다.\n./run_f1b.sh           # bf16 / quant / quant-frozen, 팔마다 3회\n\n# F1c — 워크로드 격자. 4주차 E1과 같은 격자다.\n./run_f1c.sh           # prefill,decode x c=1,4,16,64, 팔마다 2회\n\n# F1d — 예산을 더 내려 꺾이는 점을 찾는다. 부하 중 서버 지표를 0.4초 간격으로 모은다.\n./run_f1d.sh           # util 0.33 ~ 0.85, prefill c=64\n\n# F2 — PyTorch Profiler. v0.23.0에서는 환경 변수가 아니라 --profiler-config.* 를 줘야\n# /start_profile 이 열린다(5장 참조). 스크립트가 그 플래그를 붙인다.\n./run_f2.sh\n\n# F5 — 대시보드 증거용 부하. 구간마다 3분씩 태워 15초 스크랩에 남긴다.\n./run_f5.sh\n```",
+  "```bash\ngrep -E '^vllm:(num_requests_running|kv_cache_usage_perc) '   # 이름 뒤에 공백을 요구\n```",
+  "```plain text\nvllm:num_requests_running{engine=\"0\",model_name=\"qwen2.5-1.5b\"} 16.0\n```"
+]
