@@ -1,0 +1,481 @@
+{
+  "timestamp_utc": "2026-09-12T11:00:32.974732+00:00",
+  "context": "arn:aws:eks:us-west-2:919717556140:cluster/ai-infra-summit-test-cluster",
+  "nodes": [
+    {
+      "name": "ip-10-0-1-196.us-west-2.compute.internal",
+      "instance_type": "trn1.2xlarge",
+      "kubelet_version": "v1.33.13-eks-cb19647",
+      "allocatable": {
+        "aws.amazon.com/neuron": "1",
+        "aws.amazon.com/neuroncore": "2",
+        "cpu": "7910m",
+        "ephemeral-storage": "95491281146",
+        "hugepages-1Gi": "0",
+        "hugepages-2Mi": "0",
+        "memory": "31315412Ki",
+        "pods": "58"
+      },
+      "taints": []
+    }
+  ],
+  "vllm_deployment": {
+    "strategy": {
+      "rollingUpdate": {
+        "maxSurge": "25%",
+        "maxUnavailable": "25%"
+      },
+      "type": "RollingUpdate"
+    },
+    "status": {
+      "availableReplicas": 1,
+      "conditions": [
+        {
+          "lastTransitionTime": "2026-09-12T09:20:20Z",
+          "lastUpdateTime": "2026-09-12T09:20:20Z",
+          "message": "ReplicaSet \"vllm-deployment-64597fb8cc\" has successfully progressed.",
+          "reason": "NewReplicaSetAvailable",
+          "status": "True",
+          "type": "Progressing"
+        },
+        {
+          "lastTransitionTime": "2026-09-12T09:31:48Z",
+          "lastUpdateTime": "2026-09-12T09:31:48Z",
+          "message": "Deployment has minimum availability.",
+          "reason": "MinimumReplicasAvailable",
+          "status": "True",
+          "type": "Available"
+        }
+      ],
+      "observedGeneration": 6,
+      "readyReplicas": 1,
+      "replicas": 1,
+      "updatedReplicas": 1
+    },
+    "image": "public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.9.1-neuronx-py310-sdk2.25.0-ubuntu22.04",
+    "readiness_probe": null
+  },
+  "vllm_pods": [
+    {
+      "name": "vllm-deployment-64597fb8cc-zktnh",
+      "namespace": "default",
+      "node": "ip-10-0-1-196.us-west-2.compute.internal",
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-09-12T08:36:34Z",
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-09-12T08:56:37Z",
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-09-12T08:56:38Z",
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-09-12T08:56:38Z",
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-09-12T08:33:57Z",
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "aws.amazon.com/neuron": "1",
+              "cpu": "4",
+              "ephemeral-storage": "50Gi"
+            },
+            "containerID": "containerd://25a15b8b0c69b294e5a926882922eddb9cc37305500e0f20bb088228ec4e6694",
+            "image": "public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.9.1-neuronx-py310-sdk2.25.0-ubuntu22.04",
+            "imageID": "public.ecr.aws/neuron/pytorch-inference-vllm-neuronx@sha256:01f0f7b1e2cf256019a80c16712e79a5f254b04a3a77dbf8ac196de4ee380928",
+            "lastState": {},
+            "name": "vllm-server",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "aws.amazon.com/neuron": "1",
+                "cpu": "8",
+                "ephemeral-storage": "50Gi"
+              },
+              "requests": {
+                "aws.amazon.com/neuron": "1",
+                "cpu": "4",
+                "ephemeral-storage": "50Gi"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-09-12T08:56:37Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/shared/model",
+                "name": "model-storage",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-w2rz5",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "10.0.1.196",
+        "hostIPs": [
+          {
+            "ip": "10.0.1.196"
+          }
+        ],
+        "initContainerStatuses": [
+          {
+            "allocatedResources": {
+              "aws.amazon.com/neuron": "1",
+              "ephemeral-storage": "50Gi"
+            },
+            "containerID": "containerd://342facd6ac97eee65783b68505d0d6298c64a5e66de3ccb2c906091b77f573c3",
+            "image": "public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.9.1-neuronx-py310-sdk2.25.0-ubuntu22.04",
+            "imageID": "public.ecr.aws/neuron/pytorch-inference-vllm-neuronx@sha256:01f0f7b1e2cf256019a80c16712e79a5f254b04a3a77dbf8ac196de4ee380928",
+            "lastState": {},
+            "name": "model-prep",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "aws.amazon.com/neuron": "1",
+                "ephemeral-storage": "50Gi"
+              },
+              "requests": {
+                "aws.amazon.com/neuron": "1",
+                "ephemeral-storage": "50Gi"
+              }
+            },
+            "restartCount": 8,
+            "started": false,
+            "state": {
+              "terminated": {
+                "containerID": "containerd://342facd6ac97eee65783b68505d0d6298c64a5e66de3ccb2c906091b77f573c3",
+                "exitCode": 0,
+                "finishedAt": "2026-09-12T08:56:37Z",
+                "reason": "Completed",
+                "startedAt": "2026-09-12T08:53:04Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/shared/model",
+                "name": "model-storage"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-w2rz5",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "phase": "Running",
+        "podIP": "10.0.1.129",
+        "podIPs": [
+          {
+            "ip": "10.0.1.129"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-09-12T08:33:57Z"
+      }
+    }
+  ],
+  "controller_pods": [
+    {
+      "name": "ingress-nginx-controller-6797f4dc8c-n5vqd",
+      "namespace": "ingress-nginx",
+      "node": "ip-10-0-1-196.us-west-2.compute.internal",
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-09-12T09:06:39Z",
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-09-12T09:06:35Z",
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-09-12T09:06:50Z",
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-09-12T09:06:50Z",
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-09-12T09:06:35Z",
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "100m",
+              "memory": "90Mi"
+            },
+            "containerID": "containerd://424a312233f62fa9123e7c1862b973c319169d7ace866c168981e8fd23cab39d",
+            "image": "sha256:895ddb49053a9b80e1c97354a933f59cc94fba4b6f831615687151c9b178218d",
+            "imageID": "registry.k8s.io/ingress-nginx/controller@sha256:594ceea76b01c592858f803f9ff4d2cb40542cae2060410b2c95f75907d659e1",
+            "lastState": {},
+            "name": "controller",
+            "ready": true,
+            "resources": {
+              "requests": {
+                "cpu": "100m",
+                "memory": "90Mi"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-09-12T09:06:38Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 82,
+                "supplementalGroups": [
+                  82
+                ],
+                "uid": 101
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/usr/local/certificates/",
+                "name": "webhook-cert",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-ckvlt",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "10.0.1.196",
+        "hostIPs": [
+          {
+            "ip": "10.0.1.196"
+          }
+        ],
+        "phase": "Running",
+        "podIP": "10.0.1.11",
+        "podIPs": [
+          {
+            "ip": "10.0.1.11"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-09-12T09:06:35Z"
+      }
+    }
+  ],
+  "config": {
+    "MODEL_NAME": "tinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    "MAX_NUM_SEQS": "4",
+    "MAX_MODEL_LEN": "1024",
+    "TENSOR_PARALLEL_SIZE": "2",
+    "PORT": "8080",
+    "NEURON_COMPILED_ARTIFACTS": "/shared/model/cache",
+    "NEURON_COMPILE_CACHE_URL": "/shared/model/cache",
+    "VLLM_NEURON_FRAMEWORK": "neuronx-distributed-inference"
+  },
+  "ingress": {
+    "spec": {
+      "ingressClassName": "nginx",
+      "rules": [
+        {
+          "http": {
+            "paths": [
+              {
+                "backend": {
+                  "service": {
+                    "name": "vllm-service",
+                    "port": {
+                      "number": 8080
+                    }
+                  }
+                },
+                "path": "/",
+                "pathType": "Prefix"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "status": {
+      "loadBalancer": {
+        "ingress": [
+          {
+            "hostname": "abc4efa90509549da9123c966c7a17cb-737157589.us-west-2.elb.amazonaws.com"
+          }
+        ]
+      }
+    }
+  },
+  "helm": [
+    {
+      "name": "ingress-nginx",
+      "namespace": "ingress-nginx",
+      "revision": "1",
+      "updated": "2026-09-12 09:06:29.074510615 +0000 UTC",
+      "status": "deployed",
+      "chart": "ingress-nginx-4.15.1",
+      "app_version": "1.15.1"
+    }
+  ],
+  "services": [
+    {
+      "namespace": "default",
+      "name": "vllm-service",
+      "spec": {
+        "allocateLoadBalancerNodePorts": true,
+        "clusterIP": "172.20.81.155",
+        "clusterIPs": [
+          "172.20.81.155"
+        ],
+        "externalTrafficPolicy": "Cluster",
+        "internalTrafficPolicy": "Cluster",
+        "ipFamilies": [
+          "IPv4"
+        ],
+        "ipFamilyPolicy": "SingleStack",
+        "ports": [
+          {
+            "nodePort": 30538,
+            "port": 8080,
+            "protocol": "TCP",
+            "targetPort": "http-vllm"
+          }
+        ],
+        "selector": {
+          "app.kubernetes.io/name": "vllm-server"
+        },
+        "sessionAffinity": "None",
+        "type": "LoadBalancer"
+      },
+      "status": {
+        "loadBalancer": {
+          "ingress": [
+            {
+              "hostname": "adbeb23d90b50426390202a6d901af35-249088573.us-west-2.elb.amazonaws.com"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "ingress-nginx",
+      "name": "ingress-nginx-controller",
+      "spec": {
+        "allocateLoadBalancerNodePorts": true,
+        "clusterIP": "172.20.206.68",
+        "clusterIPs": [
+          "172.20.206.68"
+        ],
+        "externalTrafficPolicy": "Cluster",
+        "internalTrafficPolicy": "Cluster",
+        "ipFamilies": [
+          "IPv4"
+        ],
+        "ipFamilyPolicy": "SingleStack",
+        "ports": [
+          {
+            "appProtocol": "http",
+            "name": "http",
+            "nodePort": 30429,
+            "port": 80,
+            "protocol": "TCP",
+            "targetPort": "http"
+          },
+          {
+            "appProtocol": "https",
+            "name": "https",
+            "nodePort": 32305,
+            "port": 443,
+            "protocol": "TCP",
+            "targetPort": "https"
+          }
+        ],
+        "selector": {
+          "app.kubernetes.io/component": "controller",
+          "app.kubernetes.io/instance": "ingress-nginx",
+          "app.kubernetes.io/name": "ingress-nginx"
+        },
+        "sessionAffinity": "None",
+        "type": "LoadBalancer"
+      },
+      "status": {
+        "loadBalancer": {
+          "ingress": [
+            {
+              "hostname": "abc4efa90509549da9123c966c7a17cb-737157589.us-west-2.elb.amazonaws.com"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "pending_events": []
+}

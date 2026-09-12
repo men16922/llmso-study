@@ -1,0 +1,99 @@
+{
+    "apiVersion": "autoscaling/v2",
+    "kind": "HorizontalPodAutoscaler",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"autoscaling/v2\",\"kind\":\"HorizontalPodAutoscaler\",\"metadata\":{\"annotations\":{},\"name\":\"vllm-hpa\",\"namespace\":\"default\"},\"spec\":{\"behavior\":{\"scaleDown\":{\"policies\":[{\"periodSeconds\":60,\"type\":\"Percent\",\"value\":50}],\"stabilizationWindowSeconds\":30},\"scaleUp\":{\"policies\":[{\"periodSeconds\":60,\"type\":\"Percent\",\"value\":100}],\"stabilizationWindowSeconds\":30}},\"maxReplicas\":3,\"metrics\":[{\"resource\":{\"name\":\"cpu\",\"target\":{\"averageUtilization\":70,\"type\":\"Utilization\"}},\"type\":\"Resource\"}],\"minReplicas\":1,\"scaleTargetRef\":{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"name\":\"vllm-deployment\"}}}\n"
+        },
+        "creationTimestamp": "2026-09-12T09:27:01Z",
+        "name": "vllm-hpa",
+        "namespace": "default",
+        "resourceVersion": "274745",
+        "uid": "617c0d81-5744-424a-bc96-eb1ba861fdb8"
+    },
+    "spec": {
+        "behavior": {
+            "scaleDown": {
+                "policies": [
+                    {
+                        "periodSeconds": 60,
+                        "type": "Percent",
+                        "value": 50
+                    }
+                ],
+                "selectPolicy": "Max",
+                "stabilizationWindowSeconds": 30
+            },
+            "scaleUp": {
+                "policies": [
+                    {
+                        "periodSeconds": 60,
+                        "type": "Percent",
+                        "value": 100
+                    }
+                ],
+                "selectPolicy": "Max",
+                "stabilizationWindowSeconds": 30
+            }
+        },
+        "maxReplicas": 3,
+        "metrics": [
+            {
+                "resource": {
+                    "name": "cpu",
+                    "target": {
+                        "averageUtilization": 70,
+                        "type": "Utilization"
+                    }
+                },
+                "type": "Resource"
+            }
+        ],
+        "minReplicas": 1,
+        "scaleTargetRef": {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "name": "vllm-deployment"
+        }
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastTransitionTime": "2026-09-12T09:27:16Z",
+                "message": "the HPA controller was able to update the target scale to 3",
+                "reason": "SucceededRescale",
+                "status": "True",
+                "type": "AbleToScale"
+            },
+            {
+                "lastTransitionTime": "2026-09-12T09:27:16Z",
+                "message": "the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)",
+                "reason": "ValidMetricFound",
+                "status": "True",
+                "type": "ScalingActive"
+            },
+            {
+                "lastTransitionTime": "2026-09-12T09:29:47Z",
+                "message": "the desired count is within the acceptable range",
+                "reason": "DesiredWithinRange",
+                "status": "False",
+                "type": "ScalingLimited"
+            }
+        ],
+        "currentMetrics": [
+            {
+                "resource": {
+                    "current": {
+                        "averageUtilization": 196,
+                        "averageValue": "7853m"
+                    },
+                    "name": "cpu"
+                },
+                "type": "Resource"
+            }
+        ],
+        "currentReplicas": 2,
+        "desiredReplicas": 3,
+        "lastScaleTime": "2026-09-12T09:29:47Z"
+    }
+}

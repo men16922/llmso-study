@@ -1,0 +1,187 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "action": "Scheduling",
+            "apiVersion": "v1",
+            "eventTime": "2026-09-12T09:29:47.285363Z",
+            "firstTimestamp": null,
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "vllm-deployment-64597fb8cc-rjg2t",
+                "namespace": "default",
+                "resourceVersion": "274750",
+                "uid": "cc792f3d-b395-44c4-802b-c8ccf5ae0e27"
+            },
+            "kind": "Event",
+            "lastTimestamp": null,
+            "message": "0/1 nodes are available: 1 Insufficient aws.amazon.com/neuron, 1 Insufficient cpu, 1 Insufficient ephemeral-storage. preemption: 0/1 nodes are available: 1 No preemption victims found for incoming pod.",
+            "metadata": {
+                "creationTimestamp": "2026-09-12T09:29:47Z",
+                "name": "vllm-deployment-64597fb8cc-rjg2t.18d488d1f35c096a",
+                "namespace": "default",
+                "resourceVersion": "274754",
+                "uid": "cd4a38ae-8878-4ea5-9045-efbc59fd8aeb"
+            },
+            "reason": "FailedScheduling",
+            "reportingComponent": "my-scheduler",
+            "reportingInstance": "my-scheduler-my-scheduler-55f56bc9f8-579kn",
+            "source": {},
+            "type": "Warning"
+        },
+        {
+            "action": "Scheduling",
+            "apiVersion": "v1",
+            "eventTime": "2026-09-12T09:28:47.099658Z",
+            "firstTimestamp": null,
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "vllm-deployment-64597fb8cc-rqtql",
+                "namespace": "default",
+                "resourceVersion": "274506",
+                "uid": "f0a83b44-661b-45af-b4f1-49d171714c44"
+            },
+            "kind": "Event",
+            "lastTimestamp": null,
+            "message": "0/1 nodes are available: 1 Insufficient aws.amazon.com/neuron, 1 Insufficient cpu, 1 Insufficient ephemeral-storage. preemption: 0/1 nodes are available: 1 No preemption victims found for incoming pod.",
+            "metadata": {
+                "creationTimestamp": "2026-09-12T09:28:47Z",
+                "name": "vllm-deployment-64597fb8cc-rqtql.18d488c3f0030ee7",
+                "namespace": "default",
+                "resourceVersion": "274507",
+                "uid": "e39bd9a9-56a2-40ff-81ad-f27351035120"
+            },
+            "reason": "FailedScheduling",
+            "reportingComponent": "my-scheduler",
+            "reportingInstance": "my-scheduler-my-scheduler-55f56bc9f8-579kn",
+            "source": {},
+            "type": "Warning"
+        },
+        {
+            "action": "Scheduling",
+            "apiVersion": "v1",
+            "eventTime": "2026-09-12T08:33:43.964130Z",
+            "firstTimestamp": null,
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "vllm-deployment-64597fb8cc-zktnh",
+                "namespace": "default",
+                "resourceVersion": "261768",
+                "uid": "db409ef9-8f0a-4b7f-86dc-5d1689f71944"
+            },
+            "kind": "Event",
+            "lastTimestamp": null,
+            "message": "0/1 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.",
+            "metadata": {
+                "creationTimestamp": "2026-09-12T08:33:43Z",
+                "name": "vllm-deployment-64597fb8cc-zktnh.18d485c2ddcac536",
+                "namespace": "default",
+                "resourceVersion": "261771",
+                "uid": "99c07fce-80da-4319-a4cc-0b16cfae7444"
+            },
+            "reason": "FailedScheduling",
+            "reportingComponent": "my-scheduler",
+            "reportingInstance": "my-scheduler-my-scheduler-55f56bc9f8-579kn",
+            "source": {},
+            "type": "Warning"
+        },
+        {
+            "action": "Scheduling",
+            "apiVersion": "v1",
+            "eventTime": "2026-09-12T08:50:11.481913Z",
+            "firstTimestamp": null,
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "vllm-deployment-6b9fc4f7d5-j9pdt",
+                "namespace": "default",
+                "resourceVersion": "265476",
+                "uid": "286c4c66-39a0-4204-a6cb-518a9cc88456"
+            },
+            "kind": "Event",
+            "lastTimestamp": null,
+            "message": "0/1 nodes are available: 1 Insufficient aws.amazon.com/neuron, 1 Insufficient cpu, 1 Insufficient ephemeral-storage. preemption: 0/1 nodes are available: 1 No preemption victims found for incoming pod.",
+            "metadata": {
+                "creationTimestamp": "2026-09-12T08:50:11Z",
+                "name": "vllm-deployment-6b9fc4f7d5-j9pdt.18d486a8ca705612",
+                "namespace": "default",
+                "resourceVersion": "265479",
+                "uid": "d4cec775-1e41-4ebd-b047-561c25c58121"
+            },
+            "reason": "FailedScheduling",
+            "reportingComponent": "my-scheduler",
+            "reportingInstance": "my-scheduler-my-scheduler-55f56bc9f8-579kn",
+            "source": {},
+            "type": "Warning"
+        },
+        {
+            "action": "Scheduling",
+            "apiVersion": "v1",
+            "eventTime": "2026-09-12T08:55:11.640526Z",
+            "firstTimestamp": null,
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "vllm-deployment-6b9fc4f7d5-j9pdt",
+                "namespace": "default",
+                "resourceVersion": "265478",
+                "uid": "286c4c66-39a0-4204-a6cb-518a9cc88456"
+            },
+            "kind": "Event",
+            "lastTimestamp": null,
+            "message": "0/1 nodes are available: 1 Insufficient aws.amazon.com/neuron, 1 Insufficient cpu, 1 Insufficient ephemeral-storage. preemption: 0/1 nodes are available: 1 No preemption victims found for incoming pod.",
+            "metadata": {
+                "creationTimestamp": "2026-09-12T08:55:11Z",
+                "name": "vllm-deployment-6b9fc4f7d5-j9pdt.18d486eead494ce8",
+                "namespace": "default",
+                "resourceVersion": "273681",
+                "uid": "0e9b8cb1-eb0d-4a6d-b5d6-a8411e5a78f1"
+            },
+            "reason": "FailedScheduling",
+            "reportingComponent": "my-scheduler",
+            "reportingInstance": "my-scheduler-my-scheduler-55f56bc9f8-579kn",
+            "series": {
+                "count": 7,
+                "lastObservedTime": "2026-09-12T09:17:11.665958Z"
+            },
+            "source": {},
+            "type": "Warning"
+        },
+        {
+            "action": "Scheduling",
+            "apiVersion": "v1",
+            "eventTime": "2026-09-12T09:20:20.170468Z",
+            "firstTimestamp": null,
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "vllm-deployment-6b9fc4f7d5-j9pdt",
+                "namespace": "default",
+                "resourceVersion": "272333",
+                "uid": "286c4c66-39a0-4204-a6cb-518a9cc88456"
+            },
+            "kind": "Event",
+            "lastTimestamp": null,
+            "message": "skip schedule deleting pod: default/vllm-deployment-6b9fc4f7d5-j9pdt",
+            "metadata": {
+                "creationTimestamp": "2026-09-12T09:20:20Z",
+                "name": "vllm-deployment-6b9fc4f7d5-j9pdt.18d4884de8ad783e",
+                "namespace": "default",
+                "resourceVersion": "272335",
+                "uid": "7c5dc79d-f749-4261-85d2-6688d47f83d5"
+            },
+            "reason": "FailedScheduling",
+            "reportingComponent": "my-scheduler",
+            "reportingInstance": "my-scheduler-my-scheduler-55f56bc9f8-579kn",
+            "source": {},
+            "type": "Warning"
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

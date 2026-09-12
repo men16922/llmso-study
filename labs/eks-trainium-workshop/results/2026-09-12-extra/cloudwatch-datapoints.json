@@ -1,0 +1,136 @@
+{
+  "captured_at": "2026-09-12T10:43:36.413242+00:00",
+  "region": "us-west-2",
+  "cluster": "ai-infra-summit-test-cluster",
+  "dimensions": [
+    "Name=ClusterName,Value=ai-infra-summit-test-cluster",
+    "Name=Namespace,Value=default",
+    "Name=PodName,Value=vllm-deployment"
+  ],
+  "metrics": {
+    "pod_cpu_utilization": {
+      "Label": "pod_cpu_utilization",
+      "Datapoints": [
+        {
+          "Timestamp": "2026-09-12T10:36:00+00:00",
+          "Average": 2.056856285264953,
+          "Maximum": 2.056856285264953,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:37:00+00:00",
+          "Average": 5.775854446113223,
+          "Maximum": 5.775854446113223,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:41:00+00:00",
+          "Average": 0.08201808716837299,
+          "Maximum": 0.08201808716837299,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:38:00+00:00",
+          "Average": 5.7900862442710785,
+          "Maximum": 5.7900862442710785,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:42:00+00:00",
+          "Average": 0.08201650983852966,
+          "Maximum": 0.08201650983852966,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:39:00+00:00",
+          "Average": 4.194281831005274,
+          "Maximum": 4.194281831005274,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:35:00+00:00",
+          "Average": 2.033964973630492,
+          "Maximum": 2.033964973630492,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:40:00+00:00",
+          "Average": 0.082515434976974,
+          "Maximum": 0.082515434976974,
+          "Unit": "Percent"
+        }
+      ]
+    },
+    "pod_memory_utilization": {
+      "Label": "pod_memory_utilization",
+      "Datapoints": [
+        {
+          "Timestamp": "2026-09-12T10:36:00+00:00",
+          "Average": 24.820844479585148,
+          "Maximum": 24.820844479585148,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:37:00+00:00",
+          "Average": 24.836680064643826,
+          "Maximum": 24.836680064643826,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:41:00+00:00",
+          "Average": 24.863984077319223,
+          "Maximum": 24.863984077319223,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:38:00+00:00",
+          "Average": 24.854445611631533,
+          "Maximum": 24.854445611631533,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:42:00+00:00",
+          "Average": 24.863984077319223,
+          "Maximum": 24.863984077319223,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:39:00+00:00",
+          "Average": 24.86399644887005,
+          "Maximum": 24.86399644887005,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:35:00+00:00",
+          "Average": 24.814386530053405,
+          "Maximum": 24.814386530053405,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-12T10:40:00+00:00",
+          "Average": 24.863984077319223,
+          "Maximum": 24.863984077319223,
+          "Unit": "Percent"
+        }
+      ]
+    },
+    "pod_cpu_usage_total": {
+      "Label": "pod_cpu_usage_total",
+      "Datapoints": []
+    }
+  },
+  "streams": {
+    "logStreams": [
+      {
+        "logStreamName": "ip-10-0-1-196.us-west-2.compute.internal",
+        "creationTime": 1789209333344,
+        "firstEventTimestamp": 1789209304446,
+        "lastEventTimestamp": 1789209330187,
+        "lastIngestionTime": 1789209333358,
+        "uploadSequenceToken": "49039859685975579686586882261510765117613984827224512015",
+        "arn": "arn:aws:logs:us-west-2:919717556140:log-group:/aws/containerinsights/ai-infra-summit-test-cluster/performance:log-stream:ip-10-0-1-196.us-west-2.compute.internal",
+        "storedBytes": 0
+      }
+    ]
+  }
+}

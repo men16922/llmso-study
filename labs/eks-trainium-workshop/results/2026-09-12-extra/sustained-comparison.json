@@ -1,0 +1,88 @@
+{
+  "definition": "one sustained run per concurrency; same fixed input and 256 output tokens; client concurrency maintained, not fixed arrival rate",
+  "c4": {
+    "scenario": "short",
+    "concurrency": 4,
+    "requests": 320,
+    "successes": 320,
+    "failures": 0,
+    "ttft_p50_s": 0.17145097700085898,
+    "ttft_p95_s": 0.17355550364991357,
+    "itl_p50_s": 0.008235949507840868,
+    "itl_p95_s": 0.00872918888371964,
+    "perceived_tps": 121.41890853604316,
+    "e2e_p50_s": 2.2682704939998075,
+    "e2e_p95_s": 2.285333576450648,
+    "e2e_mean_s": 2.2676852878406066,
+    "output_tokens": 81920,
+    "output_tok_per_s": 451.52118204298756,
+    "goodput_pct": 100.0,
+    "exact_usage_requests": 320,
+    "ttft_measured": true,
+    "wall_s": 181.4311338160005
+  },
+  "c8": {
+    "scenario": "short",
+    "concurrency": 8,
+    "requests": 320,
+    "successes": 320,
+    "failures": 0,
+    "ttft_p50_s": 2.4224528049999208,
+    "ttft_p95_s": 2.4466681806499766,
+    "itl_p50_s": 0.008212786337261444,
+    "itl_p95_s": 0.008309341508034314,
+    "perceived_tps": 121.7613558827162,
+    "e2e_p50_s": 4.519983112999398,
+    "e2e_p95_s": 4.554370935700535,
+    "e2e_mean_s": 4.494323240721928,
+    "output_tokens": 81920,
+    "output_tok_per_s": 452.80923458315675,
+    "goodput_pct": 1.25,
+    "exact_usage_requests": 320,
+    "ttft_measured": true,
+    "wall_s": 180.91503826200278
+  },
+  "c4_vs_c8_throughput_percent": -0.2844580988625278,
+  "c4_observation": {
+    "start_utc": "2026-09-12T11:01:19.893393+00:00",
+    "end_utc": "2026-09-12T11:03:40.597430+00:00",
+    "metrics": {
+      "generation_tokens_per_s": {
+        "samples": 14,
+        "min": 249.36,
+        "max": 451.92,
+        "mean": 427.2114285714286
+      },
+      "running": {
+        "samples": 14,
+        "min": 1.0,
+        "max": 4.0,
+        "mean": 3.7857142857142856
+      },
+      "waiting": {
+        "samples": 14,
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "cpu_cores": {
+        "samples": 14,
+        "min": 0.36065428279349804,
+        "max": 0.46518536585365705,
+        "mean": 0.4505415854944224
+      },
+      "hpa_desired": {
+        "samples": 14,
+        "min": 1.0,
+        "max": 1.0,
+        "mean": 1.0
+      },
+      "available": {
+        "samples": 14,
+        "min": 1.0,
+        "max": 1.0,
+        "mean": 1.0
+      }
+    }
+  }
+}

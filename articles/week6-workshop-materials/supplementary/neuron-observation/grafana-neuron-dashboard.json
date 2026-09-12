@@ -1,0 +1,252 @@
+{
+  "uid": "week6-neuron-live",
+  "title": "Week 6 - Trainium accelerator and serving",
+  "schemaVersion": 39,
+  "version": 1,
+  "time": {
+    "from": "2026-09-12T13:00:50Z",
+    "to": "2026-09-12T13:08:32Z"
+  },
+  "refresh": "",
+  "panels": [
+    {
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 7
+      },
+      "id": 20,
+      "title": "Trainium NeuronCore utilization (%)",
+      "targets": [
+        {
+          "expr": "100 * neuroncore_utilization_ratio{job=\"week6-neuron-live\"}",
+          "refId": "A",
+          "legendFormat": "NeuronCore {{neuroncore}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 7
+      },
+      "id": 21,
+      "title": "Neuron runtime memory (device / host)",
+      "targets": [
+        {
+          "expr": "neuron_runtime_memory_used_bytes{job=\"week6-neuron-live\"}",
+          "refId": "A",
+          "legendFormat": "{{memory_location}}"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Generation tokens / second",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(vllm:generation_tokens_total{job=\"vllm-metrics\"}[1m]))",
+          "refId": "A",
+          "legendFormat": "Generation tokens / second"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 7,
+        "w": 12,
+        "h": 7
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Requests running / waiting",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "vllm:num_requests_running{job=\"vllm-metrics\"}",
+          "refId": "A",
+          "legendFormat": "Requests running / waiting"
+        },
+        {
+          "expr": "vllm:num_requests_waiting{job=\"vllm-metrics\"}",
+          "refId": "B",
+          "legendFormat": "Waiting"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 7,
+        "w": 12,
+        "h": 7
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "TTFT p95 (seconds)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(vllm:time_to_first_token_seconds_bucket{job=\"vllm-metrics\"}[1m])))",
+          "refId": "A",
+          "legendFormat": "TTFT p95 (seconds)"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 12,
+        "h": 7
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "CPU used by vLLM (cores)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"default\",container=\"vllm-server\"}[1m]))",
+          "refId": "A",
+          "legendFormat": "CPU used by vLLM (cores)"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 14,
+        "w": 12,
+        "h": 7
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Deployment desired / available replicas",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "kube_deployment_spec_replicas{namespace=\"default\",deployment=\"vllm-deployment\"}",
+          "refId": "A",
+          "legendFormat": "Deployment desired / available replicas"
+        },
+        {
+          "expr": "kube_deployment_status_replicas_available{namespace=\"default\",deployment=\"vllm-deployment\"}",
+          "refId": "B",
+          "legendFormat": "Available"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 21,
+        "w": 12,
+        "h": 7
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "HPA current / desired replicas",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"default\",horizontalpodautoscaler=\"vllm-hpa\"}",
+          "refId": "A",
+          "legendFormat": "HPA current / desired replicas"
+        },
+        {
+          "expr": "kube_horizontalpodautoscaler_status_current_replicas{namespace=\"default\",horizontalpodautoscaler=\"vllm-hpa\"}",
+          "refId": "B",
+          "legendFormat": "Current"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 21,
+        "w": 12,
+        "h": 7
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    }
+  ]
+}

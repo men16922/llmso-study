@@ -1,0 +1,88 @@
+{
+  "widgets": [
+    {
+      "type": "text",
+      "x": 0,
+      "y": 0,
+      "width": 24,
+      "height": 3,
+      "properties": {
+        "markdown": "# Week 6 workshop\nContainer Insights: vLLM Pod CPU and memory are collected by CloudWatch Agent. Pod CPU utilization uses node CPU capacity; HPA uses the 4-core Pod request. They have different denominators."
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 3,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/EC2",
+            "CPUUtilization",
+            "InstanceId",
+            "i-00b650ab45fd24ec5"
+          ]
+        ],
+        "region": "us-west-2",
+        "stat": "Average",
+        "period": 60,
+        "title": "Trainium node EC2 CPU utilization (%)",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 3,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "ContainerInsights",
+            "pod_cpu_utilization",
+            "ClusterName",
+            "ai-infra-summit-test-cluster",
+            "Namespace",
+            "default",
+            "PodName",
+            "vllm-deployment"
+          ]
+        ],
+        "region": "us-west-2",
+        "stat": "Average",
+        "period": 60,
+        "title": "vLLM Pod CPU utilization (% of node capacity)",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 9,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "ContainerInsights",
+            "pod_memory_utilization",
+            "ClusterName",
+            "ai-infra-summit-test-cluster",
+            "Namespace",
+            "default",
+            "PodName",
+            "vllm-deployment"
+          ]
+        ],
+        "region": "us-west-2",
+        "stat": "Average",
+        "period": 60,
+        "title": "vLLM Pod memory utilization (%)",
+        "view": "timeSeries"
+      }
+    }
+  ]
+}

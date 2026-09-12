@@ -1,0 +1,14 @@
+{
+    "logStreams": [
+        {
+            "logStreamName": "ip-10-0-1-196.us-west-2.compute.internal",
+            "creationTime": 1789209333344,
+            "firstEventTimestamp": 1789209304446,
+            "lastEventTimestamp": 1789209330187,
+            "lastIngestionTime": 1789209333358,
+            "uploadSequenceToken": "49039859685975579686586881263713179038356093888534477584",
+            "arn": "arn:aws:logs:us-west-2:919717556140:log-group:/aws/containerinsights/ai-infra-summit-test-cluster/performance:log-stream:ip-10-0-1-196.us-west-2.compute.internal",
+            "storedBytes": 0
+        }
+    ]
+}

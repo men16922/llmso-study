@@ -1,0 +1,15 @@
+I0912 09:06:40.243989       7 controller.go:243] "Initial sync, sleeping for 1 second"
+I0912 09:06:40.244018       7 event.go:377] Event(v1.ObjectReference{Kind:"Pod", Namespace:"ingress-nginx", Name:"ingress-nginx-controller-6797f4dc8c-n5vqd", UID:"b918ee4b-ec16-464c-b749-b5fad4ac21b4", APIVersion:"v1", ResourceVersion:"269148", FieldPath:""}): type: 'Normal' reason: 'RELOAD' NGINX reload triggered due to a change in configuration
+I0912 09:07:39.733642       7 main.go:107] "successfully validated configuration, accepting" ingress="default/vllm-ingress-simple"
+I0912 09:07:39.739223       7 store.go:443] "Found valid IngressClass" ingress="default/vllm-ingress-simple" ingressclass="nginx"
+I0912 09:07:39.739358       7 event.go:377] Event(v1.ObjectReference{Kind:"Ingress", Namespace:"default", Name:"vllm-ingress-simple", UID:"fd7202ef-819e-458c-8645-7161558dce4a", APIVersion:"networking.k8s.io/v1", ResourceVersion:"269456", FieldPath:""}): type: 'Normal' reason: 'Sync' Scheduled for sync
+I0912 09:07:39.739786       7 controller.go:217] "Configuration changes detected, backend reload required"
+I0912 09:07:39.759595       7 controller.go:231] "Backend successfully reloaded"
+I0912 09:07:39.759727       7 event.go:377] Event(v1.ObjectReference{Kind:"Pod", Namespace:"ingress-nginx", Name:"ingress-nginx-controller-6797f4dc8c-n5vqd", UID:"b918ee4b-ec16-464c-b749-b5fad4ac21b4", APIVersion:"v1", ResourceVersion:"269148", FieldPath:""}): type: 'Normal' reason: 'RELOAD' NGINX reload triggered due to a change in configuration
+I0912 09:07:40.239792       7 status.go:311] "updating Ingress status" namespace="default" ingress="vllm-ingress-simple" currentValue=null newValue=[{"hostname":"abc4efa90509549da9123c966c7a17cb-737157589.us-west-2.elb.amazonaws.com"}]
+I0912 09:07:40.245513       7 event.go:377] Event(v1.ObjectReference{Kind:"Ingress", Namespace:"default", Name:"vllm-ingress-simple", UID:"fd7202ef-819e-458c-8645-7161558dce4a", APIVersion:"networking.k8s.io/v1", ResourceVersion:"269460", FieldPath:""}): type: 'Normal' reason: 'Sync' Scheduled for sync
+10.0.1.129 - - [12/Sep/2026:09:10:42 +0000] "GET /health HTTP/1.1" 200 0 "-" "week6-lab3-verification" 203 0.001 [default-vllm-service-8080] [] 10.0.1.129:8080 0 0.001 200 8fe6f2a7dbbf8200e9ef5e2639e9b5e3
+10.0.1.129 - - [12/Sep/2026:09:10:42 +0000] "GET /v1/models HTTP/1.1" 200 518 "-" "week6-lab3-verification" 206 0.002 [default-vllm-service-8080] [] 10.0.1.129:8080 518 0.001 200 353cec85f330b0ebefa9fe5c6db33160
+10.0.1.129 - - [12/Sep/2026:09:10:42 +0000] "GET /openapi.json HTTP/1.1" 200 53833 "-" "week6-lab3-verification" 209 0.051 [default-vllm-service-8080] [] 10.0.1.129:8080 53833 0.051 200 4164711130f5226b1be402d2d5706d64
+10.0.1.129 - - [12/Sep/2026:09:10:42 +0000] "POST /v1/chat/completions HTTP/1.1" 200 591 "-" "week6-lab3-verification" 400 0.295 [default-vllm-service-8080] [] 10.0.1.129:8080 591 0.294 200 a6812bb6f952cfcf2f915b7d34e39220
+10.0.1.129 - - [12/Sep/2026:09:10:43 +0000] "POST /v1/chat/completions HTTP/1.1" 200 7669 "-" "week6-lab3-verification" 416 0.301 [default-vllm-service-8080] [] 10.0.1.129:8080 7679 0.301 200 ff617ef66ccc7a9c878ef322eb2c354b

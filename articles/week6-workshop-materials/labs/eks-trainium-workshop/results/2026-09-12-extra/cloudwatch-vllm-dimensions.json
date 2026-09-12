@@ -1,0 +1,54 @@
+{
+    "Metrics": [
+        {
+            "Namespace": "ContainerInsights",
+            "MetricName": "pod_cpu_utilization",
+            "Dimensions": [
+                {
+                    "Name": "ClusterName",
+                    "Value": "ai-infra-summit-test-cluster"
+                },
+                {
+                    "Name": "Service",
+                    "Value": "vllm-service"
+                },
+                {
+                    "Name": "Namespace",
+                    "Value": "default"
+                }
+            ]
+        },
+        {
+            "Namespace": "ContainerInsights",
+            "MetricName": "pod_cpu_utilization",
+            "Dimensions": [
+                {
+                    "Name": "ClusterName",
+                    "Value": "ai-infra-summit-test-cluster"
+                },
+                {
+                    "Name": "Namespace",
+                    "Value": "default"
+                }
+            ]
+        },
+        {
+            "Namespace": "ContainerInsights",
+            "MetricName": "pod_cpu_utilization",
+            "Dimensions": [
+                {
+                    "Name": "PodName",
+                    "Value": "vllm-deployment"
+                },
+                {
+                    "Name": "ClusterName",
+                    "Value": "ai-infra-summit-test-cluster"
+                },
+                {
+                    "Name": "Namespace",
+                    "Value": "default"
+                }
+            ]
+        }
+    ]
+}

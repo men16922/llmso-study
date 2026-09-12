@@ -1,0 +1,8 @@
+{
+  "temporary_exporter_port_closed": true,
+  "temporary_scrape_job_removed": true,
+  "test_pod_deleted": true,
+  "same_pod_image_strategy_model_config": true,
+  "post_http_passed": true,
+  "existing_eks_grafana_hpa_retained": true
+}

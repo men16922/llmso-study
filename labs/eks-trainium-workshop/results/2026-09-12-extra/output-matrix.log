@@ -1,0 +1,30 @@
+api=openai model=tinyLlama/TinyLlama-1.1B-Chat-v1.0 base_url=http://ingress-nginx-controller.ingress-nginx.svc.cluster.local
+scenario concurrency ok/total ttft_p50 ttft_p95 e2e_p95 tok/s goodput
+short              4 32/32       0.171    0.172   0.694 371.387  100.0%
+short              8 32/32       0.845    0.871   1.400 373.620  100.0%
+result=/tmp/output-matrix/output-64-r1.json
+api=openai model=tinyLlama/TinyLlama-1.1B-Chat-v1.0 base_url=http://ingress-nginx-controller.ingress-nginx.svc.cluster.local
+scenario concurrency ok/total ttft_p50 ttft_p95 e2e_p95 tok/s goodput
+short              4 32/32       0.171    0.172   2.286 451.601  100.0%
+short              8 32/32       2.415    2.425   4.513 454.506   12.5%
+result=/tmp/output-matrix/output-256-r1.json
+api=openai model=tinyLlama/TinyLlama-1.1B-Chat-v1.0 base_url=http://ingress-nginx-controller.ingress-nginx.svc.cluster.local
+scenario concurrency ok/total ttft_p50 ttft_p95 e2e_p95 tok/s goodput
+short              8 32/32       2.427    2.442   4.546 452.579   12.5%
+short              4 32/32       0.171    0.172   2.282 452.672  100.0%
+result=/tmp/output-matrix/output-256-r2.json
+api=openai model=tinyLlama/TinyLlama-1.1B-Chat-v1.0 base_url=http://ingress-nginx-controller.ingress-nginx.svc.cluster.local
+scenario concurrency ok/total ttft_p50 ttft_p95 e2e_p95 tok/s goodput
+short              8 32/32       0.848    0.856   1.373 373.387  100.0%
+short              4 32/32       0.171    0.173   0.697 370.941  100.0%
+result=/tmp/output-matrix/output-64-r2.json
+api=openai model=tinyLlama/TinyLlama-1.1B-Chat-v1.0 base_url=http://ingress-nginx-controller.ingress-nginx.svc.cluster.local
+scenario concurrency ok/total ttft_p50 ttft_p95 e2e_p95 tok/s goodput
+short              4 32/32       0.171    0.172   0.702 370.917  100.0%
+short              8 32/32       0.848    0.858   1.387 373.029  100.0%
+result=/tmp/output-matrix/output-64-r3.json
+api=openai model=tinyLlama/TinyLlama-1.1B-Chat-v1.0 base_url=http://ingress-nginx-controller.ingress-nginx.svc.cluster.local
+scenario concurrency ok/total ttft_p50 ttft_p95 e2e_p95 tok/s goodput
+short              4 32/32       0.171    0.175   2.268 453.465  100.0%
+short              8 32/32       2.423    2.431   4.531 453.138   12.5%
+result=/tmp/output-matrix/output-256-r3.json

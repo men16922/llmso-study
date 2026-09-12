@@ -1,0 +1,80 @@
+[
+    {
+        "Namespace": "ContainerInsights",
+        "MetricName": "pod_cpu_utilization",
+        "Dimensions": [
+            {
+                "Name": "ClusterName",
+                "Value": "ai-infra-summit-test-cluster"
+            },
+            {
+                "Name": "Service",
+                "Value": "prometheus-alertmanager"
+            },
+            {
+                "Name": "Namespace",
+                "Value": "monitoring"
+            }
+        ]
+    },
+    {
+        "Namespace": "ContainerInsights",
+        "MetricName": "pod_cpu_utilization",
+        "Dimensions": [
+            {
+                "Name": "ClusterName",
+                "Value": "ai-infra-summit-test-cluster"
+            },
+            {
+                "Name": "Service",
+                "Value": "prometheus-kube-state-metrics"
+            },
+            {
+                "Name": "Namespace",
+                "Value": "monitoring"
+            }
+        ]
+    },
+    {
+        "Namespace": "ContainerInsights",
+        "MetricName": "pod_cpu_utilization",
+        "Dimensions": [
+            {
+                "Name": "ClusterName",
+                "Value": "ai-infra-summit-test-cluster"
+            },
+            {
+                "Name": "Namespace",
+                "Value": "monitoring"
+            }
+        ]
+    },
+    {
+        "Namespace": "ContainerInsights",
+        "MetricName": "pod_cpu_utilization",
+        "Dimensions": [
+            {
+                "Name": "ClusterName",
+                "Value": "ai-infra-summit-test-cluster"
+            },
+            {
+                "Name": "Namespace",
+                "Value": "kube-system"
+            }
+        ]
+    },
+    {
+        "Namespace": "ContainerInsights",
+        "MetricName": "pod_cpu_utilization",
+        "Dimensions": [
+            {
+                "Name": "ClusterName",
+                "Value": "ai-infra-summit-test-cluster"
+            },
+            {
+                "Name": "Namespace",
+                "Value": "default"
+            }
+        ]
+    }
+]

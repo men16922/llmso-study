@@ -1,0 +1,323 @@
+Starting config-translator, this will map back to a call to amazon-cloudwatch-agent
+Executing /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent with arguments: [config-translator -input-dir /etc/cwagentconfig -output /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.toml -mode auto -multi-config remove]D! [EC2] Found active network interface
+I! imds retry client will retry 1 timesI! Detected the instance is EC2
+2026/09/12 10:27:59 Reading json config file path: /opt/aws/amazon-cloudwatch-agent/bin/default_linux_config.json ...
+/opt/aws/amazon-cloudwatch-agent/bin/default_linux_config.json does not exist or cannot read. Skipping it.
+2026/09/12 10:27:59 Reading json config file path: /etc/cwagentconfig/..2026_09_12_10_27_57.1524368529/cwagentconfig.json ...
+2026/09/12 10:27:59 Find symbolic link /etc/cwagentconfig/..data 
+2026/09/12 10:27:59 Find symbolic link /etc/cwagentconfig/cwagentconfig.json 
+2026/09/12 10:27:59 Reading json config file path: /etc/cwagentconfig/cwagentconfig.json ...
+2026/09/12 10:27:59 I! Valid Json input schema.
+I! Trying to detect region from ec2
+2026/09/12 10:27:59 I! attempt to access ECS task metadata to determine whether I'm running in ECS.
+2026/09/12 10:28:00 W! retry [0/3], unable to get http response from http://169.254.170.2/v2/metadata, error: unable to get response from http://169.254.170.2/v2/metadata, error: Get "http://169.254.170.2/v2/metadata": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026/09/12 10:28:01 W! retry [1/3], unable to get http response from http://169.254.170.2/v2/metadata, error: unable to get response from http://169.254.170.2/v2/metadata, error: Get "http://169.254.170.2/v2/metadata": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026/09/12 10:28:02 W! retry [2/3], unable to get http response from http://169.254.170.2/v2/metadata, error: unable to get response from http://169.254.170.2/v2/metadata, error: Get "http://169.254.170.2/v2/metadata": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+2026/09/12 10:28:02 I! access ECS task metadata fail with response unable to get response from http://169.254.170.2/v2/metadata, error: Get "http://169.254.170.2/v2/metadata": context deadline exceeded (Client.Timeout exceeded while awaiting headers), assuming I'm not running in ECS.
+2026/09/12 10:28:02 Configuration validation first phase succeeded
+2026/09/12 10:28:02 I! Config has been translated into TOML /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.toml 
+2026/09/12 10:28:02 D! config [agent]
+  collection_jitter = "0s"
+  debug = false
+  flush_interval = "1s"
+  flush_jitter = "0s"
+  hostname = "ip-10-0-1-196.us-west-2.compute.internal"
+  interval = "60s"
+  logfile = ""
+  logtarget = "lumberjack"
+  metric_batch_size = 1000
+  metric_buffer_limit = 10000
+  omit_hostname = true
+  precision = ""
+  quiet = false
+  round_interval = false
+
+[outputs]
+
+  [[outputs.cloudwatchlogs]]
+    force_flush_interval = "5s"
+    log_stream_name = "ip-10-0-1-196.us-west-2.compute.internal"
+    mode = "EKS"
+    region = "us-west-2"
+    region_type = "EC2M"
+2026/09/12 10:28:02 I! Config has been translated into YAML /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.yaml 
+2026/09/12 10:28:02 D! config exporters:
+    awsemf/containerinsights:
+        add_entity: true
+        certificate_file_path: ""
+        detailed_metrics: false
+        dimension_rollup_option: NoDimensionRollup
+        disable_metric_extraction: false
+        eks_fargate_container_insights_enabled: false
+        endpoint: ""
+        enhanced_container_insights: false
+        external_id: ""
+        imds_retries: 1
+        local_mode: false
+        log_group_name: /aws/containerinsights/{ClusterName}/performance
+        log_retention: 0
+        log_stream_name: '{NodeName}'
+        max_retries: 2
+        metric_declarations:
+            - dimensions:
+                - - ClusterName
+                  - Namespace
+                  - PodName
+                - - ClusterName
+                - - ClusterName
+                  - Namespace
+                  - Service
+                - - ClusterName
+                  - Namespace
+              metric_name_selectors:
+                - pod_cpu_utilization
+                - pod_memory_utilization
+                - pod_network_rx_bytes
+                - pod_network_tx_bytes
+                - pod_cpu_utilization_over_pod_limit
+                - pod_memory_utilization_over_pod_limit
+            - dimensions:
+                - - ClusterName
+                  - Namespace
+                  - PodName
+              metric_name_selectors:
+                - pod_number_of_container_restarts
+            - dimensions:
+                - - ClusterName
+                  - Namespace
+                  - PodName
+                - - ClusterName
+              metric_name_selectors:
+                - pod_cpu_reserved_capacity
+                - pod_memory_reserved_capacity
+            - dimensions:
+                - - ClusterName
+                  - InstanceId
+                  - NodeName
+                - - ClusterName
+              metric_name_selectors:
+                - node_cpu_utilization
+                - node_memory_utilization
+                - node_network_total_bytes
+                - node_cpu_reserved_capacity
+                - node_memory_reserved_capacity
+                - node_number_of_running_pods
+                - node_number_of_running_containers
+            - dimensions:
+                - - ClusterName
+              metric_name_selectors:
+                - node_cpu_usage_total
+                - node_cpu_limit
+                - node_memory_working_set
+                - node_memory_limit
+            - dimensions:
+                - - ClusterName
+                  - InstanceId
+                  - NodeName
+                - - ClusterName
+              metric_name_selectors:
+                - node_filesystem_utilization
+            - dimensions:
+                - - ClusterName
+                  - Namespace
+                  - Service
+                - - ClusterName
+              metric_name_selectors:
+                - service_number_of_running_pods
+            - dimensions:
+                - - ClusterName
+                  - Namespace
+                - - ClusterName
+              metric_name_selectors:
+                - namespace_number_of_running_pods
+            - dimensions:
+                - - ClusterName
+              metric_name_selectors:
+                - cluster_node_count
+                - cluster_failed_node_count
+        middleware: agenthealth/logs
+        namespace: ContainerInsights
+        no_verify_ssl: false
+        num_workers: 8
+        output_destination: cloudwatch
+        parse_json_encoded_attr_values:
+            - Sources
+            - kubernetes
+        profile: ""
+        proxy_address: ""
+        region: us-west-2
+        request_timeout_seconds: 30
+        resource_arn: ""
+        resource_to_telemetry_conversion:
+            enabled: true
+        retain_initial_value_of_delta_metric: false
+        role_arn: ""
+        version: "0"
+extensions:
+    agenthealth/logs:
+        is_usage_data_enabled: true
+        stats:
+            operations:
+                - PutLogEvents
+            usage_flags:
+                mode: EKS
+                region_type: EC2M
+    agenthealth/statuscode:
+        is_status_code_enabled: true
+        is_usage_data_enabled: true
+        stats:
+            usage_flags:
+                mode: EKS
+                region_type: EC2M
+    entitystore:
+        kubernetes_mode: EKS
+        mode: ec2
+        region: us-west-2
+    server:
+        listen_addr: :4311
+        tls_ca_path: /etc/amazon-cloudwatch-observability-agent-client-cert/tls-ca.crt
+        tls_cert_path: /etc/amazon-cloudwatch-observability-agent-server-cert/server.crt
+        tls_key_path: /etc/amazon-cloudwatch-observability-agent-server-cert/server.key
+processors:
+    awsentity/resource/containerinsights:
+        cluster_name: ai-infra-summit-test-cluster
+        entity_type: Resource
+        kubernetes_mode: EKS
+        platform: ec2
+    batch/containerinsights:
+        metadata_cardinality_limit: 1000
+        send_batch_max_size: 0
+        send_batch_size: 8192
+        timeout: 5s
+    filter/containerinsights:
+        error_mode: propagate
+        logs: {}
+        metrics:
+            exclude:
+                match_type: strict
+                metric_names:
+                    - up
+                    - scrape_duration_seconds
+                    - scrape_samples_scraped
+                    - scrape_series_added
+                    - scrape_samples_post_metric_relabeling
+        spans: {}
+        traces: {}
+receivers:
+    awscontainerinsightreceiver:
+        accelerated_compute_gpu_metrics_collection_interval: 1m0s
+        accelerated_compute_metrics: true
+        add_container_name_metric_label: false
+        add_full_pod_name_metric_label: false
+        add_service_as_attribute: true
+        certificate_file_path: ""
+        cluster_name: ai-infra-summit-test-cluster
+        collection_interval: 1m0s
+        collection_role: ALL
+        container_orchestrator: eks
+        enable_control_plane_metrics: false
+        endpoint: ""
+        external_id: ""
+        host_ip: ""
+        host_name: ""
+        imds_retries: 1
+        kube_config_path: ""
+        leader_lock_name: cwagent-clusterleader
+        leader_lock_using_config_map_only: true
+        local_mode: false
+        max_retries: 0
+        middleware: agenthealth/statuscode
+        no_verify_ssl: false
+        num_workers: 0
+        prefer_full_pod_name: false
+        profile: ""
+        proxy_address: ""
+        region: us-west-2
+        request_timeout_seconds: 0
+        resource_arn: ""
+        role_arn: ""
+service:
+    extensions:
+        - agenthealth/logs
+        - agenthealth/statuscode
+        - entitystore
+        - server
+    pipelines:
+        metrics/containerinsights:
+            exporters:
+                - awsemf/containerinsights
+            processors:
+                - batch/containerinsights
+                - filter/containerinsights
+                - awsentity/resource/containerinsights
+            receivers:
+                - awscontainerinsightreceiver
+    telemetry:
+        logs:
+            encoding: console
+            level: info
+            sampling:
+                enabled: true
+                initial: 2
+                thereafter: 500
+                tick: 10s
+        metrics:
+            level: None
+        traces:
+            level: None
+2026-09-12T10:28:02Z I! Starting AmazonCloudWatchAgent CWAgent/1.300071.0b1720 (go1.26.5; linux; amd64) with log file  with log target lumberjack
+2026-09-12T10:28:02Z I! AWS SDK log level not set
+2026-09-12T10:28:02Z I! {"caller":"service@v0.124.0/service.go:199","msg":"Setting up own telemetry..."}
+2026-09-12T10:28:02Z W! {"caller":"awsemfexporter@v0.124.1/emf_exporter.go:81","msg":"the default value for DimensionRollupOption will be changing to NoDimensionRollupin a future release. See https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/23997 for moreinformation"}
+2026-09-12T10:28:02Z I! {"caller":"filterprocessor@v0.124.1/metrics.go:99","msg":"Metric filter configured","include match_type":"","include expressions":[],"include metric names":[],"include metrics with resource attributes":null,"exclude match_type":"strict","exclude expressions":[],"exclude metric names":["up","scrape_duration_seconds","scrape_samples_scraped","scrape_series_added","scrape_samples_post_metric_relabeling"],"exclude metrics with resource attributes":null}
+2026-09-12T10:28:02Z E! {"caller":"tls/certWatcher.go:89","msg":"failed to read certificate","error":"could not read certificate \"/etc/amazon-cloudwatch-observability-agent-client-cert/tls-ca.crt\": open /etc/amazon-cloudwatch-observability-agent-client-cert/tls-ca.crt: no such file or directory","stacktrace":"github.com/aws/amazon-cloudwatch-agent/internal/tls.(*CertWatcher).ReadTlsConfig\n\tgithub.com/aws/amazon-cloudwatch-agent/internal/tls/certWatcher.go:89\ngithub.com/aws/amazon-cloudwatch-agent/internal/tls.NewCertWatcher\n\tgithub.com/aws/amazon-cloudwatch-agent/internal/tls/certWatcher.go:56\ngithub.com/aws/amazon-cloudwatch-agent/extension/server.NewServer\n\tgithub.com/aws/amazon-cloudwatch-agent/extension/server/extension.go:52\ngithub.com/aws/amazon-cloudwatch-agent/extension/server.createExtension\n\tgithub.com/aws/amazon-cloudwatch-agent/extension/server/factory.go:31\ngo.opentelemetry.io/collector/extension.(*factory).Create\n\tgo.opentelemetry.io/collector/extension@v1.30.0/extension.go:68\ngo.opentelemetry.io/collector/service/internal/builders.(*ExtensionBuilder).Create\n\tgo.opentelemetry.io/collector/service@v0.124.0/internal/builders/extension.go:52\ngo.opentelemetry.io/collector/service/extensions.New\n\tgo.opentelemetry.io/collector/service@v0.124.0/extensions/extensions.go:221\ngo.opentelemetry.io/collector/service.(*Service).initExtensions\n\tgo.opentelemetry.io/collector/service@v0.124.0/service.go:360\ngo.opentelemetry.io/collector/service.New\n\tgo.opentelemetry.io/collector/service@v0.124.0/service.go:226\ngo.opentelemetry.io/collector/otelcol.(*Collector).setupConfigurationComponents\n\tgo.opentelemetry.io/collector/otelcol@v0.124.0/collector.go:197\ngo.opentelemetry.io/collector/otelcol.(*Collector).Run\n\tgo.opentelemetry.io/collector/otelcol@v0.124.0/collector.go:312\ngo.opentelemetry.io/collector/otelcol.NewCommand.func1\n\tgo.opentelemetry.io/collector/otelcol@v0.124.0/command.go:39\ngithub.com/spf13/cobra.(*Command).execute\n\tgithub.com/spf13/cobra@v1.9.1/command.go:1015\ngithub.com/spf13/cobra.(*Command).ExecuteC\n\tgithub.com/spf13/cobra@v1.9.1/command.go:1148\ngithub.com/spf13/cobra.(*Command).Execute\n\tgithub.com/spf13/cobra@v1.9.1/command.go:1071\nmain.runAgent\n\tgithub.com/aws/amazon-cloudwatch-agent/cmd/amazon-cloudwatch-agent/amazon-cloudwatch-agent.go:381\nmain.reloadLoop\n\tgithub.com/aws/amazon-cloudwatch-agent/cmd/amazon-cloudwatch-agent/amazon-cloudwatch-agent.go:185\nmain.main\n\tgithub.com/aws/amazon-cloudwatch-agent/cmd/amazon-cloudwatch-agent/amazon-cloudwatch-agent.go:649\nruntime.main\n\truntime/proc.go:290"}
+2026-09-12T10:28:02Z I! {"caller":"service@v0.124.0/service.go:244","msg":"Skipped telemetry setup."}
+2026-09-12T10:28:02Z I! {"caller":"service@v0.124.0/service.go:266","msg":"Starting CWAgent...","Version":"1.300071.0b1720","NumCPU":8}
+2026-09-12T10:28:02Z I! {"caller":"extensions/extensions.go:41","msg":"Starting extensions..."}
+2026-09-12T10:28:02Z I! {"caller":"extensions/extensions.go:45","msg":"Extension is starting..."}
+2026-09-12T10:28:02Z I! {"caller":"extensions/extensions.go:62","msg":"Extension started."}
+2026-09-12T10:28:02Z I! {"caller":"extensions/extensions.go:45","msg":"Extension is starting..."}
+2026-09-12T10:28:02Z I! {"caller":"extensions/extensions.go:62","msg":"Extension started."}
+2026-09-12T10:28:02Z I! {"caller":"host/ec2metadata.go:91","msg":"Fetch instance id and type from ec2 metadata"}
+2026-09-12T10:28:02Z I! {"caller":"k8sapiserver/leaderelection.go:116","msg":"Cannot get the leader config map: configmaps \"cwagent-clusterleader\" not found, try to create the config map..."}
+2026-09-12T10:28:02Z I! {"caller":"k8sapiserver/leaderelection.go:124","msg":"configMap: &ConfigMap{ObjectMeta:{cwagent-clusterleader  amazon-cloudwatch  1e71d736-ef29-414e-b962-a1f7760c05db 288073 0 2026-09-12 10:28:02 +0000 UTC <nil> <nil> map[] map[] [] [] []},Data:map[string]string{},BinaryData:map[string][]byte{},Immutable:nil,}, err: <nil>"}
+2026-09-12T10:28:02Z I! {"caller":"k8sapiserver/leaderelection.go:127","msg":"configMap: &ConfigMap{ObjectMeta:{cwagent-clusterleader  amazon-cloudwatch  1e71d736-ef29-414e-b962-a1f7760c05db 288073 0 2026-09-12 10:28:02 +0000 UTC <nil> <nil> map[] map[] [] [] []},Data:map[string]string{},BinaryData:map[string][]byte{},Immutable:nil,}, err: <nil>"}
+I0912 10:28:02.827692       1 leaderelection.go:257] attempting to acquire leader lease amazon-cloudwatch/cwagent-clusterleader...
+I0912 10:28:02.832538       1 factory.go:221] Registration of the crio container factory failed: Get "http://%2Fvar%2Frun%2Fcrio%2Fcrio.sock/info": dial unix /var/run/crio/crio.sock: connect: no such file or directory
+I0912 10:28:02.832688       1 factory.go:221] Registration of the docker container factory failed: failed to validate Docker info: failed to detect Docker info: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+I0912 10:28:02.832697       1 factory.go:223] Registration of the systemd container factory successfully
+I0912 10:28:02.833469       1 factory.go:223] Registration of the containerd container factory successfully
+W0912 10:28:02.833507       1 manager.go:306] Could not configure a source for OOM detection, disabling OOM events: open /dev/kmsg: no such file or directory
+I0912 10:28:02.837622       1 leaderelection.go:271] successfully acquired lease amazon-cloudwatch/cwagent-clusterleader
+I0912 10:28:02.837726       1 event.go:377] Event(v1.ObjectReference{Kind:"ConfigMap", Namespace:"amazon-cloudwatch", Name:"cwagent-clusterleader", UID:"1e71d736-ef29-414e-b962-a1f7760c05db", APIVersion:"v1", ResourceVersion:"288074", FieldPath:""}): type: 'Normal' reason: 'LeaderElection' ip-10-0-1-196.us-west-2.compute.internal became leader
+2026-09-12T10:28:02Z I! {"caller":"k8sapiserver/leaderelection.go:174","msg":"OnStartedLeading: ip-10-0-1-196.us-west-2.compute.internal"}
+2026-09-12T10:28:02Z I! {"caller":"k8sapiserver/leaderelection.go:223","msg":"Switch NewLeaderElection Leader: ip-10-0-1-196.us-west-2.compute.internal"}
+2026-09-12T10:28:03Z I! {"caller":"service@v0.124.0/service.go:289","msg":"Everything is ready. Begin running and processing data."}
+2026-09-12T10:28:03Z E! {"caller":"k8sclient/clientset.go:491","msg":"use an no-op PersistentVolumeClaim client instead because of error","error":"cannot list PVCs. err: persistentvolumeclaims is forbidden: User \"system:serviceaccount:amazon-cloudwatch:cloudwatch-agent\" cannot list resource \"persistentvolumeclaims\" in API group \"\" at the cluster scope","stacktrace":"github.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/k8s/k8sclient.(*K8sClient).GetPersistentVolumeClaimClient\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/k8s@v0.124.1/k8sclient/clientset.go:491\ngithub.com/open-telemetry/opentelemetry-collector-contrib/receiver/awscontainerinsightreceiver/internal/k8sapiserver.(*LeaderElection).startLeaderElection.func1\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/receiver/awscontainerinsightreceiver@v0.124.1/internal/k8sapiserver/leaderelection.go:186"}
+2026-09-12T10:28:03Z E! {"caller":"k8sclient/clientset.go:511","msg":"use an no-op PersistentVolume client instead because of error","error":"cannot list PersistentVolumes. err: persistentvolumes is forbidden: User \"system:serviceaccount:amazon-cloudwatch:cloudwatch-agent\" cannot list resource \"persistentvolumes\" in API group \"\" at the cluster scope","stacktrace":"github.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/k8s/k8sclient.(*K8sClient).GetPersistentVolumeClient\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/k8s@v0.124.1/k8sclient/clientset.go:511\ngithub.com/open-telemetry/opentelemetry-collector-contrib/receiver/awscontainerinsightreceiver/internal/k8sapiserver.(*LeaderElection).startLeaderElection.func1\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/receiver/awscontainerinsightreceiver@v0.124.1/internal/k8sapiserver/leaderelection.go:187"}
+2026-09-12T10:28:03Z E! {"caller":"k8sclient/clientset.go:531","msg":"use an no-op ingress client instead because of error","error":"failed to list ingress. err: ingresses.networking.k8s.io is forbidden: User \"system:serviceaccount:amazon-cloudwatch:cloudwatch-agent\" cannot list resource \"ingresses\" in API group \"networking.k8s.io\" at the cluster scope","stacktrace":"github.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/k8s/k8sclient.(*K8sClient).GetIngressClient\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/k8s@v0.124.1/k8sclient/clientset.go:531\ngithub.com/open-telemetry/opentelemetry-collector-contrib/receiver/awscontainerinsightreceiver/internal/k8sapiserver.(*LeaderElection).startLeaderElection.func1\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/receiver/awscontainerinsightreceiver@v0.124.1/internal/k8sapiserver/leaderelection.go:188"}
+2026-09-12T10:28:04Z I! {"caller":"host/ec2tags.go:88","msg":"Fetch ec2 tags to detect cluster name and auto scaling group name","instanceId":"i-00b650ab45fd24ec5"}
+2026-09-12T10:28:04Z I! {"caller":"host/ebsvolume.go:95","msg":"Fetch ebs volumes from ec2 api"}
+2026-09-12T10:28:04Z I! {"caller":"host/ec2tags.go:140","msg":"Fetch ec2 tags successfully"}
+2026-09-12T10:28:04Z I! {"caller":"host/ec2tags.go:143","msg":"Fetch ec2 tags to detect cluster name and auto scaling group name","instanceId":"eks-neuron-trn1-2x-44d04a0f-dcdd-2bd0-bbd7-de3c45e62a08"}
+2026-09-12T10:29:30Z I! {"caller":"k8sapiserver/k8sapiserver.go:128","msg":"collect data from K8s API Server..."}
+2026-09-12T10:29:30Z I! {"caller":"prometheusscraper/simple_prometheus_scraper.go:96","msg":"The scraper is not running, starting up the scraper"}
+2026-09-12T10:29:30Z I! {"caller":"prometheusreceiver@v0.124.1/metrics_receiver.go:154","msg":"Starting discovery manager"}
+2026-09-12T10:29:30Z I! {"caller":"targetallocator/manager.go:262","msg":"Scrape job added","jobName":"containerInsightsDCGMExporterScraper"}
+2026-09-12T10:29:30Z I! {"msg":"Using pod service account via in-cluster config","discovery":"kubernetes","config":"containerInsightsDCGMExporterScraper"}
+2026-09-12T10:29:30Z I! {"caller":"prometheusscraper/simple_prometheus_scraper.go:96","msg":"The scraper is not running, starting up the scraper"}
+2026-09-12T10:29:30Z I! {"caller":"prometheusreceiver@v0.124.1/metrics_receiver.go:224","msg":"Starting scrape manager"}
+2026-09-12T10:29:30Z I! {"caller":"prometheusreceiver@v0.124.1/metrics_receiver.go:154","msg":"Starting discovery manager"}
+2026-09-12T10:29:30Z I! {"caller":"targetallocator/manager.go:262","msg":"Scrape job added","jobName":"containerInsightsNVMeEBSScraper"}
+2026-09-12T10:29:30Z I! {"msg":"Using pod service account via in-cluster config","discovery":"kubernetes","config":"containerInsightsNVMeEBSScraper"}
+2026-09-12T10:29:30Z I! {"caller":"prometheusreceiver@v0.124.1/metrics_receiver.go:224","msg":"Starting scrape manager"}
+2026-09-12T10:29:32Z E! {"caller":"cwlogs@v0.124.1/cwlog_client.go:145","msg":"cwlog_client: Error occurs in PutLogEvents","error":"AccessDeniedException: User: arn:aws:sts::919717556140:assumed-role/eksctl-ai-infra-summit-test-cluste-NodeInstanceRole-V81HW0zSwN5O/i-00b650ab45fd24ec5 is not authorized to perform: logs:PutLogEvents on resource: arn:aws:logs:us-west-2:919717556140:log-group:/aws/containerinsights/ai-infra-summit-test-cluster/performance:log-stream:ip-10-0-1-196.us-west-2.compute.internal because no identity-based policy allows the logs:PutLogEvents action","stacktrace":"github.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs.(*Client).PutLogEvents\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs@v0.124.1/cwlog_client.go:145\ngithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs.(*logPusher).pushEventBatch\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs@v0.124.1/pusher.go:268\ngithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs.(*logPusher).ForceFlush\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs@v0.124.1/pusher.go:247\ngithub.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsemfexporter.(*emfExporter).pushMetricsData\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsemfexporter@v0.124.1/emf_exporter.go:148\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/exporter/exporterhelper.NewMetrics.requestConsumeFromMetrics.func2\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/metrics.go:121\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal/sender.(*sender[...]).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/sender/sender.go:31\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal.(*timeoutSender[...]).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/timeout_sender.go:54\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal.(*obsReportSender[...]).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/obs_report_sender.go:92\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal.(*BaseExporter).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/base_exporter.go:114\ngo.opentelemetry.io/collector/exporter/exporterhelper.NewMetricsRequest.newConsumeMetrics.func1\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/metrics.go:176\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngithub.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry.(*wrapperMetricsExporter).ConsumeMetrics\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry@v0.124.1/resource_to_telemetry.go:35\ngo.opentelemetry.io/collector/internal/fanoutconsumer.(*metricsConsumer).ConsumeMetrics\n\tgo.opentelemetry.io/collector/internal/fanoutconsumer@v0.124.0/metrics.go:60\ngo.opentelemetry.io/collector/processor/processorhelper.NewMetrics.func1\n\tgo.opentelemetry.io/collector/processor/processorhelper@v0.124.0/metrics.go:66\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/processor/processorhelper.NewMetrics.func1\n\tgo.opentelemetry.io/collector/processor/processorhelper@v0.124.0/metrics.go:66\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/processor/batchprocessor.(*batchMetrics).export\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:494\ngo.opentelemetry.io/collector/processor/batchprocessor.(*shard[...]).sendItems\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:262\ngo.opentelemetry.io/collector/processor/batchprocessor.(*shard[...]).startLoop\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:222"}
+2026-09-12T10:29:32Z E! {"caller":"awsemfexporter@v0.124.1/emf_exporter.go:153","msg":"Error force flushing logs. Skipping to next logPusher.","error":"Permanent error: AccessDeniedException: User: arn:aws:sts::919717556140:assumed-role/eksctl-ai-infra-summit-test-cluste-NodeInstanceRole-V81HW0zSwN5O/i-00b650ab45fd24ec5 is not authorized to perform: logs:PutLogEvents on resource: arn:aws:logs:us-west-2:919717556140:log-group:/aws/containerinsights/ai-infra-summit-test-cluster/performance:log-stream:ip-10-0-1-196.us-west-2.compute.internal because no identity-based policy allows the logs:PutLogEvents action","stacktrace":"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsemfexporter.(*emfExporter).pushMetricsData\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsemfexporter@v0.124.1/emf_exporter.go:153\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/exporter/exporterhelper.NewMetrics.requestConsumeFromMetrics.func2\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/metrics.go:121\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal/sender.(*sender[...]).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/sender/sender.go:31\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal.(*timeoutSender[...]).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/timeout_sender.go:54\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal.(*obsReportSender[...]).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/obs_report_sender.go:92\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal.(*BaseExporter).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/base_exporter.go:114\ngo.opentelemetry.io/collector/exporter/exporterhelper.NewMetricsRequest.newConsumeMetrics.func1\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/metrics.go:176\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngithub.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry.(*wrapperMetricsExporter).ConsumeMetrics\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry@v0.124.1/resource_to_telemetry.go:35\ngo.opentelemetry.io/collector/internal/fanoutconsumer.(*metricsConsumer).ConsumeMetrics\n\tgo.opentelemetry.io/collector/internal/fanoutconsumer@v0.124.0/metrics.go:60\ngo.opentelemetry.io/collector/processor/processorhelper.NewMetrics.func1\n\tgo.opentelemetry.io/collector/processor/processorhelper@v0.124.0/metrics.go:66\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/processor/processorhelper.NewMetrics.func1\n\tgo.opentelemetry.io/collector/processor/processorhelper@v0.124.0/metrics.go:66\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/processor/batchprocessor.(*batchMetrics).export\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:494\ngo.opentelemetry.io/collector/processor/batchprocessor.(*shard[...]).sendItems\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:262\ngo.opentelemetry.io/collector/processor/batchprocessor.(*shard[...]).startLoop\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:222"}
+2026-09-12T10:29:32Z E! {"caller":"internal/base_exporter.go:116","msg":"Exporting failed. Rejecting data.","error":"Permanent error: AccessDeniedException: User: arn:aws:sts::919717556140:assumed-role/eksctl-ai-infra-summit-test-cluste-NodeInstanceRole-V81HW0zSwN5O/i-00b650ab45fd24ec5 is not authorized to perform: logs:PutLogEvents on resource: arn:aws:logs:us-west-2:919717556140:log-group:/aws/containerinsights/ai-infra-summit-test-cluster/performance:log-stream:ip-10-0-1-196.us-west-2.compute.internal because no identity-based policy allows the logs:PutLogEvents action","rejected_items":597,"stacktrace":"go.opentelemetry.io/collector/exporter/exporterhelper/internal.(*BaseExporter).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/base_exporter.go:116\ngo.opentelemetry.io/collector/exporter/exporterhelper.NewMetricsRequest.newConsumeMetrics.func1\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/metrics.go:176\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngithub.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry.(*wrapperMetricsExporter).ConsumeMetrics\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry@v0.124.1/resource_to_telemetry.go:35\ngo.opentelemetry.io/collector/internal/fanoutconsumer.(*metricsConsumer).ConsumeMetrics\n\tgo.opentelemetry.io/collector/internal/fanoutconsumer@v0.124.0/metrics.go:60\ngo.opentelemetry.io/collector/processor/processorhelper.NewMetrics.func1\n\tgo.opentelemetry.io/collector/processor/processorhelper@v0.124.0/metrics.go:66\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/processor/processorhelper.NewMetrics.func1\n\tgo.opentelemetry.io/collector/processor/processorhelper@v0.124.0/metrics.go:66\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/processor/batchprocessor.(*batchMetrics).export\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:494\ngo.opentelemetry.io/collector/processor/batchprocessor.(*shard[...]).sendItems\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:262\ngo.opentelemetry.io/collector/processor/batchprocessor.(*shard[...]).startLoop\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:222"}
+2026-09-12T10:29:32Z W! {"caller":"batchprocessor@v0.124.0/batch_processor.go:264","msg":"Sender failed","error":"Permanent error: AccessDeniedException: User: arn:aws:sts::919717556140:assumed-role/eksctl-ai-infra-summit-test-cluste-NodeInstanceRole-V81HW0zSwN5O/i-00b650ab45fd24ec5 is not authorized to perform: logs:PutLogEvents on resource: arn:aws:logs:us-west-2:919717556140:log-group:/aws/containerinsights/ai-infra-summit-test-cluster/performance:log-stream:ip-10-0-1-196.us-west-2.compute.internal because no identity-based policy allows the logs:PutLogEvents action"}
+2026-09-12T10:29:35Z E! {"msg":"error creating new scrape pool","err":"error creating HTTP client: unable to read CA cert: unable to read file /etc/amazon-cloudwatch-observability-agent-cert/tls-ca.crt: open /etc/amazon-cloudwatch-observability-agent-cert/tls-ca.crt: no such file or directory","scrape_pool":"containerInsightsDCGMExporterScraper","stacktrace":"github.com/prometheus/prometheus/scrape.(*Manager).reload\n\tgithub.com/prometheus/prometheus@v0.300.1/scrape/manager.go:190\ngithub.com/prometheus/prometheus/scrape.(*Manager).reloader\n\tgithub.com/prometheus/prometheus@v0.300.1/scrape/manager.go:163"}
+2026-09-12T10:30:30Z I! {"caller":"k8sapiserver/k8sapiserver.go:128","msg":"collect data from K8s API Server..."}
+2026-09-12T10:30:32Z E! {"caller":"cwlogs@v0.124.1/cwlog_client.go:145","msg":"cwlog_client: Error occurs in PutLogEvents","error":"AccessDeniedException: User: arn:aws:sts::919717556140:assumed-role/eksctl-ai-infra-summit-test-cluste-NodeInstanceRole-V81HW0zSwN5O/i-00b650ab45fd24ec5 is not authorized to perform: logs:PutLogEvents on resource: arn:aws:logs:us-west-2:919717556140:log-group:/aws/containerinsights/ai-infra-summit-test-cluster/performance:log-stream:ip-10-0-1-196.us-west-2.compute.internal because no identity-based policy allows the logs:PutLogEvents action","stacktrace":"github.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs.(*Client).PutLogEvents\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs@v0.124.1/cwlog_client.go:145\ngithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs.(*logPusher).pushEventBatch\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs@v0.124.1/pusher.go:268\ngithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs.(*logPusher).ForceFlush\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs@v0.124.1/pusher.go:247\ngithub.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsemfexporter.(*emfExporter).pushMetricsData\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsemfexporter@v0.124.1/emf_exporter.go:148\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/exporter/exporterhelper.NewMetrics.requestConsumeFromMetrics.func2\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/metrics.go:121\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal/sender.(*sender[...]).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/sender/sender.go:31\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal.(*timeoutSender[...]).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/timeout_sender.go:54\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal.(*obsReportSender[...]).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/obs_report_sender.go:92\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal.(*BaseExporter).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/base_exporter.go:114\ngo.opentelemetry.io/collector/exporter/exporterhelper.NewMetricsRequest.newConsumeMetrics.func1\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/metrics.go:176\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngithub.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry.(*wrapperMetricsExporter).ConsumeMetrics\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry@v0.124.1/resource_to_telemetry.go:35\ngo.opentelemetry.io/collector/internal/fanoutconsumer.(*metricsConsumer).ConsumeMetrics\n\tgo.opentelemetry.io/collector/internal/fanoutconsumer@v0.124.0/metrics.go:60\ngo.opentelemetry.io/collector/processor/processorhelper.NewMetrics.func1\n\tgo.opentelemetry.io/collector/processor/processorhelper@v0.124.0/metrics.go:66\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/processor/processorhelper.NewMetrics.func1\n\tgo.opentelemetry.io/collector/processor/processorhelper@v0.124.0/metrics.go:66\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/processor/batchprocessor.(*batchMetrics).export\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:494\ngo.opentelemetry.io/collector/processor/batchprocessor.(*shard[...]).sendItems\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:262\ngo.opentelemetry.io/collector/processor/batchprocessor.(*shard[...]).startLoop\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:222"}
+2026-09-12T10:30:32Z E! {"caller":"awsemfexporter@v0.124.1/emf_exporter.go:153","msg":"Error force flushing logs. Skipping to next logPusher.","error":"Permanent error: AccessDeniedException: User: arn:aws:sts::919717556140:assumed-role/eksctl-ai-infra-summit-test-cluste-NodeInstanceRole-V81HW0zSwN5O/i-00b650ab45fd24ec5 is not authorized to perform: logs:PutLogEvents on resource: arn:aws:logs:us-west-2:919717556140:log-group:/aws/containerinsights/ai-infra-summit-test-cluster/performance:log-stream:ip-10-0-1-196.us-west-2.compute.internal because no identity-based policy allows the logs:PutLogEvents action","stacktrace":"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsemfexporter.(*emfExporter).pushMetricsData\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/exporter/awsemfexporter@v0.124.1/emf_exporter.go:153\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/exporter/exporterhelper.NewMetrics.requestConsumeFromMetrics.func2\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/metrics.go:121\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal/sender.(*sender[...]).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/sender/sender.go:31\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal.(*timeoutSender[...]).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/timeout_sender.go:54\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal.(*obsReportSender[...]).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/obs_report_sender.go:92\ngo.opentelemetry.io/collector/exporter/exporterhelper/internal.(*BaseExporter).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/base_exporter.go:114\ngo.opentelemetry.io/collector/exporter/exporterhelper.NewMetricsRequest.newConsumeMetrics.func1\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/metrics.go:176\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngithub.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry.(*wrapperMetricsExporter).ConsumeMetrics\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry@v0.124.1/resource_to_telemetry.go:35\ngo.opentelemetry.io/collector/internal/fanoutconsumer.(*metricsConsumer).ConsumeMetrics\n\tgo.opentelemetry.io/collector/internal/fanoutconsumer@v0.124.0/metrics.go:60\ngo.opentelemetry.io/collector/processor/processorhelper.NewMetrics.func1\n\tgo.opentelemetry.io/collector/processor/processorhelper@v0.124.0/metrics.go:66\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/processor/processorhelper.NewMetrics.func1\n\tgo.opentelemetry.io/collector/processor/processorhelper@v0.124.0/metrics.go:66\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/processor/batchprocessor.(*batchMetrics).export\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:494\ngo.opentelemetry.io/collector/processor/batchprocessor.(*shard[...]).sendItems\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:262\ngo.opentelemetry.io/collector/processor/batchprocessor.(*shard[...]).startLoop\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:222"}
+2026-09-12T10:30:32Z E! {"caller":"internal/base_exporter.go:116","msg":"Exporting failed. Rejecting data.","error":"Permanent error: AccessDeniedException: User: arn:aws:sts::919717556140:assumed-role/eksctl-ai-infra-summit-test-cluste-NodeInstanceRole-V81HW0zSwN5O/i-00b650ab45fd24ec5 is not authorized to perform: logs:PutLogEvents on resource: arn:aws:logs:us-west-2:919717556140:log-group:/aws/containerinsights/ai-infra-summit-test-cluster/performance:log-stream:ip-10-0-1-196.us-west-2.compute.internal because no identity-based policy allows the logs:PutLogEvents action","rejected_items":2172,"stacktrace":"go.opentelemetry.io/collector/exporter/exporterhelper/internal.(*BaseExporter).Send\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/internal/base_exporter.go:116\ngo.opentelemetry.io/collector/exporter/exporterhelper.NewMetricsRequest.newConsumeMetrics.func1\n\tgo.opentelemetry.io/collector/exporter@v0.124.0/exporterhelper/metrics.go:176\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngithub.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry.(*wrapperMetricsExporter).ConsumeMetrics\n\tgithub.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry@v0.124.1/resource_to_telemetry.go:35\ngo.opentelemetry.io/collector/internal/fanoutconsumer.(*metricsConsumer).ConsumeMetrics\n\tgo.opentelemetry.io/collector/internal/fanoutconsumer@v0.124.0/metrics.go:60\ngo.opentelemetry.io/collector/processor/processorhelper.NewMetrics.func1\n\tgo.opentelemetry.io/collector/processor/processorhelper@v0.124.0/metrics.go:66\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/processor/processorhelper.NewMetrics.func1\n\tgo.opentelemetry.io/collector/processor/processorhelper@v0.124.0/metrics.go:66\ngo.opentelemetry.io/collector/consumer.ConsumeMetricsFunc.ConsumeMetrics\n\tgo.opentelemetry.io/collector/consumer@v1.30.0/metrics.go:27\ngo.opentelemetry.io/collector/processor/batchprocessor.(*batchMetrics).export\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:494\ngo.opentelemetry.io/collector/processor/batchprocessor.(*shard[...]).sendItems\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:262\ngo.opentelemetry.io/collector/processor/batchprocessor.(*shard[...]).startLoop\n\tgo.opentelemetry.io/collector/processor/batchprocessor@v0.124.0/batch_processor.go:222"}
+2026-09-12T10:30:32Z W! {"caller":"batchprocessor@v0.124.0/batch_processor.go:264","msg":"Sender failed","error":"Permanent error: AccessDeniedException: User: arn:aws:sts::919717556140:assumed-role/eksctl-ai-infra-summit-test-cluste-NodeInstanceRole-V81HW0zSwN5O/i-00b650ab45fd24ec5 is not authorized to perform: logs:PutLogEvents on resource: arn:aws:logs:us-west-2:919717556140:log-group:/aws/containerinsights/ai-infra-summit-test-cluster/performance:log-stream:ip-10-0-1-196.us-west-2.compute.internal because no identity-based policy allows the logs:PutLogEvents action"}

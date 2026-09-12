@@ -1,0 +1,552 @@
+{
+  "method": "one run per concurrency, max output 256, 320 requests, warmup 2; telemetry window phase start +30s to phase end -15s",
+  "conditions": {
+    "4": {
+      "phase": {
+        "concurrency": 4,
+        "start": "2026-09-12T13:01:20.918836+00:00",
+        "end": "2026-09-12T13:04:26.758629+00:00",
+        "returncode": 0,
+        "output": "/tmp/week6-neuron-load/c4.json"
+      },
+      "window_start": "2026-09-12T13:01:50.918836+00:00",
+      "window_end": "2026-09-12T13:04:11.758629+00:00",
+      "benchmark": {
+        "scenario": "short",
+        "concurrency": 4,
+        "requests": 320,
+        "successes": 320,
+        "failures": 0,
+        "ttft_p50_s": 0.17114896699968085,
+        "ttft_p95_s": 0.1725949547982964,
+        "itl_p50_s": 0.008221608947054596,
+        "itl_p95_s": 0.008713429799804454,
+        "perceived_tps": 121.63069375347163,
+        "e2e_p50_s": 2.2632048684990878,
+        "e2e_p95_s": 2.285746224398463,
+        "e2e_mean_s": 2.267587235765666,
+        "output_tokens": 81920,
+        "output_tok_per_s": 451.5408091397299,
+        "goodput_pct": 100.0,
+        "exact_usage_requests": 320,
+        "ttft_measured": true,
+        "wall_s": 181.42324756000016
+      },
+      "neuron_core_percent": {
+        "0": {
+          "samples": 29,
+          "min": 76.16879405638866,
+          "max": 79.87772597401725,
+          "mean": 79.29279984895545
+        },
+        "1": {
+          "samples": 29,
+          "min": 76.31694926992829,
+          "max": 80.05045029615438,
+          "mean": 79.41987447445848
+        }
+      },
+      "runtime_device_memory_bytes": {
+        "samples": 29,
+        "min": 3900128440,
+        "max": 3900142696,
+        "mean": 3900138246.8965516
+      },
+      "monitor_errors": [],
+      "execution_completed_per_sample": {
+        "samples": 29,
+        "min": 1102,
+        "max": 1156,
+        "mean": 1141.8620689655172
+      },
+      "prometheus": {
+        "neuron_up": [
+          {
+            "labels": {
+              "__name__": "up",
+              "instance": "10.0.1.129:9109",
+              "job": "week6-neuron-live"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 1.0,
+              "max": 1.0,
+              "mean": 1.0
+            }
+          }
+        ],
+        "neuron_utilization_percent": [
+          {
+            "labels": {
+              "availability_zone": "us-west-2a",
+              "instance": "10.0.1.129:9109",
+              "instance_id": "i-00b650ab45fd24ec5",
+              "instance_name": "ai-infra-summit-test-cluster-neuron-trn1-2x-Node",
+              "instance_type": "trn1.2xlarge",
+              "job": "week6-neuron-live",
+              "neuroncore": "0",
+              "region": "us-west-2",
+              "runtime_tag": "45",
+              "subnet_id": "subnet-0472faef44ecad3c0"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 76.16879405638866,
+              "max": 79.87772597401725,
+              "mean": 79.29512063449035
+            }
+          },
+          {
+            "labels": {
+              "availability_zone": "us-west-2a",
+              "instance": "10.0.1.129:9109",
+              "instance_id": "i-00b650ab45fd24ec5",
+              "instance_name": "ai-infra-summit-test-cluster-neuron-trn1-2x-Node",
+              "instance_type": "trn1.2xlarge",
+              "job": "week6-neuron-live",
+              "neuroncore": "1",
+              "region": "us-west-2",
+              "runtime_tag": "45",
+              "subnet_id": "subnet-0472faef44ecad3c0"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 76.31694926992829,
+              "max": 80.05045029615438,
+              "mean": 79.42324321448746
+            }
+          }
+        ],
+        "neuron_memory_bytes": [
+          {
+            "labels": {
+              "__name__": "neuron_runtime_memory_used_bytes",
+              "availability_zone": "us-west-2a",
+              "instance": "10.0.1.129:9109",
+              "instance_id": "i-00b650ab45fd24ec5",
+              "instance_name": "ai-infra-summit-test-cluster-neuron-trn1-2x-Node",
+              "instance_type": "trn1.2xlarge",
+              "job": "week6-neuron-live",
+              "memory_location": "host",
+              "region": "us-west-2",
+              "runtime_tag": "45",
+              "subnet_id": "subnet-0472faef44ecad3c0"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 2115592.0,
+              "max": 2115640.0,
+              "mean": 2115628.0
+            }
+          },
+          {
+            "labels": {
+              "__name__": "neuron_runtime_memory_used_bytes",
+              "availability_zone": "us-west-2a",
+              "instance": "10.0.1.129:9109",
+              "instance_id": "i-00b650ab45fd24ec5",
+              "instance_name": "ai-infra-summit-test-cluster-neuron-trn1-2x-Node",
+              "instance_type": "trn1.2xlarge",
+              "job": "week6-neuron-live",
+              "memory_location": "neuron_device",
+              "region": "us-west-2",
+              "runtime_tag": "45",
+              "subnet_id": "subnet-0472faef44ecad3c0"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 3900128440.0,
+              "max": 3900142696.0,
+              "mean": 3900138137.714286
+            }
+          }
+        ],
+        "generation_tokens_per_s": [
+          {
+            "labels": {},
+            "stats": {
+              "samples": 28,
+              "min": 238.48000000000002,
+              "max": 452.48,
+              "mean": 425.18285714285713
+            }
+          }
+        ],
+        "running": [
+          {
+            "labels": {
+              "__name__": "vllm:num_requests_running",
+              "instance": "vllm-service.default.svc.cluster.local:8080",
+              "job": "vllm-metrics",
+              "model_name": "tinyLlama/TinyLlama-1.1B-Chat-v1.0"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 1.0,
+              "max": 4.0,
+              "mean": 3.7857142857142856
+            }
+          }
+        ],
+        "waiting": [
+          {
+            "labels": {
+              "__name__": "vllm:num_requests_waiting",
+              "instance": "vllm-service.default.svc.cluster.local:8080",
+              "job": "vllm-metrics",
+              "model_name": "tinyLlama/TinyLlama-1.1B-Chat-v1.0"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 0.0,
+              "max": 0.0,
+              "mean": 0.0
+            }
+          }
+        ],
+        "cpu_cores": [
+          {
+            "labels": {},
+            "stats": {
+              "samples": 28,
+              "min": 0.2909995448826052,
+              "max": 0.4829752956146587,
+              "mean": 0.45305968098382593
+            }
+          }
+        ],
+        "hpa_desired": [
+          {
+            "labels": {
+              "__name__": "kube_horizontalpodautoscaler_status_desired_replicas",
+              "app_kubernetes_io_component": "metrics",
+              "app_kubernetes_io_instance": "prometheus",
+              "app_kubernetes_io_managed_by": "Helm",
+              "app_kubernetes_io_name": "kube-state-metrics",
+              "app_kubernetes_io_part_of": "kube-state-metrics",
+              "app_kubernetes_io_version": "2.20.0",
+              "helm_sh_chart": "kube-state-metrics-8.4.2",
+              "horizontalpodautoscaler": "vllm-hpa",
+              "instance": "10.0.1.58:8080",
+              "job": "kubernetes-service-endpoints",
+              "namespace": "default",
+              "node": "ip-10-0-1-196.us-west-2.compute.internal",
+              "service": "prometheus-kube-state-metrics"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 1.0,
+              "max": 1.0,
+              "mean": 1.0
+            }
+          }
+        ],
+        "available": [
+          {
+            "labels": {
+              "__name__": "kube_deployment_status_replicas_available",
+              "app_kubernetes_io_component": "metrics",
+              "app_kubernetes_io_instance": "prometheus",
+              "app_kubernetes_io_managed_by": "Helm",
+              "app_kubernetes_io_name": "kube-state-metrics",
+              "app_kubernetes_io_part_of": "kube-state-metrics",
+              "app_kubernetes_io_version": "2.20.0",
+              "deployment": "vllm-deployment",
+              "helm_sh_chart": "kube-state-metrics-8.4.2",
+              "instance": "10.0.1.58:8080",
+              "job": "kubernetes-service-endpoints",
+              "namespace": "default",
+              "node": "ip-10-0-1-196.us-west-2.compute.internal",
+              "service": "prometheus-kube-state-metrics"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 1.0,
+              "max": 1.0,
+              "mean": 1.0
+            }
+          }
+        ]
+      }
+    },
+    "8": {
+      "phase": {
+        "concurrency": 8,
+        "start": "2026-09-12T13:04:56.775583+00:00",
+        "end": "2026-09-12T13:08:02.034908+00:00",
+        "returncode": 0,
+        "output": "/tmp/week6-neuron-load/c8.json"
+      },
+      "window_start": "2026-09-12T13:05:26.775583+00:00",
+      "window_end": "2026-09-12T13:07:47.034908+00:00",
+      "benchmark": {
+        "scenario": "short",
+        "concurrency": 8,
+        "requests": 320,
+        "successes": 320,
+        "failures": 0,
+        "ttft_p50_s": 2.425161916000434,
+        "ttft_p95_s": 2.438646951950068,
+        "itl_p50_s": 0.008224522947057267,
+        "itl_p95_s": 0.008278935008237051,
+        "perceived_tps": 121.58759923671923,
+        "e2e_p50_s": 4.521398082501037,
+        "e2e_p95_s": 4.546435106651006,
+        "e2e_mean_s": 4.49434038332488,
+        "output_tokens": 81920,
+        "output_tok_per_s": 452.81886779288243,
+        "goodput_pct": 1.25,
+        "exact_usage_requests": 320,
+        "ttft_measured": true,
+        "wall_s": 180.91118949899828
+      },
+      "neuron_core_percent": {
+        "0": {
+          "samples": 28,
+          "min": 79.07913464560293,
+          "max": 80.49725974402,
+          "mean": 79.54841294972714
+        },
+        "1": {
+          "samples": 28,
+          "min": 79.15158827266471,
+          "max": 80.62180570978195,
+          "mean": 79.66931586813756
+        }
+      },
+      "runtime_device_memory_bytes": {
+        "samples": 28,
+        "min": 3900128440,
+        "max": 3900142696,
+        "mean": 3900139615.428571
+      },
+      "monitor_errors": [],
+      "execution_completed_per_sample": {
+        "samples": 28,
+        "min": 1116,
+        "max": 1156,
+        "mean": 1145.5
+      },
+      "prometheus": {
+        "neuron_up": [
+          {
+            "labels": {
+              "__name__": "up",
+              "instance": "10.0.1.129:9109",
+              "job": "week6-neuron-live"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 1.0,
+              "max": 1.0,
+              "mean": 1.0
+            }
+          }
+        ],
+        "neuron_utilization_percent": [
+          {
+            "labels": {
+              "availability_zone": "us-west-2a",
+              "instance": "10.0.1.129:9109",
+              "instance_id": "i-00b650ab45fd24ec5",
+              "instance_name": "ai-infra-summit-test-cluster-neuron-trn1-2x-Node",
+              "instance_type": "trn1.2xlarge",
+              "job": "week6-neuron-live",
+              "neuroncore": "0",
+              "region": "us-west-2",
+              "runtime_tag": "45",
+              "subnet_id": "subnet-0472faef44ecad3c0"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 79.07913464560293,
+              "max": 80.49725974402,
+              "mean": 79.520219414889
+            }
+          },
+          {
+            "labels": {
+              "availability_zone": "us-west-2a",
+              "instance": "10.0.1.129:9109",
+              "instance_id": "i-00b650ab45fd24ec5",
+              "instance_name": "ai-infra-summit-test-cluster-neuron-trn1-2x-Node",
+              "instance_type": "trn1.2xlarge",
+              "job": "week6-neuron-live",
+              "neuroncore": "1",
+              "region": "us-west-2",
+              "runtime_tag": "45",
+              "subnet_id": "subnet-0472faef44ecad3c0"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 79.15158827266471,
+              "max": 80.62180570978195,
+              "mean": 79.64548781192335
+            }
+          }
+        ],
+        "neuron_memory_bytes": [
+          {
+            "labels": {
+              "__name__": "neuron_runtime_memory_used_bytes",
+              "availability_zone": "us-west-2a",
+              "instance": "10.0.1.129:9109",
+              "instance_id": "i-00b650ab45fd24ec5",
+              "instance_name": "ai-infra-summit-test-cluster-neuron-trn1-2x-Node",
+              "instance_type": "trn1.2xlarge",
+              "job": "week6-neuron-live",
+              "memory_location": "host",
+              "region": "us-west-2",
+              "runtime_tag": "45",
+              "subnet_id": "subnet-0472faef44ecad3c0"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 2115592.0,
+              "max": 2115640.0,
+              "mean": 2115634.8571428573
+            }
+          },
+          {
+            "labels": {
+              "__name__": "neuron_runtime_memory_used_bytes",
+              "availability_zone": "us-west-2a",
+              "instance": "10.0.1.129:9109",
+              "instance_id": "i-00b650ab45fd24ec5",
+              "instance_name": "ai-infra-summit-test-cluster-neuron-trn1-2x-Node",
+              "instance_type": "trn1.2xlarge",
+              "job": "week6-neuron-live",
+              "memory_location": "neuron_device",
+              "region": "us-west-2",
+              "runtime_tag": "45",
+              "subnet_id": "subnet-0472faef44ecad3c0"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 3900128440.0,
+              "max": 3900142696.0,
+              "mean": 3900140074.857143
+            }
+          }
+        ],
+        "generation_tokens_per_s": [
+          {
+            "labels": {},
+            "stats": {
+              "samples": 28,
+              "min": 186.88,
+              "max": 453.84000000000003,
+              "mean": 424.62857142857143
+            }
+          }
+        ],
+        "running": [
+          {
+            "labels": {
+              "__name__": "vllm:num_requests_running",
+              "instance": "vllm-service.default.svc.cluster.local:8080",
+              "job": "vllm-metrics",
+              "model_name": "tinyLlama/TinyLlama-1.1B-Chat-v1.0"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 0.0,
+              "max": 4.0,
+              "mean": 3.7142857142857144
+            }
+          }
+        ],
+        "waiting": [
+          {
+            "labels": {
+              "__name__": "vllm:num_requests_waiting",
+              "instance": "vllm-service.default.svc.cluster.local:8080",
+              "job": "vllm-metrics",
+              "model_name": "tinyLlama/TinyLlama-1.1B-Chat-v1.0"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 4.0,
+              "max": 4.0,
+              "mean": 4.0
+            }
+          }
+        ],
+        "cpu_cores": [
+          {
+            "labels": {},
+            "stats": {
+              "samples": 28,
+              "min": 0.24315772082064438,
+              "max": 0.48295948556505897,
+              "mean": 0.4508085541460391
+            }
+          }
+        ],
+        "hpa_desired": [
+          {
+            "labels": {
+              "__name__": "kube_horizontalpodautoscaler_status_desired_replicas",
+              "app_kubernetes_io_component": "metrics",
+              "app_kubernetes_io_instance": "prometheus",
+              "app_kubernetes_io_managed_by": "Helm",
+              "app_kubernetes_io_name": "kube-state-metrics",
+              "app_kubernetes_io_part_of": "kube-state-metrics",
+              "app_kubernetes_io_version": "2.20.0",
+              "helm_sh_chart": "kube-state-metrics-8.4.2",
+              "horizontalpodautoscaler": "vllm-hpa",
+              "instance": "10.0.1.58:8080",
+              "job": "kubernetes-service-endpoints",
+              "namespace": "default",
+              "node": "ip-10-0-1-196.us-west-2.compute.internal",
+              "service": "prometheus-kube-state-metrics"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 1.0,
+              "max": 1.0,
+              "mean": 1.0
+            }
+          }
+        ],
+        "available": [
+          {
+            "labels": {
+              "__name__": "kube_deployment_status_replicas_available",
+              "app_kubernetes_io_component": "metrics",
+              "app_kubernetes_io_instance": "prometheus",
+              "app_kubernetes_io_managed_by": "Helm",
+              "app_kubernetes_io_name": "kube-state-metrics",
+              "app_kubernetes_io_part_of": "kube-state-metrics",
+              "app_kubernetes_io_version": "2.20.0",
+              "deployment": "vllm-deployment",
+              "helm_sh_chart": "kube-state-metrics-8.4.2",
+              "instance": "10.0.1.58:8080",
+              "job": "kubernetes-service-endpoints",
+              "namespace": "default",
+              "node": "ip-10-0-1-196.us-west-2.compute.internal",
+              "service": "prometheus-kube-state-metrics"
+            },
+            "stats": {
+              "samples": 28,
+              "min": 1.0,
+              "max": 1.0,
+              "mean": 1.0
+            }
+          }
+        ]
+      }
+    }
+  },
+  "raw_records": 118,
+  "hardware": {
+    "neuron_device_type": "trainium",
+    "neuron_device_version": "v2",
+    "neuroncore_version": "v2",
+    "neuron_device_count": 1,
+    "neuron_device_memory_size": 34359738368,
+    "neuroncore_per_device_count": 2,
+    "logical_neuroncore_config": 1,
+    "error": ""
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "timestamp_utc": "2026-09-12T11:06:09.237387+00:00",
+  "origin": "inside-vllm-pod",
+  "endpoint": "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local",
+  "purpose": "functional verification, not a performance benchmark",
+  "checks": {
+    "/health": {
+      "status": 200
+    },
+    "/v1/models": {
+      "status": 200,
+      "model_ids": [
+        "tinyLlama/TinyLlama-1.1B-Chat-v1.0"
+      ]
+    },
+    "/openapi.json": {
+      "status": 200,
+      "has_chat_completions": true
+    },
+    "chat": {
+      "status": 200,
+      "request": {
+        "model": "tinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Say hello in one short sentence."
+          }
+        ],
+        "max_tokens": 32,
+        "temperature": 0
+      },
+      "response": {
+        "id": "chatcmpl-47437d4d4b83a9079e1f59d09f863aaa",
+        "object": "chat.completion",
+        "created": 1789211169,
+        "model": "tinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "reasoning_content": null,
+              "content": "\"Welcome to our world, where words are more than just letters on a page. Let's embrace the power of language and use it to connect",
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "length",
+            "stop_reason": null
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 24,
+          "total_tokens": 56,
+          "completion_tokens": 32,
+          "prompt_tokens_details": null
+        },
+        "prompt_logprobs": null,
+        "kv_transfer_params": null
+      }
+    },
+    "stream": {
+      "status": 200,
+      "done": true,
+      "chunk_count": 33,
+      "text": "\"Welcome to our world, where words are more than just letters on a page. Let's embrace the power of language and use it to connect"
+    }
+  },
+  "passed": true
+}

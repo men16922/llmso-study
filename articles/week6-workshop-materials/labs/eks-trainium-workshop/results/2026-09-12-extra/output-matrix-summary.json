@@ -1,0 +1,53 @@
+{
+  "definition": "mean of per-run summaries; p95 columns are mean of 3 per-run p95 values, not pooled p95; sample standard deviation (n-1)",
+  "rows": [
+    {
+      "max_tokens": 64,
+      "concurrency": 4,
+      "runs": 3,
+      "requests": 96,
+      "successes": 96,
+      "tok_s_mean": 371.0813182197313,
+      "tok_s_stdev": 0.26464416487594783,
+      "ttft_p95_mean_s": 0.1722294428000775,
+      "e2e_p95_mean_s": 0.6975841327161106,
+      "goodput_mean_pct": 100.0
+    },
+    {
+      "max_tokens": 64,
+      "concurrency": 8,
+      "runs": 3,
+      "requests": 96,
+      "successes": 96,
+      "tok_s_mean": 373.3453928821692,
+      "tok_s_stdev": 0.29771016578535214,
+      "ttft_p95_mean_s": 0.8619819796830295,
+      "e2e_p95_mean_s": 1.3869063924172225,
+      "goodput_mean_pct": 100.0
+    },
+    {
+      "max_tokens": 256,
+      "concurrency": 4,
+      "runs": 3,
+      "requests": 96,
+      "successes": 96,
+      "tok_s_mean": 452.5793660705184,
+      "tok_s_stdev": 0.935579186403153,
+      "ttft_p95_mean_s": 0.1732539213658432,
+      "e2e_p95_mean_s": 2.2787249240828413,
+      "goodput_mean_pct": 100.0
+    },
+    {
+      "max_tokens": 256,
+      "concurrency": 8,
+      "runs": 3,
+      "requests": 96,
+      "successes": 96,
+      "tok_s_mean": 453.40754780154845,
+      "tok_s_stdev": 0.9912371794078835,
+      "ttft_p95_mean_s": 2.432776226767055,
+      "e2e_p95_mean_s": 4.529835788517933,
+      "goodput_mean_pct": 12.5
+    }
+  ]
+}

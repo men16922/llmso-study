@@ -1,10 +1,12 @@
 # Agent Brief
 
-Last Updated: 2026-09-05
+Last Updated: 2026-09-12
 
-> ▶ NEXT SESSION: [5주차 추가 검증 계획](./plans/2026-09-05-week5-followup-validation.md) §1에 따라 **확보된 F1b 반복 JSON·기동 로그와 F2 트레이스·집계 코드를 원고와 대조**합니다. 새 GPU 측정부터 시작하지 않습니다. 4·5주차 제출표 공유 여부는 사용자 확인이 필요합니다(5주차 마감 09-06 09:00).
+> ▶ NEXT SESSION: [NEXT_PLAN](./NEXT_PLAN.md) §6주차 후속 확인 — `articles/6주차 과제.md`의 Lab 3~6 실측을 확인하고, 허용된 외부 클라이언트에서 CLB HTTP 검증을 마무리합니다. CloudWatch Pod CPU·메모리 수집과 지정 Notion 반영은 완료했고, 실제 복제본 증설·리소스 전체 정리는 미수행입니다. 5주차 원본 대조·제출 확인도 보존합니다.
 
 ## 현재 상태
+
+- **6주차 진행:** [과제 글](../articles/6주차%20과제.md)·[Notion](https://app.notion.com/p/3d94c2420ac4805ca5faeff33f549054) 「AWS Trainium·EKS로 LLM을 서비스로 연결하기」. 모델 준비·S3 캐시·배포 → Ingress → Prometheus·Grafana·CloudWatch → 부하 테스트 → HPA의 워크샵 전체 흐름을 본문에 유지합니다. 추가 실험은 부하 테스트의 한 과정입니다. 원고는 문서 안에서 완결하며, ZIP 원본 81개 파일은 `articles/week6-workshop-materials/`에 복구했습니다. 필요한 설정·명령·해석 조건은 관련 접기에 포함하고 독자에게 외부 파일 확인을 요구하지 않습니다. 결론은 요청 대기 감지 → 자원 확보 → 모델 준비 → 실제 응답 용량 증가이며, 실제 증설 성공은 주장하지 않습니다. NVIDIA GPU 구성 비교표와 후속 Neuron 동시 관측 640/640 성공·실제 Grafana 화면 반영 완료. CPU 약 0.45코어·NeuronCore 약 79%에서 C4→C8 처리량은 약 452 tok/s로 같고 대기는 0→4였습니다. 임시 수집기·테스트 Pod 정리 및 API·Prometheus 정상 상태 확인. Lab 3~6 실측·CloudWatch 수집 복구·원본 기록 보존 완료, HPA 목표는 1→3→1이나 자원 부족으로 가용 Pod는 1개였습니다.
 
 - CloudNet@ LLMSO 한국어 학습 문서·WSL2 GPU 실습 저장소입니다. 1~3주차 제출 완료, 4·5주차 발행 완료·제출표 공유 미확인입니다.
 - 5주차 최종 원고: `articles/처리량이 올랐다면 무엇이 빨라진 것인가.md`, 제목 「FP8 양자화로 처리량이 늘어난 이유」. [노션 발행본](https://app.notion.com/p/3d04c2420ac481c89ce1de666fbf9fbe).
@@ -14,18 +16,18 @@ Last Updated: 2026-09-05
 - Humanize A(19.41%, Fast Path 자체검증 6/6)는 앞선 윤문 단계 결과입니다. 이후 구조·결론 편집본을 같은 등급으로 재채점한 것은 아닙니다.
 - **09-05 원격 동기화:** `d37fbae`까지 18개 커밋을 반영해 `results/f*`·F2 트레이스 2개·`summarize_trace.py`를 확보했습니다. 이전의 원본 미확보 상태는 해소됐으며 산술·집계 대조는 남았습니다.
 - `study/` 추적 해제는 원격 `cc9da27`에서 완료됐습니다. 이 macOS의 원문 11개는 로컬 보존했고 Git·인덱스에서 제외합니다.
-- 원격의 오프라인 게이트는 labs 120건입니다. 현재 머신은 `/tmp/w5-review-venv/bin/python`을 사용하며, 실제 실행 결과는 [STATUS](./STATUS.md)에 기록합니다. GPU 실측과는 별개입니다.
+- 원격의 오프라인 게이트는 labs 120건입니다. 09-12 머신의 임시 환경은 `/tmp/week6-py311-venv/bin/python`이며, 실제 실행 결과는 [STATUS](./STATUS.md)에 기록합니다. GPU 실측과는 별개입니다.
 
 ## 다음 작업
 
-Authority: [NEXT_PLAN](./NEXT_PLAN.md). 원본 집계 대조·제출 확인이 우선이며 추가 GPU 실험·품질 평가는 미실행입니다.
+Authority: [NEXT_PLAN](./NEXT_PLAN.md). 6주차 잔여 검증과 원본 집계 대조·제출 확인을 관리하며 추가 GPU 실험·품질 평가는 미실행입니다.
 AWS GPU 쿼터는 08-23 조회 당시 0이었습니다. 현재 상태를 다시 확인해야 합니다. 통합 메모리 vs VRAM 비교는 [별도 계획](./plans/2026-09-01-unified-memory-vs-vram.md)의 트리거 충족 전까지 보류합니다.
 
 ## 읽는 순서와 명령
 
 [STATUS](./STATUS.md) → [NEXT_PLAN](./NEXT_PLAN.md) → [최근 기록](./PROGRESS_LOG.md). 완료 결과는 [COMPLETED_SUMMARY](./COMPLETED_SUMMARY.md), 설계 이유는 [DECISIONS](./DECISIONS.md), 저장소 규칙은 `CLAUDE.md`를 봅니다.
 
-- 게이트: `make check PY=/tmp/w5-review-venv/bin/python` (임시 venv가 없으면 재생성)
+- 게이트: `make check PY=/tmp/week6-py311-venv/bin/python` (임시 venv가 없으면 재생성)
 - 문서 수정 후: `python3 tools/build_pageindex.py --only md`
 - 빠른 문서 검사: `python3 scripts/check_docs.py`
 - 검색: `python3 tools/search_index.py "KV cache"`

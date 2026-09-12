@@ -1,0 +1,4 @@
+api=openai model=tinyLlama/TinyLlama-1.1B-Chat-v1.0 base_url=http://ingress-nginx-controller.ingress-nginx.svc.cluster.local
+scenario concurrency ok/total ttft_p50 ttft_p95 e2e_p95 tok/s goodput
+short              8 320/320      2.425    2.439   4.546 452.819    1.2%
+result=/tmp/week6-neuron-load/c8.json

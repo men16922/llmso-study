@@ -1,0 +1,16 @@
+[
+  {
+    "concurrency": 4,
+    "start": "2026-09-12T13:01:20.918836+00:00",
+    "end": "2026-09-12T13:04:26.758629+00:00",
+    "returncode": 0,
+    "output": "/tmp/week6-neuron-load/c4.json"
+  },
+  {
+    "concurrency": 8,
+    "start": "2026-09-12T13:04:56.775583+00:00",
+    "end": "2026-09-12T13:08:02.034908+00:00",
+    "returncode": 0,
+    "output": "/tmp/week6-neuron-load/c8.json"
+  }
+]

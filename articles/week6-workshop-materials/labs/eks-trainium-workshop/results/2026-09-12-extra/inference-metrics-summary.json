@@ -1,0 +1,42 @@
+{
+  "window_start": "2026-09-12T10:36:15+00:00",
+  "window_end": "2026-09-12T10:39:00+00:00",
+  "metrics": {
+    "generation_tokens_per_s": {
+      "samples": 16,
+      "min": 123.44,
+      "max": 453.52,
+      "mean": 404.58000000000004
+    },
+    "running": {
+      "samples": 16,
+      "min": 4.0,
+      "max": 4.0,
+      "mean": 4.0
+    },
+    "waiting": {
+      "samples": 16,
+      "min": 4.0,
+      "max": 4.0,
+      "mean": 4.0
+    },
+    "cpu_cores": {
+      "samples": 16,
+      "min": 0.07845637877115862,
+      "max": 0.46512577352914125,
+      "mean": 0.4042088476154995
+    },
+    "hpa_desired": {
+      "samples": 16,
+      "min": 1.0,
+      "max": 1.0,
+      "mean": 1.0
+    },
+    "available": {
+      "samples": 16,
+      "min": 1.0,
+      "max": 1.0,
+      "mean": 1.0
+    }
+  }
+}

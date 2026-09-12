@@ -9,3 +9,8 @@
 
 # 벤치마크 결과 JSON도 줄바꿈 때문에 diff가 통째로 바뀌지 않도록 고정합니다.
 *.json text eol=lf
+
+# ZIP 복구본과 실제 실행 로그는 원본 바이트를 보존합니다.
+# 원본의 줄 끝 공백을 편집 오류로 취급하지 않습니다.
+articles/week6-workshop-materials/** -text -whitespace
+labs/eks-trainium-workshop/results/**/*.log -text -whitespace

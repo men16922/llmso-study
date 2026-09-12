@@ -1,6 +1,6 @@
 # Status
 
-Last Updated: 2026-09-05
+Last Updated: 2026-09-12
 
 ## Current Baseline
 
@@ -13,6 +13,13 @@ Last Updated: 2026-09-05
 
 Authority: [NEXT_PLAN](./NEXT_PLAN.md).
 
+**6주차 AWS 워크샵 아티클:** [과제 글](../articles/6주차%20과제.md)과 [지정 Notion 페이지](https://app.notion.com/p/3d94c2420ac4805ca5faeff33f549054)의 제목은 「AWS Trainium·EKS로 LLM을 서비스로 연결하기」입니다. 기존 Lab 1·2의 모델 준비·S3 캐시·배포 구성을 확인하고, 직접 수행한 Lab 3~6의 Ingress → 관측 → 부하 테스트 → HPA를 중심으로 설명합니다. **워크샵 전체가 본문이며 추가 실험은 부하 테스트의 한 과정입니다.** CLB·Grafana·CloudWatch·HPA 화면과 비교 그림을 유지하고, 표 8개·접기 9개에 실제 설정·관측 근거를 포함했습니다. 원고는 첨부 없이 읽도록 정리하고, ZIP 81개 파일과 ZIP 원본은 `articles/week6-workshop-materials/`에 복구해 대조했습니다. Notion 사용자가 추가한 이미지도 보존했습니다. 결론은 「확장은 요청 대기에서 실제 응답 용량까지 이어져야 한다」로 확정했습니다. 기존 실증 화면과 원본 수치로 근거를 대조했고, 추론·HPA 화면은 본문에 노출했습니다. 후속 요청에 따라 NVIDIA GPU 대비 구성표와 Neuron 동시 관측 640건, 실제 Grafana 화면을 추가했습니다. Notion 이미지 9개(사용자 추가 이미지 포함)와 로컬 이미지 8개를 유지합니다.
+
+- 실측 근거: Prometheus 11 targets up, 기본 부하 120/120·llmperf 50/50 성공. CloudWatch Agent와 performance 로그 그룹 한정 IAM 정책 적용 후 Pod CPU·메모리 datapoint 확인. HPA 목표 1→2→3→1, 가용 1 유지. 기존 추가 추론 1,024/1,024와 후속 Neuron 관측 640/640 성공. 새 C4→C8 비교는 처리량 451.54→452.82 tok/s, TTFT p95 0.173→2.439초, CPU 평균 약 0.45코어, 두 NeuronCore 평균 약 79%, waiting 0→4, HPA 목표·가용 1 유지입니다. 지속 시험은 조건별 1회이며 79%를 완전 포화로 해석하지 않습니다.
+- 원본: `labs/eks-trainium-workshop/execution-record.md`, `results/2026-09-12/`, `results/2026-09-12-extra/`, `articles/screenshots/week6-*.png`. 마지막 실측 후 테스트 Pod 삭제, EKS·Ingress·관측·HPA 유지. 후속 원본은 `results/2026-09-12-neuron/`이며 코드·결과·실제 화면을 `articles/week6-workshop-materials/supplementary/neuron-observation/`에도 보존했습니다. 임시 수집기·scrape job·테스트 Pod 정리 후 API 재검사와 기존 Prometheus 11/11 up을 확인했습니다. vLLM Pod·이미지·모델 설정과 노드는 유지했습니다.
+
+- 6주차 한계: 외부 CLB 호출은 도구 정책 제한, CloudWatch 수집기 부재·로그 전송 거부는 후속 작업에서 해결했습니다. IAM 변경은 사용자 제공 참가자 세션으로 수행했습니다. HPA 새 Pod는 neuron·CPU·임시 저장 공간 부족으로 Pending이었다.
+
 **5주차 원고·노션 최종 편집 완료, 원측정 대조·제출 확인은 별도입니다.** 마감은 2026-09-06 09:00입니다.
 
 - 원고: [FP8 양자화로 처리량이 늘어난 이유](../articles/처리량이%20올랐다면%20무엇이%20빨라진%20것인가.md). [노션 발행본](https://app.notion.com/p/3d04c2420ac481c89ce1de666fbf9fbe).
@@ -24,9 +31,13 @@ Authority: [NEXT_PLAN](./NEXT_PLAN.md).
 
 ## Verification
 
+- 09-12 Neuron 후속 관측: 640건 실요청 성공, 원본 집계·Python 구문·보존본 바이트 대조, Markdown 인덱스·문서 링크·diff 검사 통과. Notion 재조회와 실제 화면에서 새 구성 비교표·Grafana 이미지·측정표를 확인했습니다. 임시 자원 정리 후 API 정상·Prometheus 11/11 up.
+
+- 09-12: Python 3.11 임시 venv로 `make check` 통과 — 문서·인덱스, labs **99 passed / 21 skipped / 8 subtests passed**. 기본 Python 3.9에서는 기존 타입 문법 오류가 나므로 사용하지 않습니다. 신규 실습 JSON 파싱·Python 구문·민감 패턴 검사 통과. 실제 AWS 실행 근거는 결과 폴더에 별도 보존합니다.
+
 - 최종 노션: 6번 결론 본문 대조와 소제목 6개 재조회 통과. 공개 화면·용어 접기 동작은 앞선 구조 개정에서 확인했고 마지막 제목 변경 후 UI는 재확인하지 않았습니다.
 - 현재 정리본: `python3 tools/build_pageindex.py --only md`와 `make check PY=/tmp/w5-review-venv/bin/python` 통과(문서 links·index·tools + labs **120건**, 85+6+19+10). GPU 재측정·응답 품질 평가·원본 수치 전수 대조는 수행하지 않았습니다.
-- 로컬 임시 venv는 `/tmp/w5-review-venv`입니다. 기본 Python의 pytest 미설치와 Windows/WSL 실행 환경을 혼동하지 않습니다.
+- 09-12 로컬 임시 venv는 `/tmp/week6-py311-venv`입니다. 기본 Python의 pytest 미설치와 Windows/WSL 실행 환경을 혼동하지 않습니다.
 
 ## Open Risks
 

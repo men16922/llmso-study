@@ -1,10 +1,45 @@
 # Progress Log
 
-Last Updated: 2026-09-05
+Last Updated: 2026-09-12
 
 > 이전 기록: [2026-08](./archive/progress-2026-08.md) · [2026-09](./archive/progress-2026-09.md). 최근 5개 항목만 유지합니다.
 > 09-05 원격 동기화로 측정 원본·F2 집계 코드 확보 및 study 추적 해제를 확인했습니다. 아래 과거 기록의 ‘원본 미확보’는 당시 로컬 상태이며, 현재 상태는 [STATUS](./STATUS.md)를 따릅니다.
 > 문서 정리 검증: `make check PY=/tmp/w5-review-venv/bin/python` 문서 검사·labs 120건 통과. 양쪽 컨텍스트는 `docs/archive/context-2026-09-05-{local,remote}/`에 보존했습니다.
+
+## 2026-09-12 — NVIDIA 구성 비교·Neuron 동시 관측과 실제 화면 추가
+
+- 사용자 후속 요청으로 NVIDIA GPU·Trainium의 실행 환경·가속기 메모리·관측 도구를 비교하고, 워크샵 전체 흐름 안의 부하 테스트 절에 추가 관측을 반영했습니다.
+- 같은 모델·Pod에서 출력 256토큰, 동시 요청 C4·C8을 각각 320건 실행해 640/640 성공. 처리량 451.54→452.82 tok/s, TTFT p95 0.173→2.439초. 부하 안정 구간의 CPU 평균 약 0.45코어·NeuronCore 평균 약 79%, 런타임 디바이스 메모리 약 3.63 GiB. 대기 0→4, HPA 목표·가용 1 유지. 조건별 1회이며 가속기 완전 포화·HBM 대역폭 병목·실제 증설 성공을 주장하지 않습니다.
+- 공식 Neuron monitor·exporter 원본 118개 보고서와 Prometheus 시계열을 회수하고, 실제 Grafana 8패널을 `week6-neuron-c4-c8.png`로 촬영·첨부했습니다. Notion 재조회에서 표 8개·접기 9개·이미지 9개와 ZIP 첨부 부재를 확인했습니다.
+- 임시 수집기·scrape job·테스트 Pod를 정리한 뒤 HTTP 검사 및 기존 Prometheus 11/11 up 확인. vLLM Pod·이미지·전략·모델 설정과 노드는 유지. EKS·Ingress·HPA·모니터링과 root SSH는 유지했습니다.
+- 기존 ZIP 81개 파일의 바이트와 ZIP 해시를 다시 대조했고, 새 코드·결과·화면은 `articles/week6-workshop-materials/supplementary/neuron-observation/`에 추가 보존했습니다. 커밋·푸시·LinkedIn 직접 게시는 수행하지 않았습니다.
+
+## 2026-09-12 — 아티클 결론·실증 화면 최종 정리
+
+- 워크샵 전체 흐름을 유지하면서 결론을 「확장은 요청 대기에서 실제 응답 용량까지 이어져야 한다」로 구체화했습니다. 추론 대기에 반응하지 않은 CPU HPA, 자원 부족으로 실행되지 않은 추가 Pod, RollingUpdate 제약을 운영 판단과 연결했습니다.
+- Grafana 추론·HPA 복귀·CloudWatch 원본 화면을 직접 확인하고 측정 JSON과 대조했습니다. 추론 화면을 본문으로 옮기고 패널별 읽는 위치를 캡션에 설명했습니다. 이미지 추가·합성 없이 기존 근거를 재사용했습니다.
+- 로컬·Notion에 핵심 요약·결론·화면 배치 반영. ZIP 복구본 81개 항목 유지. 추가 AWS 실행·실제 증설·LinkedIn 직접 게시는 수행하지 않았습니다.
+
+## 2026-09-12 — 원고 자체 완결·ZIP 자료 복구와 재활용
+
+- 사용자 요청으로 첨부 파일을 찾아보게 하던 끝부분과 본문 경로 안내를 제거하고, 해석 범위는 부록 접기로 정리했습니다. ZIP에서 실제 Ingress·HPA YAML, Neuron 모델 목록, 관측 설정·쿼리·IAM 정책, API 요청·응답 조건, llmperf 명령·집계 조건을 문서 안에 재활용했습니다.
+- ZIP 81개 항목을 `articles/week6-workshop-materials/`에 원래 경로로 복구하고 바이트 대조했습니다. ZIP 원본과 복구 안내를 함께 보존했습니다. 복구된 당시 원고는 스냅샷이며 현재 원고를 덮어쓰지 않았습니다.
+- 지정 Notion의 최신 사용자 추가 이미지·본문을 보존하면서 반영했습니다. 원본 자료는 로컬에 유지하고 Notion의 ZIP 첨부와 의존 문구는 제거했습니다. AWS 실행·리소스 변경·커밋·푸시 없음.
+
+## 2026-09-12 — AWS 워크샵 중심으로 아티클 범위 복원
+
+- 사용자 지적을 반영해 실험 중심 편집을 바로잡았습니다. 제목은 「AWS Trainium·EKS로 LLM을 서비스로 연결하기」이며 모델 준비·배포, Ingress, 관측, Lab 5 기본 부하·llmperf, HPA가 본문의 중심입니다. 추가 실험은 부하 테스트 절에 포함했습니다.
+- CLB 개요·리스너·초기 Grafana 화면과 배포 Pending·CloudWatch 수집 복구 과정을 복원했습니다. 기존 로그·결과·스크린샷은 계속 보존돼 있었습니다. Lab 1·2 환경 확인과 Lab 3~6 직접 수행, HPA 목표 조정과 실제 용량 증설을 구분했습니다.
+- 로컬 원고와 지정 Notion을 갱신하고 표 4개·이미지 7개·접기 6개·재현 ZIP을 재조회했습니다. 이번 수정에서 추가 AWS 실험·리소스 변경·커밋·푸시는 하지 않았습니다.
+
+## 2026-09-12 — Trainium·EKS 워크샵 Lab 3~6 실행
+
+- **Status:** Lab 3 Ingress 내부 검증, Lab 4 Prometheus·Grafana, Lab 5 부하, Lab 6 HPA 제어·복귀 실행. 외부 CLB·CloudWatch Pod 지표·가용 복제본 증설은 미완료로 구분.
+- **Changed:** `articles/6주차 과제.md`, `labs/eks-trainium-workshop/` 설정·관측 코드·원본 JSON, 실제 AWS·Grafana 스크린샷. root kubeconfig 사용, 재시작 annotation만 되돌려 기존 Pod를 유지하고 실패 rollout 정리.
+- **Verified:** Prometheus 11 targets up; usage 기반 120/120, llmperf 50/50 성공. 동시 요청 4→8 처리량 353.76→356.50 tok/s, TTFT p95 0.173→0.856초. HPA 목표 1→2→3→1, 가용 1, 부하 자식 0·복귀 후 HTTP 검사 통과.
+- **Blockers:** CLB 브라우저 ERR_BLOCKED_BY_CLIENT·로컬 curl 정책 거부; CloudWatch CLI PutDashboard IAM 거부(콘솔 참가자 역할로 대시보드 저장 완료)·Pod 지표 없음; 단일 노드의 neuron·CPU·ephemeral-storage 부족. 실제 가용 Pod 증설 성공으로 기록하지 않음.
+- **Local gate:** Python 3.11의 `make check` 통과: docs·index, labs 99 passed / 21 skipped / 8 subtests passed. 기본 3.9의 기존 타입 문법 오류와 문서 링크의 원본 전송 대기 오류를 해소 후 재검증. JSON·구문·민감 패턴 검사 통과.
+- **Next:** NEXT_PLAN 6주차 후속 확인. 기존 5주차 대조 보존. 원격 SSH·모니터링·HPA 유지, 추가 노드·커밋·푸시·발행 없음.
 
 ## 2026-09-05 — 5주차 결론·소제목 확정 및 발행 완료 체크포인트
 
@@ -64,3 +99,21 @@ Last Updated: 2026-09-05
 - **Blockers**: 변함없음 — 4주차 ⑦ 공유 미확인, 5주차 ⑥ 발행·⑦ 공유(마감 09-06).
 - ★ **⑥ 노션 발행 완료** (사용자가 *"노션에 포스팅해봐"* 로 지시). <https://app.notion.com/p/3d04c2420ac481c89ce1de666fbf9fbe> — `CloudNetaStudy` 아래 4주차와 형제. 절차: `md_to_notion.py --toggle-h2` 변환본 → 후처리(H1 제거 · 요약 인용을 `<callout icon="🎯" color="blue_bg">` 3불릿으로 · "지난 글" 링크를 4주차 노션 URL로 · 토글 안 코드/표 행의 탭 제거) → 이미지 4장 `create-file-upload` + curl 업로드 → `<image src="file-upload://…">` 참조로 `create-pages`. 발행본 소스는 `_workspace/2026-09-02-001/notion/publish.md`. 제목은 로컬과 같은 의문형 그대로 두었습니다(중립형 후보는 평가 판정표에).
 - **Next**: ⑦ 링크 공유(사용자 직접, 마감 09-06) → (선택) 링크드인 게시.
+
+
+## 2026-09-12 — CloudWatch 권한 복구·추가 추론·Notion 반영
+
+- 사용자 승인으로 노드 역할에 `Week6ContainerInsightsPerformanceOnly` 적용. 해당 클러스터 performance 로그 그룹의 로그 전송 작업 4개만 허용. CloudWatch Agent Ready·실제 Pod CPU/메모리 datapoint 확인, 대시보드 CLI 저장 검증 메시지 없음.
+- 추가 실험: 출력 64/256 × 동시 요청 4/8 × 3회, 384/384 성공. 256·C8의 TTFT p95 평균 2.433초·goodput 12.5%. 같은 조건 320건 지속 부하는 320/320 성공·452.81 tok/s·TTFT p95 2.447초·goodput 1.25%.
+- 추론 구간 Prometheus 16개 표본에서 running/waiting 4/4, HPA 목표·가용 1. CPU 1분 rate 최대 0.465코어. kubectl 추가 관측 파일은 권한 오류로 미수집이므로 연속 근거를 Prometheus로 명시.
+- 추가 부하 후 내부 Ingress HTTP 재검사 통과, 테스트 Pod 삭제. 원격 root 세션·EKS·모니터링·HPA·CloudWatch는 유지, 전체 리소스 정리·노드 증설·푸시 없음.
+- `articles/6주차 과제.md`·실습 README·원본 `results/2026-09-12-extra/` 정리. 사용자 지정 Notion 페이지에 본문·실측 이미지 6개·재현 ZIP 반영 후 재조회 확인. 외부 CLB 호출과 과제 제출표 공유는 미완료.
+
+
+## 2026-09-12 — 독자용 아티클 개편·C4 지속 부하 검증
+
+- 사용자 지정 이전 글 「서빙 구조가 LLM 처리량을 바꾸는 방식」을 읽고 핵심 결과 → 비교 조건·실측 → 운영 판단의 흐름과 존대체를 반영. 제목은 「LLM 응답은 늦어지는데, CPU는 여유로웠다」. 계정·설치·권한·배포 이력은 `labs/eks-trainium-workshop/execution-record.md`로 보존.
+- 추가 승인으로 같은 vLLM Pod에서 동시 요청 4·출력 256토큰·320건을 실행. 20:00:49~20:03:55 KST, 320/320 성공·451.52 tok/s·TTFT p95 0.174초·SLO 100%. 앞선 C8 지속 시험 대비 처리량 차이 −0.2845%. 각 조건 1회 비교이며 고정 도착률·외부 큐 정책 실험과 구분.
+- C4 표본 14개에서 waiting=0, HPA 목표·가용=1. 실행 전후 Deployment 이미지·전략·동일 Pod·ConfigMap 대조. 후속 API 재검사 전 항목 HTTP 200, 테스트 Pod 삭제, 기존 워크샵 환경 유지.
+- Notion 본문·제목 개편: 비교표 2개·측정 JSON 기반 비교 그림 1개·실측 스크린샷 3개·접기 2개·새 재현 ZIP. 주요 값과 구조 재조회 확인. LinkedIn 직접 게시는 수행하지 않음.
+- 윤문은 구조 개편 후 본문 초안에 한정 수행했고 `_workspace/2026-09-12-week6-editorial/`에 편집 기준과 자체검토를 남김. 후속 실험은 별도 사실 추가로 반영.

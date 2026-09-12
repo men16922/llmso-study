@@ -1,0 +1,62 @@
+{
+  "date": "2026-09-12",
+  "lab3_complete": false,
+  "deployment_verified": true,
+  "internal_ingress_http_verified": true,
+  "aws_console_observation": {
+    "type": "Classic Load Balancer",
+    "scheme": "Internet-facing",
+    "in_service_instances": "1/1",
+    "listeners": {
+      "TCP:80": "TCP:30429",
+      "TCP:443": "TCP:32305"
+    },
+    "evidence": [
+      "articles/screenshots/week6-lab3-elb-overview.png",
+      "articles/screenshots/week6-lab3-elb-listeners.png"
+    ]
+  },
+  "external_verification": {
+    "status": "BLOCKED_BY_TOOLS_NOT_TESTED",
+    "hostname": "abc4efa90509549da9123c966c7a17cb-737157589.us-west-2.elb.amazonaws.com",
+    "browser_docs": "net::ERR_BLOCKED_BY_CLIENT",
+    "local_curl_health": "Rejected before execution: Network access is outside the default unattended loop.",
+    "rule_source": ".codex/rules/overnight.rules",
+    "application_http_error_observed": false
+  },
+  "separate_preexisting_service": {
+    "hostname": "adbeb23d90b50426390202a6d901af35-249088573.us-west-2.elb.amazonaws.com",
+    "port": 8080,
+    "origin": "workshop-access-ec2",
+    "result": "Connection timeout; HTTP 000; cause not determined",
+    "is_new_ingress_endpoint": false
+  },
+  "remaining": [
+    "External CLB HTTP verification",
+    "CloudWatch ContainerInsights Pod metric collection",
+    "Additional ready replicas require schedulable node resources"
+  ],
+  "scope": "Labs 3 through 6",
+  "lab4_prometheus_grafana_verified": true,
+  "lab4_cloudwatch_dashboard_created": true,
+  "lab4_cloudwatch_reason": "Dashboard saved through authorized WSParticipantRole browser console; EC2 role CLI denied; EC2 CPU chart populated but ContainerInsights pod metric unavailable",
+  "lab5_benchmark": {
+    "successes": 120,
+    "failures": 0,
+    "token_basis": "server usage.completion_tokens",
+    "artifact": "benchmark-final.json"
+  },
+  "lab5_llmperf": {
+    "successes": 50,
+    "failures": 0,
+    "token_basis": "hf-internal-testing/llama-tokenizer re-tokenization",
+    "artifact": "llmperf-results.json"
+  },
+  "lab6_hpa_control_verified": true,
+  "lab6_ready_replica_scale_out_verified": false,
+  "lab6_reason": "desired 1->2->3; available remained 1; insufficient neuron/cpu/ephemeral-storage",
+  "lab6_recovery": "desired and available returned to 1; stress workers 0; internal HTTP tests passed",
+  "publication": "not published or submitted",
+  "lab4_cloudwatch_screenshot": "articles/screenshots/week6-lab4-cloudwatch.png",
+  "performance_runner_cleanup": "test Pod deleted after result export; namespace retained empty"
+}

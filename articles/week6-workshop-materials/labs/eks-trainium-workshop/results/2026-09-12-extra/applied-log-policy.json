@@ -1,0 +1,23 @@
+{
+    "RoleName": "eksctl-ai-infra-summit-test-cluste-NodeInstanceRole-V81HW0zSwN5O",
+    "PolicyName": "Week6ContainerInsightsPerformanceOnly",
+    "PolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "WriteThisWorkshopPerformanceLogOnly",
+                "Effect": "Allow",
+                "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                    "logs:DescribeLogStreams"
+                ],
+                "Resource": [
+                    "arn:aws:logs:us-west-2:919717556140:log-group:/aws/containerinsights/ai-infra-summit-test-cluster/performance",
+                    "arn:aws:logs:us-west-2:919717556140:log-group:/aws/containerinsights/ai-infra-summit-test-cluster/performance:*"
+                ]
+            }
+        ]
+    }
+}
