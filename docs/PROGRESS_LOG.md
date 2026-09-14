@@ -1,10 +1,42 @@
 # Progress Log
 
-Last Updated: 2026-09-12
+Last Updated: 2026-09-14
 
 > 이전 기록: [2026-08](./archive/progress-2026-08.md) · [2026-09](./archive/progress-2026-09.md). 최근 5개 항목만 유지합니다.
 > 09-05 원격 동기화로 측정 원본·F2 집계 코드 확보 및 study 추적 해제를 확인했습니다. 아래 과거 기록의 ‘원본 미확보’는 당시 로컬 상태이며, 현재 상태는 [STATUS](./STATUS.md)를 따릅니다.
 > 문서 정리 검증: `make check PY=/tmp/w5-review-venv/bin/python` 문서 검사·labs 120건 통과. 양쪽 컨텍스트는 `docs/archive/context-2026-09-05-{local,remote}/`에 보존했습니다.
+
+## 2026-09-14 — 슬라이드 탐색·GPU 자료 복구·발표 스크립트
+
+- **Changed:** [Simple 7장](../GPU_검토표준_Simple.html)·[Detail 15장](../GPU_검토표준_Detail.html)의 상단 메뉴 제거, 하단 번호·키보드로 한 장씩 이동. TA 범위를 인프라·배포와 접근·운영으로 간소화. Simple 5장·Detail 10장에 AWS 원본 GPU 통신 도식, [상세 근거](../GPU_검토표준_상세근거.md)에 복구 자료·보충 이미지 반영.
+- **Script:** [발표 스크립트](../GPU_검토표준_발표스크립트.md)에 Simple 7장별 짧은 설명과 예상 Q&A 12개 작성.
+- **Restored:** 사용자 후속 요청에 따라 gpu/ 문서 4개·그림 66개를 저장소 밖 백업에서 원래 경로로 복구. 70개 바이트 대조 통과. AWS 공개 통신 그림 1개 추가, 나머지 삭제 자료와 기존 스터디 자산은 유지.
+- **Verified:** Chrome 번호·키보드·해시 이동, 한 장 표시, 그림 확대 3/10개, 오프라인·모바일·작은 화면 검사 통과. A4 7/15장 인쇄·텍스트 경계 확인. 발표문 7장과 Q&A 12개, 도식 원본 바이트 일치 확인.
+- **Next:** POC 대상과 자료 제공 창구 협의. 커밋·푸시·외부 업로드 없음.
+
+## 2026-09-14 — Simple·Detail 분리와 내부 공유용 최종 정리
+
+- **Status:** 최종 산출물은 [Simple 6장](../GPU_검토표준_Simple.html)·[Detail 15장](../GPU_검토표준_Detail.html)·[상세 근거](../GPU_검토표준_상세근거.md)입니다.
+- **Changed:** REFERENCE의 공식 도식과 문서를 반영해 7개 아키텍처 사례·GPU 통신·실행 환경·Observability를 보강했습니다. 명사형 제목, 사내 공유용 어투·밀도, AWS PPT 스타일을 적용하고 하단 출처·날짜·대상 독자 표기를 제거했습니다. 과제 표현과 Trainium HPA 사례를 빼고 POC부터 표준까지의 확대안으로 정리했습니다. SageMaker 사례는 사용자 지정 AWS Guidance 원본으로 교체하고 Simple 4장·Detail 5장·상세 근거를 맞췄습니다.
+- **Verified:** Chrome의 화면·그림 확대·오프라인·모바일 검사와 Simple 6/Detail 15장 인쇄·PDF 경계 검사 통과. 주요 장 확대 및 전체 인쇄 렌더링 확인. Markdown 인덱스·문서 게이트·diff 최종 검사 수행.
+- **Cleanup:** 사용자 요청 범위의 루트 입력·gpu/·이번 그림 자산·구 HTML 제거. 남아 있던 86개 파일은 삭제 전 `/tmp/gpu-ta-final/removed-inputs.zip`에서 바이트 대조했습니다. `GPU 활용 방안.md`는 정리 시점에 이미 없었습니다. 기존 knowledge/·articles/·labs/·study/ 및 PDF 인덱스는 유지했습니다.
+- **Next:** POC 대상과 설계자료 제공 창구를 정해 실제 적용 조건을 확인합니다. 커밋·푸시·외부 업로드 없음.
+
+## 2026-09-14 — 저장소 재검토와 AWS 스타일 8장 개편
+
+- **Status:** 사용자 저장 직후 `gpu/`를 다시 읽고 최종 HTML과 상세 근거를 보강했습니다.
+- **Changed:** 당시 AWS 스타일 HTML 8장. 네이비·오렌지 디자인, 결론형 제목, 전체 구성·분산 통신 논리도와 실제 HPA 화면 추가. 당시 상세 근거 §9에 770개 파일 목록·137개 Markdown·PDF 3종 검색 범위와 gpu/ 활용 판단, 공식 문서 대조 결과를 기록했습니다.
+- **Verified:** Chrome 8장·이미지 2개 확대·오프라인·모바일/데스크톱 넘침 검사 및 A4 8장 전부 렌더링 확인. Markdown 인덱스·diff 검사, gpu/ 70개·기타 원본 자료 632개·입력/PDF 인덱스 8개 해시 대조 통과.
+- **Blockers:** 전체 문서 검사는 links·tools 통과, 원본 `ASTRA_1차검토.md`·`GPU 활용 방안.md`의 제목 구조 부재로 index 2건 실패. 재저장한 gpu/ 문서는 정상 인덱싱했습니다.
+- **Next:** 과제 1건과 자료 제공 창구를 선정해 표준 구성도·검토표·적용 기록을 구체화합니다. 추가 AWS 실행·커밋·푸시·외부 업로드 없음.
+
+## 2026-09-14 — GPU 검토 표준 제안 6장과 상세 근거 작성
+
+- **Status:** 팀장 설명자료와 질문 대응용 근거 문서 작성 완료.
+- **Changed:** 당시 HTML 6장·[상세 근거](../GPU_검토표준_상세근거.md). EKS 공식 원본 이미지, SageMaker AI 연결도·책임 구분, 방식별 비교, Lens 실제 항목과 가상 검토 기록, 과제 1건 적용 후 확대안을 포함했습니다.
+- **Verified:** Chrome에서 6장·그림 확대·오프라인 이미지·데스크톱/모바일 넘침 검사를 통과했습니다. A4 가로 인쇄 6장과 각 장의 렌더링 확인. `build_pageindex.py --only md`·`git diff --check` 통과, 입력 4개와 다른 인덱스 4개의 해시 유지.
+- **Blockers:** `scripts/check_docs.py`의 links·tools 통과, index는 기존 입력 및 사용자 추가 자료의 제목 없는 문서 4건으로 실패. 새 상세 근거의 인덱스는 생성됐으며, AWS 실환경 적용·성능 검증은 이번 작업 범위가 아닙니다.
+- **Next:** 적용할 과제와 운영 조건에 맞춰 표준안 초안을 구체화합니다. 진행 로그가 120줄 예산을 넘어 다음 문서 정리에는 `overnight-harness:tidy-docs`를 권장합니다. 커밋·푸시·외부 업로드 없음.
 
 ## 2026-09-12 — NVIDIA 구성 비교·Neuron 동시 관측과 실제 화면 추가
 

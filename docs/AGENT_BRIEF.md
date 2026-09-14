@@ -1,10 +1,12 @@
 # Agent Brief
 
-Last Updated: 2026-09-12
+Last Updated: 2026-09-14
 
 > ▶ NEXT SESSION: [NEXT_PLAN](./NEXT_PLAN.md) §6주차 후속 확인 — `articles/6주차 과제.md`의 Lab 3~6 실측을 확인하고, 허용된 외부 클라이언트에서 CLB HTTP 검증을 마무리합니다. CloudWatch Pod CPU·메모리 수집과 지정 Notion 반영은 완료했고, 실제 복제본 증설·리소스 전체 정리는 미수행입니다. 5주차 원본 대조·제출 확인도 보존합니다.
 
 ## 현재 상태
+
+- **AWS GPU 아키텍처 TA 검토 표준 완료:** [Simple 7장](../GPU_검토표준_Simple.html)·[Detail 15장](../GPU_검토표준_Detail.html)·[상세 근거](../GPU_검토표준_상세근거.md)·[발표 스크립트](../GPU_검토표준_발표스크립트.md). AWS PPT 스타일과 내부 공유용 어투·밀도를 유지합니다. HTML 상단 메뉴를 없애고 번호·키보드로 한 장씩 넘기는 방식을 적용했습니다. TA 범위는 인프라·배포와 접근·운영으로 간소화하고, Simple에도 AWS 원본 GPU 통신 도식을 넣었습니다. 스크립트는 7장 설명과 예상 Q&A 12개입니다. 후속 요청에 따라 gpu/ 원본 문서 4개·그림 66개를 복구했고 기존 스터디 자료를 유지했습니다.
 
 - **6주차 진행:** [과제 글](../articles/6주차%20과제.md)·[Notion](https://app.notion.com/p/3d94c2420ac4805ca5faeff33f549054) 「AWS Trainium·EKS로 LLM을 서비스로 연결하기」. 모델 준비·S3 캐시·배포 → Ingress → Prometheus·Grafana·CloudWatch → 부하 테스트 → HPA의 워크샵 전체 흐름을 본문에 유지합니다. 추가 실험은 부하 테스트의 한 과정입니다. 원고는 문서 안에서 완결하며, ZIP 원본 81개 파일은 `articles/week6-workshop-materials/`에 복구했습니다. 필요한 설정·명령·해석 조건은 관련 접기에 포함하고 독자에게 외부 파일 확인을 요구하지 않습니다. 결론은 요청 대기 감지 → 자원 확보 → 모델 준비 → 실제 응답 용량 증가이며, 실제 증설 성공은 주장하지 않습니다. NVIDIA GPU 구성 비교표와 후속 Neuron 동시 관측 640/640 성공·실제 Grafana 화면 반영 완료. CPU 약 0.45코어·NeuronCore 약 79%에서 C4→C8 처리량은 약 452 tok/s로 같고 대기는 0→4였습니다. 임시 수집기·테스트 Pod 정리 및 API·Prometheus 정상 상태 확인. Lab 3~6 실측·CloudWatch 수집 복구·원본 기록 보존 완료, HPA 목표는 1→3→1이나 자원 부족으로 가용 Pod는 1개였습니다.
 

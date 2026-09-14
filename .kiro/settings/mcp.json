@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "cloudpick-docs": {
+      "type": "streamable-http",
+      "url": "https://docs.cloudpick.kr/mcp"
+    }
+  }
+}
