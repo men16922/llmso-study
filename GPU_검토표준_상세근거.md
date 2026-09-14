@@ -1,20 +1,20 @@
 # AWS GPU 아키텍처 TA 검토 표준 — 상세 근거와 설명
 
-이 문서는 [Simple 7장](./GPU_검토표준_Simple.html)과 [Detail 15장](./GPU_검토표준_Detail.html)의 아키텍처와 검토 항목을 설명합니다. Simple은 핵심 방향과 대표 구성, Detail은 구성별 검토와 운영 내용을 담고 있습니다. AWS Well-Architected Framework의 AI/ML 관련 Lens를 참고하고, AWS가 공개한 아키텍처를 POC에 적용해 확인한 범위부터 사내 표준으로 확대하는 안입니다.
+이 문서는 [Simple 7장](./GPU_검토표준_Simple.html)과 [Detail 15장](./GPU_검토표준_Detail.html)의 아키텍처와 검토 항목을 설명합니다. Simple은 핵심 방향과 대표 구성, Detail은 구성별 검토와 운영 내용을 담고 있습니다. AWS Well-Architected Framework의 AI/ML 관련 Lens를 참고하고, AWS 공개 아키텍처를 바탕으로 검토 기준과 역할을 먼저 정리하고, 공동 검토를 거쳐 TA 설계 검토 업무를 점진적으로 확대하는 안입니다.
 
 여기서 **AWS 표준 아키텍처**는 AWS 공식 문서와 기술 블로그의 참조 구성들을 뜻합니다. 모든 업무에 그대로 적용하는 단일 설계는 아닙니다. 이 가운데 업무에 맞는 구성을 선택하고, 사내 접근 권한·데이터 연결·운영 조건을 확인한 결과가 **사내 TA 검토 표준**이 됩니다.
 
-처음부터 큰 GPU 클러스터를 구축할 필요는 없습니다. 기존 AWS 환경과 업체 자료를 바탕으로 POC 구성을 정하고, 기존 TA 양식에 필요한 질문을 추가하는 것부터 시작할 수 있습니다. 분산 실행·고급 튜닝·자동화는 필요성이 확인된 단계에서 검토합니다.
+우선 어떤 GPU 설계를 TA가 검토할지, 구축·운영 조직과 역할을 어떻게 나눌지 정합니다. 그 내용을 검토표와 요청 절차로 정리한 뒤, 일부 설계를 기존 담당 조직과 함께 검토하면서 실제 업무에 적용합니다.
 
 ## 1. 설명자료의 구성과 읽는 순서
 
-Simple은 표준 수립 방향 → TA 검토 범위 → EKS → SageMaker → GPU 통신 → 표준 검토표 → POC 확대의 7장 구성입니다. 간결한 발표 문장과 예상 질문은 [발표 스크립트](./GPU_검토표준_발표스크립트.md)에 따로 정리했습니다. HTML은 하단 번호 또는 키보드 좌우 화살표로 넘길 수 있습니다. 아래 표와 본문의 장 번호는 Detail을 기준으로 합니다.
+Simple은 표준 수립 방향 → TA 검토 범위 → EKS → SageMaker → GPU 통신 → 표준 검토표 → TA 검토 업무 확대의 7장 구성입니다. 간결한 발표 문장과 예상 질문은 [발표 스크립트](./GPU_검토표준_발표스크립트.md)에 따로 정리했습니다. HTML은 하단 번호 또는 키보드 좌우 화살표로 넘길 수 있습니다. 아래 표와 본문의 장 번호는 Detail을 기준으로 합니다.
 
 | Detail | 주제 | 설명할 핵심 |
 | --- | --- | --- |
-| 1장 | AWS GPU 아키텍처 TA 검토 표준 | AWS 기준을 참고해 POC부터 표준까지 점진적으로 확대 |
+| 1장 | AWS GPU 아키텍처 TA 검토 표준 | AWS 기준을 참고해 표준·역할 정립 후 TA 검토 업무 확대 |
 | 2장 | Well-Architected Framework와 AI/ML Lens | 공통 원칙, AI/ML 질문, 사내 기준의 관계 |
-| 3장 | TA 검토 범위 확대: 인프라 → 운영 | GPU 자원뿐 아니라 모델·데이터·관측·복구까지 검토 |
+| 3장 | TA 검토 범위 상세화 | 인프라 설계·구축·운영 항목과 TA·수행 조직의 역할 구분 |
 | 4장 | 아키텍처 예시 #1 · EKS 모델 배포 | Kubernetes에서 모델을 배포하고 GPU 자원과 연결 |
 | 5장 | 아키텍처 예시 #2 · SageMaker AI | 관리형 호스팅과 사내 앱의 호출·데이터 경로 |
 | 6장 | 아키텍처 예시 #3 · HyperPod + EKS | EKS 작업 관리와 HyperPod 컴퓨트·복구 기능의 결합 |
@@ -26,11 +26,11 @@ Simple은 표준 수립 방향 → TA 검토 범위 → EKS → SageMaker → GP
 | 12장 | 아키텍처 예시 #7 · 운영·Observability | GPU 사용량, 서비스 지연, 가용 용량과 운영 대응 |
 | 13장 | GenAI / ML Lens 기반 표준 검토표 | 검토 질문·확인 자료·판단 근거의 작성 예시 |
 | 14장 | 업무 조건에 따른 구성 선택 | 현재 필요한 아키텍처와 확대 단계의 구성 구분 |
-| 15장 | POC부터 표준까지, 점진적 확대 | POC 대상 선정 → 검토표 작성 → 적용 범위 확대 |
+| 15장 | 표준화 및 TA 검토 업무 확대 | 표준·역할 정립 → 공동 검토 → 정규 TA 검토로 확대 |
 
 짧게 설명할 때는 다음 정도면 충분합니다.
 
-> AWS Well-Architected Framework의 AI/ML 기준과 공개 아키텍처를 참고해 GPU TA 검토 표준을 만들자는 제안입니다. POC에 맞는 AWS 구성을 고르고, 기존 설계자료로 접근 권한·성능·운영 조건을 확인합니다. 그 결과를 구성도와 검토표로 남겨, 확인한 범위부터 다음 구축과 운영 검토에 재사용하겠습니다.
+> AWS Well-Architected Framework의 AI/ML 기준과 공개 아키텍처를 참고해 GPU TA 검토 표준과 역할을 먼저 정리하겠습니다. 일부 설계를 구축·운영 담당 조직과 함께 검토한 뒤, 합의한 항목부터 정규 TA 검토 업무로 받아오는 방식입니다. TA는 인프라 설계·구축·운영에 필요한 구성과 기준의 적정성을 검토하고, 실제 구현과 운영은 담당 조직이 수행합니다.
 
 ## 2. Framework·Lens·아키텍처의 관계
 
@@ -46,26 +46,37 @@ Simple은 표준 수립 방향 → TA 검토 범위 → EKS → SageMaker → GP
 
 추가로 볼 자료: [ML 수명주기](https://docs.aws.amazon.com/wellarchitected/latest/machine-learning-lens/machine-learning-lifecycle.html), [상세 ML 수명주기와 구성 요소](https://docs.aws.amazon.com/wellarchitected/latest/machine-learning-lens/architecture-diagram.html), [ML 단계별 모범사례 목록](https://docs.aws.amazon.com/wellarchitected/latest/machine-learning-lens/best-practices-by-ml-lifecycle-phase.html). 단계별 설명과 세부 도식은 위 공식 문서에서 확인할 수 있습니다.
 
-## 3. TA 검토 범위: 인프라에서 운영까지
+## 3. TA 검토 범위 상세화
 
-TA 검토 범위를 **인프라, 배포·접근, 운영**의 세 영역으로 나누면 설명하기 쉽습니다. 인프라에서는 모델을 실행할 자원과 연결을 보고, 배포·접근에서는 모델을 올리고 호출할 수 있는지 확인합니다. 운영에서는 성능과 장애를 확인하고 대응할 수 있는지를 봅니다.
+TA 검토 항목을 **인프라 설계, 구축, 운영**로 구체화합니다. TA는 GPU 자원과 연결 구조뿐 아니라, 배포 방식·접근 권한·관측 기준·복구 절차가 설계에 반영됐는지 검토합니다. 각 작업을 어느 조직이 맡는지도 설계 단계에서 정의합니다.
 
-예를 들어 GPU 용량이 충분하더라도 호출 권한이 없으면 업무에서 사용할 수 없습니다. 모델이 응답하더라도 응답 지연과 장애를 확인할 방법이 없으면 운영 준비가 끝났다고 보기 어렵습니다. 이런 연결 조건을 기존 인프라 검토에 더하자는 제안입니다.
+**TA의 역할은 구성·기준·담당 역할의 정의와 설계 검토입니다.** 실제 구현·배포는 구축 담당이, 일상 운영·모니터링·장애 대응은 운영 담당이 수행합니다. 구체적인 조직명과 인계 범위는 기존 사내 역할에 맞춰 협의합니다.
 
-HTML에서는 세 영역과 대표 자료만 보여줍니다. 실제 검토할 때는 아래처럼 나누어 확인하면 됩니다. 서비스별 구성은 다음 절의 EKS·SageMaker·HyperPod 공식 아키텍처 사례에서 설명합니다.
+```mermaid
+flowchart TB
+    TA["TA: 구성·기준·담당 역할 정의 및 설계 검토"]
+    TA --> I["인프라 설계<br/>GPU·메모리·네트워크·저장소"]
+    TA --> B["구축<br/>모델 배포·접근 제어"]
+    TA --> O["운영<br/>모니터링·장애 복구"]
+    I --> C["구축 담당: 구현·설정·배포"]
+    B --> C
+    O --> R["운영 담당: 모니터링·장애 대응"]
+    C -->|"설정·절차 인계"| R
+```
 
-| 범위 | 쉽게 풀어 쓴 질문 | 먼저 받을 자료 |
+위쪽은 TA가 정의하고 검토할 설계 항목이고, 아래쪽은 합의한 설계를 실행할 담당 조직입니다. HTML에는 SageMaker AI Endpoint·EKS·HyperPod의 대표 실행 구성과 이 역할 구분을 함께 배치했습니다. 업무에 맞는 구성을 선택해 검토하며, HyperPod와 EKS는 함께 사용할 수 있습니다. [HyperPod와 EKS의 관계](https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-eks.html)
+
+| 검토 영역 | TA가 정의·검토할 내용 | 담당 조직이 수행할 내용 |
 | --- | --- | --- |
-| 컴퓨트 | 선택한 GPU와 메모리로 모델을 실행할 수 있는가 | 모델·GPU·인스턴스·버전 목록, 기존 기동 결과 |
-| 네트워크 | 사용자와 데이터가 필요한 위치에 접근할 수 있는가 | VPC·접근 경로·보안 그룹·권한 구성도 |
-| 저장소 | 모델을 준비하고 데이터와 결과를 저장할 수 있는가 | S3·ECR·공유 저장소의 용도와 접근 권한 |
-| 실행·배포 | 같은 설정으로 배포하고 문제가 생기면 되돌릴 수 있는가 | 배포 설정·이미지 버전·복구 절차 |
-| 성능 | 필요한 요청량에서 응답 목표를 충족하는가 | 모델·입출력·부하 조건과 시험 결과 |
-| 운영 | 사용량과 장애를 확인하고 담당자가 대응할 수 있는가 | 대시보드·지표·알림·담당자·운영 절차 |
+| 인프라 설계 | GPU·메모리 용량, 네트워크·저장소 연결 구조, 지원 조합 | 자원 구성, 네트워크·저장소 설정, 연결 확인 |
+| 구축 — 모델 배포 | 모델·버전·배포 위치, 배포·변경 절차와 담당 역할 | 모델·컨테이너 배포, 설정 적용, 동작·성능 확인 |
+| 구축 — 접근 제어 | 호출 주체, 모델·데이터 접근 범위, 권한 적용 원칙 | IAM·접근 정책 설정, 허용·차단 결과 확인 |
+| 운영 — 모니터링 | 수집 지표·로그, 알림 기준, 확인·대응 담당자 | 수집기·대시보드 설정, 상태 감시, 알림 대응 |
+| 운영 — 장애 복구 | 복구 목표·절차, 대응 조직·역할, 인계 조건 | 장애 분석, 재시작·버전 복귀, 서비스 복구 |
 
-처음에는 업체의 기존 구성도와 시험 결과를 링크로 받아도 됩니다. 별도 문서를 모두 새로 작성하도록 요구할 필요는 없습니다. 자료로 확인되지 않는 부분만 보완 대상으로 남기고 담당 조직과 확인 방법을 정합니다.
+예를 들어 TA는 ‘GPU 사용량과 응답 지연을 어떤 기준으로 확인하고, 알림을 어느 조직이 받을 것인가’를 설계에서 정리합니다. 구축·운영 담당은 그 설계에 따라 지표 수집과 알림을 설정하고 실제 서비스 상태를 관리합니다. 복구도 같은 방식으로, TA는 목표·절차·역할을 검토하고 담당 조직은 실제 복구를 수행합니다.
 
-전체 구성을 더 넓게 보려면 [AWS의 학습·추론 구성 요소 설명](https://huggingface.co/blog/amazon/foundation-model-building-blocks)을 참고할 수 있습니다. 컴퓨트·네트워크·저장소, 자원 관리, 모델 실행, 관측의 관계를 설명하는 AWS 소속 저자의 공개 글입니다.
+설계 적정성을 판단할 때는 담당 조직이 제공한 구성도·설정·응답 시간과 처리량 측정 결과를 활용합니다. 검토표에는 업무 목표, 확인한 근거, 보완할 설계 항목과 담당자를 남깁니다. 서비스별 실제 AWS 구성도는 다음 절의 공식 아키텍처 사례에서 설명합니다.
 
 ## 4. 표준 아키텍처 사례와 설명
 
@@ -83,7 +94,7 @@ TA는 ‘모델이 어디에서 실행되는가’, ‘어떤 버전의 이미�
 
 HTML에는 AWS 공식 구성도 PDF의 3쪽 이미지를 사용했습니다. Markdown에서는 같은 모델 배포 구성의 AWS 원본 이미지 링크를 사용합니다. [원본 PDF](https://d1.awsstatic.com/onedam/marketing-channels/website/aws/en_US/solutions/approved/documents/architecture-diagrams/automated-deployment-of-inference-ready-amazon-eks-clusters.pdf)
 
-더 구체적인 LLM 추론 구성은 [EKS에서 vLLM Deep Learning Containers 배포](https://aws.amazon.com/blogs/machine-learning/deploy-llms-on-amazon-eks-using-vllm-deep-learning-containers/)를 참고합니다. ALB에서 vLLM Pod로 요청을 보내고 FSx에서 모델 가중치를 읽는 예시이며, 해당 원문에 전체 요청 경로와 실행 스택 그림이 있습니다. 이 사례의 EFA·다중 노드·FSx 구성을 모든 POC의 필수 조건으로 삼지는 않습니다.
+더 구체적인 LLM 추론 구성은 [EKS에서 vLLM Deep Learning Containers 배포](https://aws.amazon.com/blogs/machine-learning/deploy-llms-on-amazon-eks-using-vllm-deep-learning-containers/)를 참고합니다. ALB에서 vLLM Pod로 요청을 보내고 FSx에서 모델 가중치를 읽는 예시이며, 해당 원문에 전체 요청 경로와 실행 스택 그림이 있습니다. 이 사례의 EFA·다중 노드·FSx 구성을 모든 GPU 구축의 필수 구성으로 삼지는 않습니다.
 
 ### 사례 #2. Amazon SageMaker AI — Detail 5장 / Simple 4장
 
@@ -143,7 +154,7 @@ TA는 누가 작업을 제출할 수 있는지, 한 작업이나 팀이 얼마�
 
 TA의 시작점은 물리 스위치 설계가 아닙니다. 선택한 인스턴스와 네트워크 지원 조건, 확보할 용량, 데이터 읽기 경로, 학습 실패 시 복구 방법을 확인합니다. 실제 대규모 실행이 필요한 단계에서 검토 범위를 구체화합니다. [AWS 대규모 스케일링 가이드](https://aws.amazon.com/ko/blogs/tech/aws-compute-distributed-training-guide-massive-scaling/)
 
-그림의 대역폭과 스토리지 수치는 해당 설명의 조건입니다. POC의 성능 목표나 모든 EC2 구성의 보장값으로 옮기지 않습니다. 용량 예약 방식만으로 특정 물리 배치가 보장된다고 가정하지 않고, 선택한 제품과 예약 조건을 확인합니다. [EC2 UltraClusters](https://aws.amazon.com/ec2/ultraclusters/), [EFA 기능과 제한](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html), [FSx for Lustre와 S3 연동](https://docs.aws.amazon.com/fsx/latest/LustreGuide/fsx-data-repositories.html)
+그림의 대역폭과 스토리지 수치는 해당 설명의 조건입니다. 개별 구축 환경의 성능 목표나 모든 EC2 구성의 보장값으로 옮기지 않습니다. 용량 예약 방식만으로 특정 물리 배치가 보장된다고 가정하지 않고, 선택한 제품과 예약 조건을 확인합니다. [EC2 UltraClusters](https://aws.amazon.com/ec2/ultraclusters/), [EFA 기능과 제한](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html), [FSx for Lustre와 S3 연동](https://docs.aws.amazon.com/fsx/latest/LustreGuide/fsx-data-repositories.html)
 
 ### 사례 #6. EC2 울트라서버 — Detail 9장
 
@@ -155,7 +166,7 @@ TA의 시작점은 물리 스위치 설계가 아닙니다. 선택한 인스턴�
 
 일반 EC2 GPU 노드도 모두 같은 방식으로 연결된다는 뜻은 아닙니다. 그림은 `u-p6e-gb200x36` 사례이며, 실제 연결과 지원 범위는 선택한 제품에 따라 확인합니다. [EC2 UltraServers](https://aws.amazon.com/ec2/ultraservers/), [EC2 P6 제품 설명](https://aws.amazon.com/ec2/instance-types/p6/)
 
-TA는 모델을 여러 GPU에 나눌 필요가 있는지, 필요한 GPU가 어떤 범위에서 연결되는지, 그 범위를 넘어서는 통신은 어떻게 구성되는지를 확인합니다. POC 설명에서는 확대 가능한 구성의 예로 소개하고, 세부 배치와 통신 성능은 실제 요구가 생길 때 검토하면 됩니다.
+TA는 모델을 여러 GPU에 나눌 필요가 있는지, 필요한 GPU가 어떤 범위에서 연결되는지, 그 범위를 넘어서는 통신은 어떻게 구성되는지를 확인합니다. 설명자료에서는 확대 가능한 구성의 예로 소개하고, 세부 배치와 통신 성능은 실제 요구가 생길 때 검토하면 됩니다.
 
 ### 사례 #7. GPU 운영·Observability — Detail 12장
 
@@ -183,7 +194,7 @@ GPU 하나로 작업이 가능하면 노드 간 통신이 처음부터 필요하
 
 노드 안에서는 선택한 기종에 따라 PCIe·NVLink·NVSwitch 등의 연결을 확인합니다. 노드 사이에서는 EFA 지원과 실제 통신 경로를 봅니다. NCCL은 GPU 간 집합통신을 수행하는 라이브러리이며, AWS에서는 `aws-ofi-nccl`과 `libfabric`을 통해 EFA를 사용하는 경로를 확인할 수 있습니다. [AWS NCCL 설명](https://aws.amazon.com/ko/blogs/tech/nccl/), [aws-ofi-nccl 프로젝트](https://github.com/aws/aws-ofi-nccl)
 
-TA가 처음 받을 자료는 GPU·라이브러리 버전, 노드 배치, 장치 인식 결과, 기존 통신 시험 결과 정도입니다. 설정 이름만 확인하는 데서 끝내지 않고 실제 선택한 경로가 동작하는지 살펴봅니다. EFA의 AZ·VPC 경계와 배치 조건은 [EFA 공식 문서](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html)와 [EKS AI/ML 네트워킹 가이드](https://docs.aws.amazon.com/eks/latest/best-practices/aiml-networking.html)를 따릅니다.
+TA가 처음 받을 자료는 GPU·라이브러리 버전, 노드 배치, 장치 인식 결과, 노드 간 통신 지연·처리량 측정 결과 정도입니다. 설정 이름만 확인하는 데서 끝내지 않고 실제 선택한 경로가 동작하는지 살펴봅니다. EFA의 AZ·VPC 경계와 배치 조건은 [EFA 공식 문서](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html)와 [EKS AI/ML 네트워킹 가이드](https://docs.aws.amazon.com/eks/latest/best-practices/aiml-networking.html)를 따릅니다.
 
 병렬화 용어가 필요하면 다음 정도로 설명할 수 있습니다. Tensor Parallel은 한 계층의 계산을 여러 GPU에 나누는 방식이고, Pipeline Parallel은 모델의 서로 다른 구간을 GPU에 나눠 맡기는 방식입니다. 실제 통신과 배치는 구현·모델·연결 성능에 따라 달라집니다. [모델 병렬 소개와 TP·PP 그림](https://docs.aws.amazon.com/sagemaker/latest/dg/model-parallel-intro.html), [분산 학습 전략](https://docs.aws.amazon.com/sagemaker/latest/dg/distributed-training-strategies.html), [모델 병렬 모범사례](https://docs.aws.amazon.com/sagemaker/latest/dg/model-parallel-best-practices-v2.html)
 
@@ -217,16 +228,16 @@ Observability는 지표·로그 등을 통해 현재 상태와 문제의 원인�
 
 지표 이름과 집계 단위도 확인해야 합니다. Container Insights는 노드·Pod·컨테이너별 GPU 지표를 제공하며 설치·지원 조건이 있습니다. SageMaker의 `GPUUtilization`·`GPUMemoryUtilization`은 해당 지표의 정의에 따라 여러 GPU의 값이 합산될 수 있으므로, 무조건 0~100% 범위라고 읽지 않습니다. [Container Insights GPU 지표와 전제 조건](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-metrics-enhanced-EKS.html), [SageMaker 지표의 단위와 집계](https://docs.aws.amazon.com/sagemaker/latest/dg/inference-pipeline-logs-metrics.html)
 
-TTFT·대기 요청 등 모델 서버 지표는 해당 서버나 앱의 수집 구성을 따릅니다. 인프라 관측 도구를 설치하면 모든 서비스 지표가 자동으로 생긴다고 가정하지 않습니다. 초기 POC에서는 기본 대시보드, 지표가 들어오는 기록, 알림 조건과 담당자를 확인하면 됩니다. 자동 확장·자원 회수는 업무 요구와 운영 절차에 맞춰 추가합니다.
+TTFT·대기 요청 등 모델 서버 지표는 해당 서버나 앱의 수집 구성을 따릅니다. 인프라 관측 도구를 설치하면 모든 서비스 지표가 자동으로 생긴다고 가정하지 않습니다. 초기 설계 검토에서는 기본 대시보드, 지표가 들어오는 기록, 알림 조건과 담당자를 확인하면 됩니다. 자동 확장·자원 회수는 업무 요구와 운영 절차에 맞춰 추가합니다.
 
 ## 7. AWS Generative AI / ML Lens 기반 표준 검토표
 
-검토표는 질문마다 ‘무엇을 보고 판단했는지’가 남도록 작성합니다. Lens 전체를 번역하기보다 POC에 필요한 항목을 고르고 기존 TA 양식에 붙이는 방식으로 시작합니다.
+검토표는 질문마다 ‘무엇을 보고 판단했는지’가 남도록 작성합니다. Lens 전체를 번역하기보다 검토할 설계 유형에 필요한 항목을 고르고 기존 TA 양식에 붙이는 방식으로 시작합니다.
 
 | 구분 | 사내 검토 질문 예시 | 확인 자료 | 직접 참고할 항목 |
 | --- | --- | --- | --- |
 | 접근 통제 | 허용된 조직·업무만 모델과 데이터에 접근하는가 | IAM·권한표·접근 경로, 허용·거부 확인 결과 | [GENSEC01 Endpoint security](https://docs.aws.amazon.com/wellarchitected/latest/generative-ai-lens/gensec01.html) |
-| 성능 | 필요한 요청량에서 응답 목표를 충족하는가 | 모델·입출력·부하 조건, 목표와 시험 결과 | [GENPERF02-BP01 Load test model endpoints](https://docs.aws.amazon.com/wellarchitected/latest/generative-ai-lens/genperf02-bp01.html) |
+| 성능 | 필요한 요청량에서 응답 목표를 충족하는가 | 모델·입출력·부하 조건, 성능 목표와 응답 시간·처리량 측정 결과 | [GENPERF02-BP01 Load test model endpoints](https://docs.aws.amazon.com/wellarchitected/latest/generative-ai-lens/genperf02-bp01.html) |
 | 복구 | 배포·변경 실패 시 정상 버전으로 돌아갈 수 있는가 | 버전·복구 절차, 복구 후 서비스 확인 결과 | [MLREL05-BP02 Recoverable endpoint](https://docs.aws.amazon.com/wellarchitected/latest/machine-learning-lens/mlrel05-bp02.html) |
 | 운영 관측 | 문제가 생긴 모델을 찾고 담당자가 대응할 수 있는가 | 모델·서비스 식별, 지표·로그·알림·담당자 | [GENOPS02-BP01 Monitor all application layers](https://docs.aws.amazon.com/wellarchitected/latest/generative-ai-lens/genops02-bp01.html) |
 
@@ -236,10 +247,10 @@ TTFT·대기 요청 등 모델 서버 지표는 해당 서버나 앱의 수집 �
 
 | 항목 | 기록 예시 |
 | --- | --- |
-| 적용 대상 | POC 추론 서비스, 모델·환경·버전 |
+| 적용 대상 | GPU 추론 서비스, 모델·환경·버전 |
 | 질문 | 합의한 요청량에서 응답시간 목표를 충족하는가 |
 | 요구사항 | 서비스 담당자와 정한 요청량·입출력 조건·응답 목표 |
-| 확인 자료 | 기존 시험 보고서와 필요한 원시 결과의 링크 |
+| 확인 자료 | 성능 측정 보고서와 필요한 원시 결과의 링크 |
 | 검토 결과 | 확인 완료 / 보완 필요 / 적용 제외와 사유 |
 | 후속 조치 | 부족한 자료·확인할 내용·담당자·기한 |
 | 근거 | Lens 원문, 사내 기준, 확인한 자료의 버전 |
@@ -250,21 +261,27 @@ Detail 13장의 권한표 누락은 작성 방법을 설명하기 위한 가상 
 
 커스텀 렌즈는 질문과 개선 계획을 Well-Architected Tool에서 관리하는 후속 선택지입니다. 초기에는 기존 TA 양식으로 시작하고, 항목이 정착되면 도구 적용 여부를 검토합니다. 기존 검토표와 도구에 같은 내용을 따로 관리하지 않도록 기준 문서의 위치도 정해야 합니다. [커스텀 렌즈 개요](https://docs.aws.amazon.com/wellarchitected/latest/userguide/lenses-custom.html), [렌즈 작성 형식](https://docs.aws.amazon.com/wellarchitected/latest/userguide/lens-format-specification.html)
 
-## 8. POC부터 표준까지, 점진적 확대
+## 8. 표준화 및 TA 검토 업무 확대
 
-첫 POC는 실제 사용 목적과 담당자가 있고, 기존 구성과 자료를 확인할 수 있는 대상을 선택합니다. EKS나 SageMaker 가운데 무엇이 더 좋다고 먼저 정하기보다 모델·업무·운영 조건에 맞는 구성을 고르면 됩니다.
+추진 순서는 **표준·역할 정립 → 공동 검토 → 정규 TA 검토로 확대**입니다. 먼저 GPU 설계에서 TA가 확인할 항목과 담당 조직의 역할을 합의하고, 일부 설계 검토에 참여하면서 업무를 점진적으로 받아옵니다.
 
-| 단계 | 수행 내용 | 남길 결과 |
+```mermaid
+flowchart LR
+    S["표준화<br/>검토 기준·양식·역할 정립"] --> J["시범 적용<br/>기존 조직과 공동 설계 검토"]
+    J --> E["확대 전개<br/>합의한 유형부터 정규 TA 검토"]
+```
+
+| 단계 | TA 업무를 받아오는 방식 | 다음 단계로 넘어갈 기준 |
 | --- | --- | --- |
-| POC | 대상·모델·운영 방식 확인, AWS 구성 선택, 기존 자료 확보 | POC 범위와 구성도 |
-| 검토 기준 | 필요한 Lens 질문을 TA 양식에 반영, 자료 대조와 보완 | 표준 검토표 초안과 POC 결과 |
-| 표준화 | 확인된 구성·조건 정리, 동일 유형의 후속 구축에 적용 | 표준 구성, 적용 조건, 보완 이력 |
+| 1. 표준화 | AWS 참조 구성·Lens를 바탕으로 검토표를 만들고, 대상 설계·필수 자료·TA와 구축/운영 조직의 역할을 합의 | 누가 어떤 설계를 어떤 자료로 검토할지 정리된 상태 |
+| 2. 시범 적용 | 일부 GPU 구축·변경 설계를 기존 담당 조직과 함께 검토하고, TA가 검토 의견과 보완 요청을 작성 | 실제 설계에 검토표를 적용해 보고, 중복·누락된 항목과 역할을 조정한 상태 |
+| 3. 확대 전개 | 합의한 설계 유형과 검토 항목부터 기존 TA 요청 절차에 포함하고, 사례가 쌓이면 대상을 확대 | 검토 요청·자료 제출·의견 회신·보완 확인의 담당과 절차가 정착된 상태 |
 
-TA는 구조와 기준을 정리하고 설계가 그 기준에 맞는지 확인합니다. 업체·구축·운영 담당자는 지원 조건과 기존 자료를 제공하고 필요한 구현·시험을 맡습니다. 서비스 담당자는 모델·업무 목표·품질 조건을 제시하고 POC 결과를 확인합니다.
+예를 들어 기존에 구축 담당 조직이 검토하던 GPU 배포 설계에 TA가 함께 참여합니다. TA는 인프라 구성·접근 제어·운영 기준에 대한 의견을 작성하고, 구축 담당은 실제 설정과 구현에 필요한 설명 및 보완을 담당합니다. 역할과 검토 항목이 정리되면 해당 설계 유형을 정규 TA 검토 대상으로 포함합니다.
 
-첫 완료 기준은 구성도와 검토표를 POC에 사용하고, 확인 결과와 남은 항목의 담당자를 기록하는 것입니다. 검증되지 않은 내용은 적용 조건으로 남깁니다. 이후 모델이나 구성·규모가 바뀌면 영향을 받는 항목만 다시 확인하고, 반복되는 패턴을 표준 사례로 추가합니다.
+이때 TA가 맡는 업무는 **설계 검토**입니다. 검토 범위에는 구축과 운영에 필요한 구성·기준·역할 정의가 포함되며, 실제 구현·배포·일상 운영·장애 대응은 해당 담당 조직이 수행합니다. 서비스 담당은 업무 요구와 성능 목표를 제시하고 적용 결과를 확인합니다.
 
-초기에는 고정 기간이나 성능 개선율을 약속할 필요가 없습니다. 자료 상태를 확인한 뒤 POC 일정과 필요한 시험을 정하면 됩니다. 기대 효과는 검토 누락을 줄이고 판단 근거를 재사용하는 것입니다. 검토 시간이나 비용 절감은 기록이 쌓이면 실제 결과로 설명합니다.
+업무 확대 전에는 다음 내용을 합의합니다. 무엇을 TA에 검토 요청할지, 어떤 설계자료가 필요한지, 검토 의견을 누가 반영할지, 보완 완료를 어떻게 확인할지가 핵심입니다. 처리 가능한 요청량과 일정은 공동 검토 과정에서 파악하고, 준비된 설계 유형부터 정규 업무에 포함합니다.
 
 ## 9. 설명 중 자주 나올 질문
 
@@ -274,11 +291,11 @@ TA는 구조와 기준을 정리하고 설계가 그 기준에 맞는지 확인�
 
 ### 큰 GPU 클러스터가 필요한지
 
-현재 필요한 구성부터 선택하면 됩니다. 울트라클러스터와 울트라서버는 확대 가능한 인프라를 설명하기 위한 사례입니다. 대규모 연결·예약·고급 튜닝을 POC의 시작 조건으로 두지 않습니다.
+현재 필요한 구성부터 선택하면 됩니다. 울트라클러스터와 울트라서버는 확대 가능한 인프라를 설명하기 위한 사례입니다. 초기 검토 업무는 현재 진행 중인 구축·변경 설계에서 시작할 수 있습니다.
 
 ### 모든 아키텍처를 한꺼번에 표준화하는지
 
-그럴 필요는 없습니다. POC에서 선택한 구성과 운영 조건을 먼저 확인합니다. 이후 같은 유형에 재사용하고, 다른 요구가 생기면 아키텍처 사례와 검토 항목을 추가합니다.
+처음에는 검토할 설계 유형을 정해 기준과 역할을 정리합니다. 공동 검토로 적용해 본 유형부터 정규 TA 검토에 포함하고, 다른 요구가 생기면 아키텍처 사례와 검토 항목을 추가합니다.
 
 ### 기존 업체 설계와 TA 표준의 관계
 
@@ -286,23 +303,23 @@ TA는 구조와 기준을 정리하고 설계가 그 기준에 맞는지 확인�
 
 ### 인프라 담당자가 AI 전체를 알아야 하는지
 
-처음부터 모델 개발과 튜닝을 모두 수행한다는 뜻은 아닙니다. TA는 모델 실행에 필요한 자원·연결·지원 조합·운영 조건을 확인하고, 모델 품질이나 세부 최적화는 해당 담당자와 연결하면 됩니다.
+TA는 모델 실행에 필요한 자원·연결·지원 조합과 구축·운영 기준을 설계·검토합니다. 모델 개발·품질 확인·세부 튜닝과 실제 구축·운영은 해당 담당 조직이 수행하며, TA는 조직 간 역할과 인계 조건을 정리합니다.
 
 ### GPU 사용률만으로 증설을 판단하는지
 
 사용률과 함께 요청 지연·대기·가용 용량을 봅니다. 낮은 사용률도 데이터나 통신을 기다리는 상황일 수 있습니다. 수집한 지표와 업무 조건을 대조한 뒤 확장이나 튜닝을 결정합니다.
 
-### 첫 협의 사항
+### 처음 받아올 업무의 범위
 
-POC 대상과 설계자료를 받을 담당 창구를 정하고, 기존 TA 절차에서 구성도·검토표를 적용할 범위를 합의하는 것입니다. 세부 장비 배치와 자동화 도구는 필요한 단계에서 정합니다.
+기존 구축·운영 조직과 공동으로 검토할 GPU 설계 유형부터 정합니다. TA가 작성할 검토 의견의 범위, 필요한 자료, 보완 담당과 확인 절차를 합의한 뒤 해당 유형을 정규 TA 검토 업무에 포함합니다.
 
 ## 10. 참고자료의 활용 범위와 추가 링크
 
 ### 10.1 그림과 설명의 출처
 
-아키텍처 도식은 AWS 공식 문서와 기술 블로그의 원본을 사용했습니다. GPU 노드 간 통신도 AWS 기술 블로그의 원본 그림으로 설명합니다. TA 검토 범위는 인프라·배포와 접근·운영의 세 영역으로 정리했습니다. 실제 적용 시에는 선택한 서비스·버전·운영 조건을 확인합니다.
+아키텍처 도식은 AWS 공식 문서와 기술 블로그의 원본을 사용했습니다. GPU 노드 간 통신도 AWS 기술 블로그의 원본 그림으로 설명합니다. TA 검토 범위의 개요도는 대표 실행 구성, 인프라 설계·구축·운영 항목, TA와 실행 담당 조직의 역할을 요약한 그림입니다. 서비스별 상세 아키텍처 사례는 AWS 원본 도식을 사용합니다. 실제 적용 시에는 선택한 서비스·버전·운영 조건을 확인합니다.
 
-HTML의 그림은 파일 안에 포함돼 있어 별도 이미지 폴더 없이 볼 수 있습니다. 이 Markdown은 AWS 원본 그림 링크와 `gpu/`의 로컬 이미지를 함께 사용합니다. 원격 그림에는 인터넷 연결이 필요하고, 로컬 그림은 문서와 `gpu/`를 함께 보관하면 표시됩니다.
+HTML의 그림은 파일 안에 포함돼 있어 별도 이미지 폴더 없이 볼 수 있습니다. 이 Markdown은 AWS 원본 그림 링크와 `gpu/`의 로컬 이미지, 검토 범위 설명용 Mermaid 도식을 함께 사용합니다. 원격 그림에는 인터넷 연결이 필요하고, 로컬 그림은 문서와 `gpu/`를 함께 보관하면 표시됩니다.
 
 | 그림 | 출처와 상세 설명 |
 | --- | --- |
@@ -341,12 +358,12 @@ HTML의 그림은 파일 안에 포함돼 있어 별도 이미지 폴더 없이 
 | 용량 예약만으로 모든 배치 조건 해결 | 제품·예약·노드 배치 조건을 확인. 다른 용량과 혼합할 때의 배치도 검토 | [EKS 네트워킹](https://docs.aws.amazon.com/eks/latest/best-practices/aiml-networking.html), [Capacity Reservation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/cr-concepts.html) |
 | PrivateLink 설정 하나로 모든 트래픽의 폐쇄망·동일 AZ 처리 보장 | 호출 경로와 모델의 데이터 접근을 분리하고, 해당 기능의 지원 조건과 제한을 확인 | [PrivateLink 연결](https://docs.aws.amazon.com/sagemaker/latest/dg/interface-vpc-endpoint.html), [저지연 호출 조건](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-privatelink.html) |
 | EFA는 다른 서브넷에서 무조건 불가 | 현재 AZ·VPC 경계와 비라우팅 특성을 공식 조건으로 확인 | [EFA 제한](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html#efa-limits) |
-| `FI_EFA_USE_HUGE_PAGE=0` 일괄 적용 | 오류·버전 조건을 확인한 뒤 적용. 모든 POC의 기본값으로 고정하지 않음 | [EFA 설정 안내](https://github.com/aws/aws-ofi-nccl/blob/master/doc/efa-env-var.md) |
+| `FI_EFA_USE_HUGE_PAGE=0` 일괄 적용 | 오류·버전 조건을 확인한 뒤 적용. 모든 환경의 기본값으로 고정하지 않음 | [EFA 설정 안내](https://github.com/aws/aws-ofi-nccl/blob/master/doc/efa-env-var.md) |
 | L40S의 MIG 지원, 분할 수를 7로 고정 | 공식 지원 GPU·프로파일별 확인. GPU별 지원 범위가 다름 | [MIG 지원 GPU](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/supported-gpus.html) |
 | GPU Operator 설치로 사용률 기반 작업 재배치까지 완료 | 드라이버·플러그인·관측 구성 관리와 작업 스케줄링을 구분 | [GPU Operator 역할](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) |
 | NCCL Unique ID를 보안 격리 수단으로 사용 | 통신 그룹 초기화와 인증·접근 통제를 구분 | [NCCL communicator 생성](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/communicators.html) |
 
-결과물은 **AWS 구성 사례, 사내 표준 검토표, POC에서 확인한 적용 조건**입니다. 이를 함께 관리하면 처음부터 모든 기술을 표준화하지 않아도, 확인된 범위부터 후속 구축과 운영 검토로 확대할 수 있습니다.
+결과물은 **AWS 구성 사례, 사내 표준 검토표, TA·수행 조직의 역할 정의, 적용 조건을 포함한 설계 검토 기록**입니다. 이를 함께 관리하면 처음부터 모든 기술을 표준화하지 않아도, 확인된 범위부터 후속 구축과 운영 검토로 확대할 수 있습니다.
 
 
 ### 10.4 GPU 참고 문서와 보충 그림
